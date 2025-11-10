@@ -8,7 +8,7 @@
         "description": "Description of the extension"
     },
     "options_page_title": {
-        "message": "Extension Updates",
+        "message": "Extensions Updates",
         "description": "Title for the options page"
     },
     "options_tab_general": {
@@ -308,7 +308,7 @@
         "description": "Button to open updates page from welcome notification"
     },
     "options_page_document_title": {
-        "message": "Extension Options",
+        "message": "Extensions Update Tracker - Settings",
         "description": "Document title for the options page"
     },
     "options_extension_card_update_count": {

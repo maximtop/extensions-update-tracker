@@ -354,7 +354,7 @@ Could not load manifest.
 ```json
 {
     "options-page-title": {
-        "message": "Extension Options",
+        "message": "Extensions Update Tracker - Settings",
         "description": "Title for options page"
     },
     "popup-app-title": {
@@ -372,7 +372,7 @@ Could not load manifest.
 ```json
 {
     "options_page_title": {
-        "message": "Extension Options",
+        "message": "Extensions Update Tracker - Settings",
         "description": "Title for options page"
     },
     "popup_app_title": {
@@ -449,7 +449,7 @@ Translation keys must follow a hierarchical naming pattern to maintain organizat
         "description": "Label for unread updates count in popup"
     },
     "options_page_title": {
-        "message": "Extension Updates",
+        "message": "Extensions Updates",
         "description": "Title for the options page"
     }
 }

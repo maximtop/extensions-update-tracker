@@ -1,0 +1,424 @@
+{
+    "name": {
+        "message": "扩展更新跟踪器",
+        "description": "Name of the extension"
+    },
+    "description": {
+        "message": "在一个地方跟踪和管理您的Chrome扩展更新。",
+        "description": "Description of the extension"
+    },
+    "options_page_title": {
+        "message": "扩展更新",
+        "description": "Title for the updates page"
+    },
+    "options_tab_general": {
+        "message": "常规",
+        "description": "Label for the General tab"
+    },
+    "options_tab_settings": {
+        "message": "设置",
+        "description": "Label for the Settings tab"
+    },
+    "options_stats_unread_updates": {
+        "message": "未读更新",
+        "description": "Label for unread updates count"
+    },
+    "options_stats_total_updates": {
+        "message": "总更新数",
+        "description": "Label for total updates count"
+    },
+    "options_controls_mark_all_read": {
+        "message": "全部标记为已读",
+        "description": "Button text to mark all updates as read"
+    },
+    "options_controls_sort_by": {
+        "message": "排序方式",
+        "description": "Label for sort dropdown"
+    },
+    "options_controls_sort_recent": {
+        "message": "最近更新",
+        "description": "Sort option for most recently updated extensions"
+    },
+    "options_controls_sort_alphabetical": {
+        "message": "A-Z",
+        "description": "Sort option for alphabetical order"
+    },
+    "options_loading": {
+        "message": "加载中...",
+        "description": "Loading indicator text for options page"
+    },
+    "options_update_item_version": {
+        "message": "版本",
+        "description": "Version label"
+    },
+    "options_update_item_new_badge": {
+        "message": "新",
+        "description": "Badge for new/unread updates"
+    },
+    "options_update_item_view_web_store": {
+        "message": "在 Web Store 查看",
+        "description": "Button text to view the extension on Chrome Web Store"
+    },
+    "options_extension_card_show_more": {
+        "message": "显示更多 $1 个版本",
+        "description": "Button to show more version history. $1 is the number of hidden versions"
+    },
+    "options_extension_card_show_less": {
+        "message": "显示更少",
+        "description": "Button to collapse version history"
+    },
+    "options_extension_card_update_count": {
+        "message": "$1 个更新",
+        "description": "Shows the number of updates for an extension in extension card",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "options_extension_card_unread_count": {
+        "message": "$1 个未读",
+        "description": "Shows the number of unread updates in extension card",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "options_extension_card_expand": {
+        "message": "展开",
+        "description": "Action to expand a collapsed extension card"
+    },
+    "options_extension_card_collapse": {
+        "message": "收起",
+        "description": "Action to collapse an expanded extension card"
+    },
+    "options_extension_card_local_badge": {
+        "message": "本地",
+        "description": "Badge shown for locally installed (development) extensions"
+    },
+    "options_extension_card_aria_label": {
+        "message": "$NAME$，$SUMMARY$。点击以$ACTION$",
+        "description": "Aria label for extension card header",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "summary": {
+                "content": "$2",
+                "example": "5 个更新，3 个未读"
+            },
+            "action": {
+                "content": "$3",
+                "example": "展开"
+            }
+        }
+    },
+    "common_time_minute": {
+        "message": "分钟",
+        "description": "Singular form of minute for common time utility"
+    },
+    "common_time_minutes": {
+        "message": "分钟",
+        "description": "Plural form of minutes for common time utility"
+    },
+    "common_time_hour": {
+        "message": "小时",
+        "description": "Singular form of hour for common time utility"
+    },
+    "common_time_hours": {
+        "message": "小时",
+        "description": "Plural form of hours for common time utility"
+    },
+    "common_time_day": {
+        "message": "天",
+        "description": "Singular form of day for common time utility"
+    },
+    "common_time_days": {
+        "message": "天",
+        "description": "Plural form of days for common time utility"
+    },
+    "common_time_ago": {
+        "message": "前",
+        "description": "Time ago suffix for common time utility"
+    },
+    "notification_title": {
+        "message": "扩展已更新",
+        "description": "Notification title when an extension is updated"
+    },
+    "notification_message": {
+        "message": "$NAME$ 已从 $OLD$ 更新到 $NEW$",
+        "description": "Notification message body with extension name and version details",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "old": {
+                "content": "$2",
+                "example": "1.0.0"
+            },
+            "new": {
+                "content": "$3",
+                "example": "1.0.1"
+            }
+        }
+    },
+    "notification_message_first_install": {
+        "message": "$NAME$ 已安装（版本 $VERSION$）",
+        "description": "Notification message for first installation",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "version": {
+                "content": "$2",
+                "example": "1.0.0"
+            }
+        }
+    },
+    "notification_button_view_details": {
+        "message": "查看详情",
+        "description": "Button to view update details"
+    },
+    "notification_button_dismiss": {
+        "message": "关闭",
+        "description": "Button to dismiss notification"
+    },
+    "notification_button_enable": {
+        "message": "启用",
+        "description": "Button to enable a disabled extension"
+    },
+    "notification_button_uninstall": {
+        "message": "卸载",
+        "description": "Button to uninstall an extension"
+    },
+    "notification_button_visit_website": {
+        "message": "访问网站",
+        "description": "Button to visit extension homepage/website in notification"
+    },
+    "popup_app_title": {
+        "message": "扩展跟踪器",
+        "description": "Title for the popup app"
+    },
+    "popup_app_unread_updates": {
+        "message": "未读",
+        "description": "Label for unread updates count in popup"
+    },
+    "popup_app_total_updates": {
+        "message": "总计",
+        "description": "Label for total updates count in popup"
+    },
+    "popup_app_view_new_update": {
+        "message": "查看新更新",
+        "description": "Button text to view a single new update in popup"
+    },
+    "popup_app_view_all_updates": {
+        "message": "查看全部",
+        "description": "Button text to view all updates in popup"
+    },
+    "popup_app_mark_all_read": {
+        "message": "全部标为已读",
+        "description": "Button to mark all updates as read in popup"
+    },
+    "popup_app_all_caught_up": {
+        "message": "全部已查看！",
+        "description": "Message when there are no unread updates in popup"
+    },
+    "popup_app_last_checked": {
+        "message": "最后检查",
+        "description": "Label for last check timestamp in popup"
+    },
+    "options_empty_no_updates": {
+        "message": "尚未跟踪任何更新",
+        "description": "Message when no updates are available"
+    },
+    "options_empty_install_hint": {
+        "message": "安装或更新扩展程序以在此处查看它们",
+        "description": "Helper text for empty state"
+    },
+    "options_controls_show_unread_only": {
+        "message": "仅显示未读",
+        "description": "Checkbox label to filter unread updates"
+    },
+    "options_empty_no_unread": {
+        "message": "没有未读更新",
+        "description": "Message when filtering by unread shows no results"
+    },
+    "options_update_item_just_now": {
+        "message": "刚刚",
+        "description": "Time indicator for very recent activity"
+    },
+    "popup_app_just_now": {
+        "message": "刚刚",
+        "description": "Time indicator for very recent activity in popup app"
+    },
+    "common_time_just_now": {
+        "message": "刚刚",
+        "description": "Time indicator for very recent activity in time utility"
+    },
+    "options_settings_title": {
+        "message": "设置",
+        "description": "Settings panel title in options page"
+    },
+    "options_toolbar_settings_button": {
+        "message": "设置",
+        "description": "Settings button in the options page toolbar"
+    },
+    "options_settings_description": {
+        "message": "配置通知首选项和扩展程序行为",
+        "description": "Settings description"
+    },
+    "options_settings_section_notifications": {
+        "message": "通知设置",
+        "description": "Notification settings section header"
+    },
+    "options_settings_enable_notifications": {
+        "message": "启用通知",
+        "description": "Toggle to enable/disable all notifications"
+    },
+    "options_settings_enable_notifications_desc": {
+        "message": "当扩展程序更新时显示桌面通知",
+        "description": "Description for enable notifications toggle"
+    },
+    "options_settings_auto_close_timeout": {
+        "message": "自动关闭超时",
+        "description": "Auto-close timeout setting label"
+    },
+    "options_settings_auto_close_timeout_desc": {
+        "message": "在指定秒数后自动关闭通知（0 = 永不）",
+        "description": "Description for auto-close timeout"
+    },
+    "options_settings_notification_sound": {
+        "message": "通知声音",
+        "description": "Notification sound toggle label"
+    },
+    "options_settings_notification_sound_desc": {
+        "message": "当通知出现时播放声音",
+        "description": "Description for notification sound toggle"
+    },
+    "options_settings_section_security": {
+        "message": "安全设置",
+        "description": "Security settings section header"
+    },
+    "options_settings_auto_disable_on_update": {
+        "message": "更新时自动禁用",
+        "description": "Auto-disable on update toggle label"
+    },
+    "options_settings_auto_disable_on_update_desc": {
+        "message": "在扩展程序更新时自动禁用它们（安全功能）",
+        "description": "Description for auto-disable on update"
+    },
+    "options_settings_section_experimental": {
+        "message": "实验性功能",
+        "description": "Experimental settings section header"
+    },
+    "options_settings_section_per_extension": {
+        "message": "每个扩展程序的通知",
+        "description": "Per-extension settings section header"
+    },
+    "options_settings_mute_extension": {
+        "message": "静音",
+        "description": "Button to mute extension notifications in settings"
+    },
+    "options_settings_unmute_extension": {
+        "message": "取消静音",
+        "description": "Button to unmute extension notifications in settings"
+    },
+    "options_settings_reset_button": {
+        "message": "重置为默认值",
+        "description": "Button to reset all settings"
+    },
+    "options_settings_reset_confirm": {
+        "message": "您确定要将所有设置重置为默认值吗？",
+        "description": "Confirmation message for reset settings"
+    },
+    "options_settings_reset_dialog_title": {
+        "message": "重置设置",
+        "description": "Title for reset settings confirmation dialog"
+    },
+    "options_settings_reset_dialog_confirm": {
+        "message": "重置",
+        "description": "Confirm button text in reset settings dialog"
+    },
+    "options_settings_reset_dialog_cancel": {
+        "message": "取消",
+        "description": "Cancel button text in reset settings dialog"
+    },
+    "options_settings_seconds": {
+        "message": "秒",
+        "description": "Time unit: seconds"
+    },
+    "notification_welcome_title": {
+        "message": "欢迎使用 Extensions Update Tracker！",
+        "description": "Welcome notification title"
+    },
+    "notification_welcome_message": {
+        "message": "感谢安装！当您的扩展程序更新时，您将收到通知。请访问更新页面查看所有更改。",
+        "description": "Welcome notification message"
+    },
+    "notification_welcome_button_view_updates": {
+        "message": "查看更新",
+        "description": "Button to open updates page from welcome notification"
+    },
+    "options_page_document_title": {
+        "message": "扩展选项",
+        "description": "Document title for the options page"
+    },
+    "options_stats_total_updates_aria": {
+        "message": "共$COUNT$个更新",
+        "description": "Aria label for total updates badge",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "15"
+            }
+        }
+    },
+    "options_stats_unread_updates_aria": {
+        "message": "$COUNT$个未读更新",
+        "description": "Aria label for unread updates badge",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "options_update_item_aria_label_read": {
+        "message": "版本$VERSION$，更新于$TIME_AGO$",
+        "description": "Aria label for read update item",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.2.3"
+            },
+            "time_ago": {
+                "content": "$2",
+                "example": "2小时前"
+            }
+        }
+    },
+    "options_update_item_aria_label_unread": {
+        "message": "版本$VERSION$，未读，更新于$TIME_AGO$",
+        "description": "Aria label for unread update item",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.2.3"
+            },
+            "time_ago": {
+                "content": "$2",
+                "example": "2小时前"
+            }
+        }
+    },
+    "options_update_item_new_badge_aria": {
+        "message": "新更新",
+        "description": "Aria label for new/unread update badge"
+    }
+}

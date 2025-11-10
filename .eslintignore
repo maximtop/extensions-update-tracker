@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.vscode/
+.git/
+.cursor/
+tests/sample-extension/

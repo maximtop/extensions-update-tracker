@@ -1,0 +1,35 @@
+{
+    "ts-node": {
+        "compilerOptions": {
+            "module": "ESNext"
+        },
+        "esm": true
+    },
+    "compilerOptions": {
+        "outDir": "dist",
+        "jsx": "react",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "module": "ESNext",
+        "target": "es2020",
+        "allowJs": true,
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "include": [
+        "src/**/*",
+        "tests/**/*",
+        "scripts/**/*",
+        ".eslintrc.cjs",
+        "vitest.config.ts",
+        "playwright.config.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

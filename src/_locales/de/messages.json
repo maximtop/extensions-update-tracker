@@ -1,0 +1,424 @@
+{
+    "name": {
+        "message": "Erweiterungs-Update-Tracker",
+        "description": "Name of the extension"
+    },
+    "description": {
+        "message": "Verfolgen und verwalten Sie Ihre Chrome-Erweiterungsupdates an einem Ort.",
+        "description": "Description of the extension"
+    },
+    "options_page_title": {
+        "message": "Erweiterungs-Updates",
+        "description": "Title for the options page"
+    },
+    "options_tab_general": {
+        "message": "Allgemein",
+        "description": "Label for the General tab"
+    },
+    "options_tab_settings": {
+        "message": "Einstellungen",
+        "description": "Label for the Settings tab"
+    },
+    "options_stats_unread_updates": {
+        "message": "Ungelesene Updates",
+        "description": "Label for unread updates count in stats bar"
+    },
+    "options_stats_total_updates": {
+        "message": "Gesamte Updates",
+        "description": "Label for total updates count in stats bar"
+    },
+    "options_controls_mark_all_read": {
+        "message": "Alle als gelesen markieren",
+        "description": "Button to mark all updates as read in controls section"
+    },
+    "options_controls_sort_by": {
+        "message": "Sortieren nach",
+        "description": "Label for sort dropdown"
+    },
+    "options_controls_sort_recent": {
+        "message": "Neueste",
+        "description": "Sort option for most recently updated extensions"
+    },
+    "options_controls_sort_alphabetical": {
+        "message": "A-Z",
+        "description": "Sort option for alphabetical order"
+    },
+    "options_loading": {
+        "message": "Wird geladen...",
+        "description": "Loading indicator text for options page"
+    },
+    "options_update_item_version": {
+        "message": "Version",
+        "description": "Version label in update item"
+    },
+    "options_update_item_new_badge": {
+        "message": "Neu",
+        "description": "Badge for new/unread updates in update item"
+    },
+    "options_update_item_view_web_store": {
+        "message": "Im Web Store anzeigen",
+        "description": "Button text to view the extension on Chrome Web Store"
+    },
+    "common_time_minute": {
+        "message": "Minute",
+        "description": "Singular form of minute for common time utility"
+    },
+    "common_time_minutes": {
+        "message": "Minuten",
+        "description": "Plural form of minutes for common time utility"
+    },
+    "common_time_hour": {
+        "message": "Stunde",
+        "description": "Singular form of hour for common time utility"
+    },
+    "common_time_hours": {
+        "message": "Stunden",
+        "description": "Plural form of hours for common time utility"
+    },
+    "common_time_day": {
+        "message": "Tag",
+        "description": "Singular form of day for common time utility"
+    },
+    "common_time_days": {
+        "message": "Tage",
+        "description": "Plural form of days for common time utility"
+    },
+    "common_time_ago": {
+        "message": "vor",
+        "description": "Time ago suffix for common time utility"
+    },
+    "notification_title": {
+        "message": "Erweiterung aktualisiert",
+        "description": "Notification title when an extension is updated"
+    },
+    "notification_message": {
+        "message": "$NAME$ von $OLD$ auf $NEW$ aktualisiert",
+        "description": "Notification message body with extension name and version details",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "old": {
+                "content": "$2",
+                "example": "1.0.0"
+            },
+            "new": {
+                "content": "$3",
+                "example": "1.0.1"
+            }
+        }
+    },
+    "notification_message_first_install": {
+        "message": "$NAME$ installiert (Version $VERSION$)",
+        "description": "Notification message for first installation",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "version": {
+                "content": "$2",
+                "example": "1.0.0"
+            }
+        }
+    },
+    "notification_button_view_details": {
+        "message": "Details anzeigen",
+        "description": "Button to view update details"
+    },
+    "notification_button_dismiss": {
+        "message": "Schließen",
+        "description": "Button to dismiss notification"
+    },
+    "notification_button_enable": {
+        "message": "Aktivieren",
+        "description": "Button to enable a disabled extension"
+    },
+    "notification_button_uninstall": {
+        "message": "Deinstallieren",
+        "description": "Button to uninstall an extension"
+    },
+    "notification_button_visit_website": {
+        "message": "Website besuchen",
+        "description": "Button to visit extension homepage/website in notification"
+    },
+    "popup_app_title": {
+        "message": "Erweiterungs-Update-Tracker",
+        "description": "Title for the popup app"
+    },
+    "popup_app_unread_updates": {
+        "message": "Ungelesene Updates",
+        "description": "Label for unread updates count in popup"
+    },
+    "popup_app_total_updates": {
+        "message": "Gesamte Updates",
+        "description": "Label for total updates count in popup"
+    },
+    "popup_app_view_new_update": {
+        "message": "Neues Update anzeigen",
+        "description": "Button text to view a single new update in popup"
+    },
+    "popup_app_view_all_updates": {
+        "message": "Alle Updates anzeigen",
+        "description": "Button text to view all updates in popup"
+    },
+    "popup_app_mark_all_read": {
+        "message": "Alle als gelesen markieren",
+        "description": "Button to mark all updates as read in popup"
+    },
+    "popup_app_all_caught_up": {
+        "message": "Alles erledigt!",
+        "description": "Message when there are no unread updates in popup"
+    },
+    "popup_app_last_checked": {
+        "message": "Zuletzt geprüft",
+        "description": "Label for last check timestamp in popup"
+    },
+    "options_empty_no_updates": {
+        "message": "Noch keine Updates verfolgt",
+        "description": "Message when no updates are available in empty state"
+    },
+    "options_empty_install_hint": {
+        "message": "Installieren oder aktualisieren Sie Erweiterungen, um sie hier zu sehen",
+        "description": "Helper text for empty state"
+    },
+    "options_controls_show_unread_only": {
+        "message": "Nur ungelesene anzeigen",
+        "description": "Checkbox label to filter unread updates in controls"
+    },
+    "options_empty_no_unread": {
+        "message": "Keine ungelesenen Updates",
+        "description": "Message when filtering by unread shows no results"
+    },
+    "options_update_item_just_now": {
+        "message": "gerade eben",
+        "description": "Time indicator for very recent activity"
+    },
+    "popup_app_just_now": {
+        "message": "gerade eben",
+        "description": "Time indicator for very recent activity in popup app"
+    },
+    "common_time_just_now": {
+        "message": "gerade eben",
+        "description": "Time indicator for very recent activity in time utility"
+    },
+    "options_settings_title": {
+        "message": "Einstellungen",
+        "description": "Settings panel title in options page"
+    },
+    "options_toolbar_settings_button": {
+        "message": "Einstellungen",
+        "description": "Settings button in the options page toolbar"
+    },
+    "options_settings_description": {
+        "message": "Benachrichtigungseinstellungen und Erweiterungsverhalten konfigurieren",
+        "description": "Settings panel description"
+    },
+    "options_settings_section_notifications": {
+        "message": "Benachrichtigungseinstellungen",
+        "description": "Notification settings section header"
+    },
+    "options_settings_enable_notifications": {
+        "message": "Benachrichtigungen aktivieren",
+        "description": "Toggle to enable/disable all notifications"
+    },
+    "options_settings_enable_notifications_desc": {
+        "message": "Desktop-Benachrichtigungen anzeigen, wenn Erweiterungen aktualisiert werden",
+        "description": "Description for enable notifications toggle"
+    },
+    "options_settings_auto_close_timeout": {
+        "message": "Automatisches Schließen",
+        "description": "Auto-close timeout setting label"
+    },
+    "options_settings_auto_close_timeout_desc": {
+        "message": "Benachrichtigungen automatisch nach angegebenen Sekunden schließen (0 = nie)",
+        "description": "Description for auto-close timeout"
+    },
+    "options_settings_notification_sound": {
+        "message": "Benachrichtigungston",
+        "description": "Notification sound toggle label"
+    },
+    "options_settings_notification_sound_desc": {
+        "message": "Einen Ton abspielen, wenn Benachrichtigungen erscheinen",
+        "description": "Description for notification sound toggle"
+    },
+    "options_settings_section_security": {
+        "message": "Sicherheitseinstellungen",
+        "description": "Security settings section header"
+    },
+    "options_settings_auto_disable_on_update": {
+        "message": "Bei Update automatisch deaktivieren",
+        "description": "Auto-disable on update toggle label"
+    },
+    "options_settings_auto_disable_on_update_desc": {
+        "message": "Erweiterungen automatisch deaktivieren, wenn sie aktualisiert werden (Sicherheitsfunktion)",
+        "description": "Description for auto-disable on update"
+    },
+    "options_settings_section_experimental": {
+        "message": "Experimentelle Funktionen",
+        "description": "Experimental settings section header"
+    },
+    "options_settings_section_per_extension": {
+        "message": "Benachrichtigungen pro Erweiterung",
+        "description": "Per-extension settings section header"
+    },
+    "options_settings_mute_extension": {
+        "message": "Stummschalten",
+        "description": "Button to mute extension notifications in settings"
+    },
+    "options_settings_unmute_extension": {
+        "message": "Stummschaltung aufheben",
+        "description": "Button to unmute extension notifications in settings"
+    },
+    "options_settings_reset_button": {
+        "message": "Auf Standardwerte zurücksetzen",
+        "description": "Button to reset all settings"
+    },
+    "options_settings_reset_confirm": {
+        "message": "Sind Sie sicher, dass Sie alle Einstellungen auf ihre Standardwerte zurücksetzen möchten?",
+        "description": "Confirmation message for reset settings"
+    },
+    "options_settings_reset_dialog_title": {
+        "message": "Einstellungen zurücksetzen",
+        "description": "Title for reset settings confirmation dialog"
+    },
+    "options_settings_reset_dialog_confirm": {
+        "message": "Zurücksetzen",
+        "description": "Confirm button text in reset settings dialog"
+    },
+    "options_settings_reset_dialog_cancel": {
+        "message": "Abbrechen",
+        "description": "Cancel button text in reset settings dialog"
+    },
+    "options_settings_seconds": {
+        "message": "Sekunden",
+        "description": "Time unit: seconds"
+    },
+    "notification_welcome_title": {
+        "message": "Willkommen bei Extensions Update Tracker!",
+        "description": "Welcome notification title"
+    },
+    "notification_welcome_message": {
+        "message": "Danke für die Installation! Sie erhalten nun Benachrichtigungen, wenn Ihre Erweiterungen aktualisiert werden. Sehen Sie sich die Aktualisierungsseite an, um alle Änderungen zu sehen.",
+        "description": "Welcome notification message"
+    },
+    "notification_welcome_button_view_updates": {
+        "message": "Updates Ansehen",
+        "description": "Button to open updates page from welcome notification"
+    },
+    "options_page_document_title": {
+        "message": "Erweiterungsoptionen",
+        "description": "Document title for the options page"
+    },
+    "options_extension_card_update_count": {
+        "message": "$COUNT$ Updates",
+        "description": "Shows the number of updates for an extension in extension card",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "options_extension_card_unread_count": {
+        "message": "$COUNT$ ungelesen",
+        "description": "Shows the number of unread updates in extension card",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "options_extension_card_expand": {
+        "message": "erweitern",
+        "description": "Action to expand a collapsed extension card"
+    },
+    "options_extension_card_collapse": {
+        "message": "einklappen",
+        "description": "Action to collapse an expanded extension card"
+    },
+    "options_extension_card_show_more": {
+        "message": "$1 weitere Versionen anzeigen",
+        "description": "Button to show more version history. $1 is the number of hidden versions"
+    },
+    "options_extension_card_show_less": {
+        "message": "Weniger anzeigen",
+        "description": "Button to collapse version history"
+    },
+    "options_extension_card_local_badge": {
+        "message": "Lokal",
+        "description": "Badge shown for locally installed (development) extensions"
+    },
+    "options_extension_card_aria_label": {
+        "message": "$NAME$, $SUMMARY$. Klicken zum $ACTION$",
+        "description": "Aria label for extension card header",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "summary": {
+                "content": "$2",
+                "example": "5 updates, 3 unread"
+            },
+            "action": {
+                "content": "$3",
+                "example": "expand"
+            }
+        }
+    },
+    "options_stats_total_updates_aria": {
+        "message": "$COUNT$ Updates insgesamt",
+        "description": "Aria label for total updates badge in stats bar",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "15"
+            }
+        }
+    },
+    "options_stats_unread_updates_aria": {
+        "message": "$COUNT$ ungelesene Updates",
+        "description": "Aria label for unread updates badge in stats bar",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "options_update_item_aria_label_read": {
+        "message": "Version $VERSION$, aktualisiert $TIME_AGO$",
+        "description": "Aria label for read update item",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.2.3"
+            },
+            "time_ago": {
+                "content": "$2",
+                "example": "vor 2 Stunden"
+            }
+        }
+    },
+    "options_update_item_aria_label_unread": {
+        "message": "Version $VERSION$, ungelesen, aktualisiert $TIME_AGO$",
+        "description": "Aria label for unread update item",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.2.3"
+            },
+            "time_ago": {
+                "content": "$2",
+                "example": "vor 2 Stunden"
+            }
+        }
+    },
+    "options_update_item_new_badge_aria": {
+        "message": "Neues Update",
+        "description": "Aria label for new/unread update badge"
+    }
+}

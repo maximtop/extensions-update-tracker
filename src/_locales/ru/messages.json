@@ -1,0 +1,424 @@
+{
+    "name": {
+        "message": "Трекер расширений",
+        "description": "Name of the extension"
+    },
+    "description": {
+        "message": "Отслеживайте и управляйте обновлениями расширений Chrome в одном месте.",
+        "description": "Description of the extension"
+    },
+    "options_page_title": {
+        "message": "Обновления расширений",
+        "description": "Title for the updates page"
+    },
+    "options_tab_general": {
+        "message": "Общее",
+        "description": "Label for the General tab"
+    },
+    "options_tab_settings": {
+        "message": "Настройки",
+        "description": "Label for the Settings tab"
+    },
+    "options_stats_unread_updates": {
+        "message": "Непрочитанные",
+        "description": "Label for unread updates count"
+    },
+    "options_stats_total_updates": {
+        "message": "Всего",
+        "description": "Label for total updates count"
+    },
+    "options_controls_mark_all_read": {
+        "message": "Отметить всё",
+        "description": "Button text to mark all updates as read"
+    },
+    "options_controls_sort_by": {
+        "message": "Сортировка",
+        "description": "Label for sort dropdown"
+    },
+    "options_controls_sort_recent": {
+        "message": "Последние",
+        "description": "Sort option for most recently updated extensions"
+    },
+    "options_controls_sort_alphabetical": {
+        "message": "А-Я",
+        "description": "Sort option for alphabetical order"
+    },
+    "options_loading": {
+        "message": "Загрузка...",
+        "description": "Loading indicator text for options page"
+    },
+    "options_update_item_version": {
+        "message": "Версия",
+        "description": "Version label"
+    },
+    "options_update_item_new_badge": {
+        "message": "Новое",
+        "description": "Badge for new/unread updates"
+    },
+    "options_update_item_view_web_store": {
+        "message": "Посмотреть в Web Store",
+        "description": "Button text to view the extension on Chrome Web Store"
+    },
+    "options_extension_card_update_count": {
+        "message": "Обновлений: $1",
+        "description": "Shows the number of updates for an extension in extension card",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "options_extension_card_unread_count": {
+        "message": "Непрочитанных: $1",
+        "description": "Shows the number of unread updates in extension card",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "options_extension_card_expand": {
+        "message": "развернуть",
+        "description": "Action to expand a collapsed extension card"
+    },
+    "options_extension_card_collapse": {
+        "message": "свернуть",
+        "description": "Action to collapse an expanded extension card"
+    },
+    "options_extension_card_show_more": {
+        "message": "Показать ещё $1 версий",
+        "description": "Button to show more version history. $1 is the number of hidden versions"
+    },
+    "options_extension_card_show_less": {
+        "message": "Показать меньше",
+        "description": "Button to collapse version history"
+    },
+    "options_extension_card_local_badge": {
+        "message": "Локальное",
+        "description": "Badge shown for locally installed (development) extensions"
+    },
+    "options_extension_card_aria_label": {
+        "message": "$NAME$, $SUMMARY$. Нажмите, чтобы $ACTION$",
+        "description": "Aria label for extension card header",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "summary": {
+                "content": "$2",
+                "example": "5 обновлений, 3 непрочитанных"
+            },
+            "action": {
+                "content": "$3",
+                "example": "развернуть"
+            }
+        }
+    },
+    "common_time_minute": {
+        "message": "минута",
+        "description": "Singular form of minute for common time utility"
+    },
+    "common_time_minutes": {
+        "message": "минуты",
+        "description": "Plural form of minutes for common time utility"
+    },
+    "common_time_hour": {
+        "message": "час",
+        "description": "Singular form of hour for common time utility"
+    },
+    "common_time_hours": {
+        "message": "часы",
+        "description": "Plural form of hours for common time utility"
+    },
+    "common_time_day": {
+        "message": "день",
+        "description": "Singular form of day for common time utility"
+    },
+    "common_time_days": {
+        "message": "дни",
+        "description": "Plural form of days for common time utility"
+    },
+    "common_time_ago": {
+        "message": "назад",
+        "description": "Time ago suffix for common time utility"
+    },
+    "notification_title": {
+        "message": "Расширение обновлено",
+        "description": "Notification title when an extension is updated"
+    },
+    "notification_message": {
+        "message": "$NAME$ обновлено с $OLD$ на $NEW$",
+        "description": "Notification message body with extension name and version details",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "old": {
+                "content": "$2",
+                "example": "1.0.0"
+            },
+            "new": {
+                "content": "$3",
+                "example": "1.0.1"
+            }
+        }
+    },
+    "notification_message_first_install": {
+        "message": "$NAME$ установлено (версия $VERSION$)",
+        "description": "Notification message for first installation",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "version": {
+                "content": "$2",
+                "example": "1.0.0"
+            }
+        }
+    },
+    "notification_button_view_details": {
+        "message": "Подробности",
+        "description": "Button to view update details"
+    },
+    "notification_button_dismiss": {
+        "message": "Закрыть",
+        "description": "Button to dismiss notification"
+    },
+    "notification_button_enable": {
+        "message": "Включить",
+        "description": "Button to enable a disabled extension"
+    },
+    "notification_button_uninstall": {
+        "message": "Удалить",
+        "description": "Button to uninstall an extension"
+    },
+    "notification_button_visit_website": {
+        "message": "Посетить сайт",
+        "description": "Button to visit extension homepage/website in notification"
+    },
+    "options_empty_no_updates": {
+        "message": "Пока нет отслеживаемых обновлений",
+        "description": "Message when no updates are available"
+    },
+    "options_empty_install_hint": {
+        "message": "Установите или обновите расширения, чтобы увидеть их здесь",
+        "description": "Helper text for empty state"
+    },
+    "options_controls_show_unread_only": {
+        "message": "Показать только непрочитанные",
+        "description": "Checkbox label to filter unread updates"
+    },
+    "options_empty_no_unread": {
+        "message": "Нет непрочитанных обновлений",
+        "description": "Message when filtering by unread shows no results"
+    },
+    "options_update_item_just_now": {
+        "message": "только что",
+        "description": "Time indicator for very recent activity"
+    },
+    "popup_app_title": {
+        "message": "Трекер расширений",
+        "description": "Title for the popup app"
+    },
+    "popup_app_unread_updates": {
+        "message": "Непрочитанные",
+        "description": "Label for unread updates count in popup"
+    },
+    "popup_app_total_updates": {
+        "message": "Всего",
+        "description": "Label for total updates count in popup"
+    },
+    "popup_app_view_new_update": {
+        "message": "Просмотреть новое обновление",
+        "description": "Button text to view a single new update in popup"
+    },
+    "popup_app_view_all_updates": {
+        "message": "Все обновления",
+        "description": "Button text to view all updates in popup"
+    },
+    "popup_app_mark_all_read": {
+        "message": "Отметить всё",
+        "description": "Button to mark all updates as read in popup"
+    },
+    "popup_app_all_caught_up": {
+        "message": "Все проверено!",
+        "description": "Message when there are no unread updates in popup"
+    },
+    "popup_app_last_checked": {
+        "message": "Последняя проверка",
+        "description": "Label for last check timestamp in popup"
+    },
+    "popup_app_just_now": {
+        "message": "только что",
+        "description": "Time indicator for very recent activity in popup app"
+    },
+    "common_time_just_now": {
+        "message": "только что",
+        "description": "Time indicator for very recent activity in time utility"
+    },
+    "options_settings_title": {
+        "message": "Настройки",
+        "description": "Settings panel title in options page"
+    },
+    "options_toolbar_settings_button": {
+        "message": "Настройки",
+        "description": "Settings button in the options page toolbar"
+    },
+    "options_settings_description": {
+        "message": "Настроить предпочтения уведомлений и поведение расширения",
+        "description": "Settings description"
+    },
+    "options_settings_section_notifications": {
+        "message": "Настройки уведомлений",
+        "description": "Notification settings section header"
+    },
+    "options_settings_enable_notifications": {
+        "message": "Включить уведомления",
+        "description": "Toggle to enable/disable all notifications"
+    },
+    "options_settings_enable_notifications_desc": {
+        "message": "Показывать уведомления на рабочем столе при обновлении расширений",
+        "description": "Description for enable notifications toggle"
+    },
+    "options_settings_auto_close_timeout": {
+        "message": "Автоматическое закрытие",
+        "description": "Auto-close timeout setting label"
+    },
+    "options_settings_auto_close_timeout_desc": {
+        "message": "Автоматически закрывать уведомления через указанное количество секунд (0 = никогда)",
+        "description": "Description for auto-close timeout"
+    },
+    "options_settings_notification_sound": {
+        "message": "Звук уведомления",
+        "description": "Notification sound toggle label"
+    },
+    "options_settings_notification_sound_desc": {
+        "message": "Воспроизводить звук при появлении уведомлений",
+        "description": "Description for notification sound toggle"
+    },
+    "options_settings_section_security": {
+        "message": "Настройки безопасности",
+        "description": "Security settings section header"
+    },
+    "options_settings_auto_disable_on_update": {
+        "message": "Автоматически отключать при обновлении",
+        "description": "Auto-disable on update toggle label"
+    },
+    "options_settings_auto_disable_on_update_desc": {
+        "message": "Автоматически отключать расширения при их обновлении (функция безопасности)",
+        "description": "Description for auto-disable on update"
+    },
+    "options_settings_section_experimental": {
+        "message": "Экспериментальные функции",
+        "description": "Experimental settings section header"
+    },
+    "options_settings_section_per_extension": {
+        "message": "Уведомления по расширениям",
+        "description": "Per-extension settings section header"
+    },
+    "options_settings_mute_extension": {
+        "message": "Отключить звук",
+        "description": "Button to mute extension notifications in settings"
+    },
+    "options_settings_unmute_extension": {
+        "message": "Включить звук",
+        "description": "Button to unmute extension notifications in settings"
+    },
+    "options_settings_reset_button": {
+        "message": "Сбросить к значениям по умолчанию",
+        "description": "Button to reset all settings"
+    },
+    "options_settings_reset_confirm": {
+        "message": "Вы уверены, что хотите сбросить все настройки к значениям по умолчанию?",
+        "description": "Confirmation message for reset settings"
+    },
+    "options_settings_reset_dialog_title": {
+        "message": "Сброс настроек",
+        "description": "Title for reset settings confirmation dialog"
+    },
+    "options_settings_reset_dialog_confirm": {
+        "message": "Сбросить",
+        "description": "Confirm button text in reset settings dialog"
+    },
+    "options_settings_reset_dialog_cancel": {
+        "message": "Отмена",
+        "description": "Cancel button text in reset settings dialog"
+    },
+    "options_settings_seconds": {
+        "message": "секунд",
+        "description": "Time unit: seconds"
+    },
+    "notification_welcome_title": {
+        "message": "Добро пожаловать в Extensions Update Tracker!",
+        "description": "Welcome notification title"
+    },
+    "notification_welcome_message": {
+        "message": "Спасибо за установку! Теперь вы будете получать уведомления при обновлении ваших расширений. Посетите страницу обновлений, чтобы увидеть все изменения.",
+        "description": "Welcome notification message"
+    },
+    "notification_welcome_button_view_updates": {
+        "message": "Просмотр обновлений",
+        "description": "Button to open updates page from welcome notification"
+    },
+    "options_page_document_title": {
+        "message": "Параметры расширения",
+        "description": "Document title for the options page"
+    },
+    "options_stats_total_updates_aria": {
+        "message": "$COUNT$ обновлений всего",
+        "description": "Aria label for total updates badge",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "15"
+            }
+        }
+    },
+    "options_stats_unread_updates_aria": {
+        "message": "$COUNT$ непрочитанных обновлений",
+        "description": "Aria label for unread updates badge",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "options_update_item_aria_label_read": {
+        "message": "Версия $VERSION$, обновлено $TIME_AGO$",
+        "description": "Aria label for read update item",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.2.3"
+            },
+            "time_ago": {
+                "content": "$2",
+                "example": "2 часа назад"
+            }
+        }
+    },
+    "options_update_item_aria_label_unread": {
+        "message": "Версия $VERSION$, непрочитано, обновлено $TIME_AGO$",
+        "description": "Aria label for unread update item",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.2.3"
+            },
+            "time_ago": {
+                "content": "$2",
+                "example": "2 часа назад"
+            }
+        }
+    },
+    "options_update_item_new_badge_aria": {
+        "message": "Новое обновление",
+        "description": "Aria label for new/unread update badge"
+    }
+}

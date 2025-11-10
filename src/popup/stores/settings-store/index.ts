@@ -1,0 +1,1 @@
+export { SettingsStore } from './SettingsStore';

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sample Test Extension</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      font-size: 18px;
+      color: #333;
+    }
+    .version {
+      color: #666;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 8px 15px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #3367d6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sample Test Extension</h1>
+  <div class="version">Version: <span id="version">1.0.0</span></div>
+  <button id="updateButton">Simulate Update</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>

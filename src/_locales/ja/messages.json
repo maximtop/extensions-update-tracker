@@ -1,0 +1,424 @@
+{
+    "name": {
+        "message": "拡張機能アップデートトラッカー",
+        "description": "Name of the extension"
+    },
+    "description": {
+        "message": "Chrome拡張機能の更新を一箇所で追跡・管理します。",
+        "description": "Description of the extension"
+    },
+    "options_page_title": {
+        "message": "拡張機能の更新",
+        "description": "Title for the updates page"
+    },
+    "options_tab_general": {
+        "message": "一般",
+        "description": "Label for the General tab"
+    },
+    "options_tab_settings": {
+        "message": "設定",
+        "description": "Label for the Settings tab"
+    },
+    "options_stats_unread_updates": {
+        "message": "未読の更新",
+        "description": "Label for unread updates count"
+    },
+    "options_stats_total_updates": {
+        "message": "更新総数",
+        "description": "Label for total updates count"
+    },
+    "options_controls_mark_all_read": {
+        "message": "すべて既読にする",
+        "description": "Button text to mark all updates as read"
+    },
+    "options_controls_sort_by": {
+        "message": "並べ替え",
+        "description": "Label for sort dropdown"
+    },
+    "options_controls_sort_recent": {
+        "message": "最新順",
+        "description": "Sort option for most recently updated extensions"
+    },
+    "options_controls_sort_alphabetical": {
+        "message": "A-Z",
+        "description": "Sort option for alphabetical order"
+    },
+    "options_loading": {
+        "message": "読み込み中...",
+        "description": "Loading indicator text for options page"
+    },
+    "options_update_item_version": {
+        "message": "バージョン",
+        "description": "Version label"
+    },
+    "options_update_item_new_badge": {
+        "message": "新規",
+        "description": "Badge for new/unread updates"
+    },
+    "options_update_item_view_web_store": {
+        "message": "Web Storeで表示",
+        "description": "Button text to view the extension on Chrome Web Store"
+    },
+    "options_extension_card_show_more": {
+        "message": "さらに$1バージョン表示",
+        "description": "Button to show more version history. $1 is the number of hidden versions"
+    },
+    "options_extension_card_show_less": {
+        "message": "表示を減らす",
+        "description": "Button to collapse version history"
+    },
+    "options_extension_card_update_count": {
+        "message": "$1件の更新",
+        "description": "Shows the number of updates for an extension in extension card",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "options_extension_card_unread_count": {
+        "message": "$1件未読",
+        "description": "Shows the number of unread updates in extension card",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "options_extension_card_expand": {
+        "message": "展開",
+        "description": "Action to expand a collapsed extension card"
+    },
+    "options_extension_card_collapse": {
+        "message": "折りたたむ",
+        "description": "Action to collapse an expanded extension card"
+    },
+    "options_extension_card_local_badge": {
+        "message": "ローカル",
+        "description": "Badge shown for locally installed (development) extensions"
+    },
+    "options_extension_card_aria_label": {
+        "message": "$NAME$、$SUMMARY$。$ACTION$するにはクリック",
+        "description": "Aria label for extension card header",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "summary": {
+                "content": "$2",
+                "example": "5件の更新、3件未読"
+            },
+            "action": {
+                "content": "$3",
+                "example": "展開"
+            }
+        }
+    },
+    "common_time_minute": {
+        "message": "分",
+        "description": "Singular form of minute for common time utility"
+    },
+    "common_time_minutes": {
+        "message": "分",
+        "description": "Plural form of minutes for common time utility"
+    },
+    "common_time_hour": {
+        "message": "時間",
+        "description": "Singular form of hour for common time utility"
+    },
+    "common_time_hours": {
+        "message": "時間",
+        "description": "Plural form of hours for common time utility"
+    },
+    "common_time_day": {
+        "message": "日",
+        "description": "Singular form of day for common time utility"
+    },
+    "common_time_days": {
+        "message": "日",
+        "description": "Plural form of days for common time utility"
+    },
+    "common_time_ago": {
+        "message": "前",
+        "description": "Time ago suffix for common time utility"
+    },
+    "notification_title": {
+        "message": "拡張機能が更新されました",
+        "description": "Notification title when an extension is updated"
+    },
+    "notification_message": {
+        "message": "$NAME$ が $OLD$ から $NEW$ に更新されました",
+        "description": "Notification message body with extension name and version details",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "old": {
+                "content": "$2",
+                "example": "1.0.0"
+            },
+            "new": {
+                "content": "$3",
+                "example": "1.0.1"
+            }
+        }
+    },
+    "notification_message_first_install": {
+        "message": "$NAME$ がインストールされました（バージョン $VERSION$）",
+        "description": "Notification message for first installation",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "AdBlock"
+            },
+            "version": {
+                "content": "$2",
+                "example": "1.0.0"
+            }
+        }
+    },
+    "notification_button_view_details": {
+        "message": "詳細を表示",
+        "description": "Button to view update details"
+    },
+    "notification_button_dismiss": {
+        "message": "閉じる",
+        "description": "Button to dismiss notification"
+    },
+    "notification_button_enable": {
+        "message": "有効にする",
+        "description": "Button to enable a disabled extension"
+    },
+    "notification_button_uninstall": {
+        "message": "アンインストール",
+        "description": "Button to uninstall an extension"
+    },
+    "notification_button_visit_website": {
+        "message": "ウェブサイトを訪問",
+        "description": "Button to visit extension homepage/website in notification"
+    },
+    "popup_app_title": {
+        "message": "拡張機能トラッカー",
+        "description": "Title for the popup app"
+    },
+    "popup_app_unread_updates": {
+        "message": "未読",
+        "description": "Label for unread updates count in popup"
+    },
+    "popup_app_total_updates": {
+        "message": "合計",
+        "description": "Label for total updates count in popup"
+    },
+    "popup_app_view_new_update": {
+        "message": "新しい更新を表示",
+        "description": "Button text to view a single new update in popup"
+    },
+    "popup_app_view_all_updates": {
+        "message": "すべて表示",
+        "description": "Button text to view all updates in popup"
+    },
+    "popup_app_mark_all_read": {
+        "message": "すべて既読にする",
+        "description": "Button to mark all updates as read in popup"
+    },
+    "popup_app_all_caught_up": {
+        "message": "すべて確認済み！",
+        "description": "Message when there are no unread updates in popup"
+    },
+    "popup_app_last_checked": {
+        "message": "最終確認",
+        "description": "Label for last check timestamp in popup"
+    },
+    "options_empty_no_updates": {
+        "message": "まだ更新は追跡されていません",
+        "description": "Message when no updates are available"
+    },
+    "options_empty_install_hint": {
+        "message": "拡張機能をインストールまたは更新すると、ここに表示されます",
+        "description": "Helper text for empty state"
+    },
+    "options_controls_show_unread_only": {
+        "message": "未読のみ表示",
+        "description": "Checkbox label to filter unread updates"
+    },
+    "options_empty_no_unread": {
+        "message": "未読の更新はありません",
+        "description": "Message when filtering by unread shows no results"
+    },
+    "options_update_item_just_now": {
+        "message": "たった今",
+        "description": "Time indicator for very recent activity"
+    },
+    "popup_app_just_now": {
+        "message": "たった今",
+        "description": "Time indicator for very recent activity in popup app"
+    },
+    "common_time_just_now": {
+        "message": "たった今",
+        "description": "Time indicator for very recent activity in time utility"
+    },
+    "options_settings_title": {
+        "message": "設定",
+        "description": "Settings panel title in options page"
+    },
+    "options_toolbar_settings_button": {
+        "message": "設定",
+        "description": "Settings button in the options page toolbar"
+    },
+    "options_settings_description": {
+        "message": "通知設定と拡張機能の動作を構成",
+        "description": "Settings description"
+    },
+    "options_settings_section_notifications": {
+        "message": "通知設定",
+        "description": "Notification settings section header"
+    },
+    "options_settings_enable_notifications": {
+        "message": "通知を有効にする",
+        "description": "Toggle to enable/disable all notifications"
+    },
+    "options_settings_enable_notifications_desc": {
+        "message": "拡張機能が更新されたときにデスクトップ通知を表示する",
+        "description": "Description for enable notifications toggle"
+    },
+    "options_settings_auto_close_timeout": {
+        "message": "自動クローズタイムアウト",
+        "description": "Auto-close timeout setting label"
+    },
+    "options_settings_auto_close_timeout_desc": {
+        "message": "指定した秒数後に通知を自動的に閉じる（0 = 閉じない）",
+        "description": "Description for auto-close timeout"
+    },
+    "options_settings_notification_sound": {
+        "message": "通知音",
+        "description": "Notification sound toggle label"
+    },
+    "options_settings_notification_sound_desc": {
+        "message": "通知が表示されたときに音を鳴らす",
+        "description": "Description for notification sound toggle"
+    },
+    "options_settings_section_security": {
+        "message": "セキュリティ設定",
+        "description": "Security settings section header"
+    },
+    "options_settings_auto_disable_on_update": {
+        "message": "更新時に自動的に無効化",
+        "description": "Auto-disable on update toggle label"
+    },
+    "options_settings_auto_disable_on_update_desc": {
+        "message": "拡張機能が更新されたときに自動的に無効化する（セキュリティ機能）",
+        "description": "Description for auto-disable on update"
+    },
+    "options_settings_section_experimental": {
+        "message": "実験的機能",
+        "description": "Experimental settings section header"
+    },
+    "options_settings_section_per_extension": {
+        "message": "拡張機能ごとの通知",
+        "description": "Per-extension settings section header"
+    },
+    "options_settings_mute_extension": {
+        "message": "ミュート",
+        "description": "Button to mute extension notifications in settings"
+    },
+    "options_settings_unmute_extension": {
+        "message": "ミュート解除",
+        "description": "Button to unmute extension notifications in settings"
+    },
+    "options_settings_reset_button": {
+        "message": "デフォルトにリセット",
+        "description": "Button to reset all settings"
+    },
+    "options_settings_reset_confirm": {
+        "message": "すべての設定をデフォルト値にリセットしてもよろしいですか？",
+        "description": "Confirmation message for reset settings"
+    },
+    "options_settings_reset_dialog_title": {
+        "message": "設定をリセット",
+        "description": "Title for reset settings confirmation dialog"
+    },
+    "options_settings_reset_dialog_confirm": {
+        "message": "リセット",
+        "description": "Confirm button text in reset settings dialog"
+    },
+    "options_settings_reset_dialog_cancel": {
+        "message": "キャンセル",
+        "description": "Cancel button text in reset settings dialog"
+    },
+    "options_settings_seconds": {
+        "message": "秒",
+        "description": "Time unit: seconds"
+    },
+    "notification_welcome_title": {
+        "message": "Extensions Update Trackerへようこそ！",
+        "description": "Welcome notification title"
+    },
+    "notification_welcome_message": {
+        "message": "インストールありがとうございます！拡張機能が更新されると通知が届きます。更新ページですべての変更を確認できます。",
+        "description": "Welcome notification message"
+    },
+    "notification_welcome_button_view_updates": {
+        "message": "更新を表示",
+        "description": "Button to open updates page from welcome notification"
+    },
+    "options_page_document_title": {
+        "message": "拡張機能オプション",
+        "description": "Document title for the options page"
+    },
+    "options_stats_total_updates_aria": {
+        "message": "合計$COUNT$件の更新",
+        "description": "Aria label for total updates badge",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "15"
+            }
+        }
+    },
+    "options_stats_unread_updates_aria": {
+        "message": "未読$COUNT$件の更新",
+        "description": "Aria label for unread updates badge",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "options_update_item_aria_label_read": {
+        "message": "バージョン$VERSION$、$TIME_AGO$更新",
+        "description": "Aria label for read update item",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.2.3"
+            },
+            "time_ago": {
+                "content": "$2",
+                "example": "2時間前"
+            }
+        }
+    },
+    "options_update_item_aria_label_unread": {
+        "message": "バージョン$VERSION$、未読、$TIME_AGO$更新",
+        "description": "Aria label for unread update item",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.2.3"
+            },
+            "time_ago": {
+                "content": "$2",
+                "example": "2時間前"
+            }
+        }
+    },
+    "options_update_item_new_badge_aria": {
+        "message": "新しい更新",
+        "description": "Aria label for new/unread update badge"
+    }
+}

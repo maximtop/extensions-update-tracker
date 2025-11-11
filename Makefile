@@ -16,4 +16,4 @@ lint:
 	pnpm lint
 
 test:
-	pnpm test
+	pnpm test && pnpm test:e2e

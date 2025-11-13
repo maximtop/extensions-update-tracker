@@ -2,6 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+**[Install from Chrome Web Store](https://chromewebstore.google.com/detail/cdgepknigaiclfdmjckaknepgcighbnh)**
+
 A browser extension that tracks when your installed extensions are updated.
 
 ## Features

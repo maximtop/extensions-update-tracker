@@ -383,3 +383,151 @@ h1 {
 .modal-footer .btn {
     min-width: 80px;
 }
+
+/* Update Timeline Styles */
+.update-timeline {
+    padding: 12px 15px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.timeline-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.timeline-metric {
+    font-size: 0.75rem;
+    color: #6c757d;
+    background-color: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.timeline-container {
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.timeline-track {
+    position: relative;
+    height: 24px;
+    background: linear-gradient(to right, #e9ecef, #dee2e6);
+    border-radius: 12px;
+    margin: 0 10px;
+}
+
+.timeline-point-wrapper {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    cursor: pointer;
+}
+
+.timeline-point-wrapper:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+    border-radius: 50%;
+}
+
+.timeline-point {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.timeline-point-wrapper:hover .timeline-point {
+    transform: scale(1.3);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.timeline-gap-line {
+    position: absolute;
+    height: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    z-index: 1;
+}
+
+.timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    padding: 0 10px;
+}
+
+.timeline-label {
+    font-size: 0.7rem;
+    color: #6c757d;
+}
+
+.timeline-tooltip {
+    background: #212529;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.tooltip-version {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.tooltip-date {
+    color: #adb5bd;
+    margin-bottom: 4px;
+}
+
+.tooltip-previous {
+    font-size: 0.75rem;
+    color: #adb5bd;
+}
+
+.tooltip-gap {
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+.timeline-legend {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.legend-text {
+    font-size: 0.65rem;
+    color: #6c757d;
+}

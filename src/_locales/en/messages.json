@@ -420,5 +420,25 @@
     "options_update_item_new_badge_aria": {
         "message": "New update",
         "description": "Aria label for new/unread update badge"
+    },
+    "options_timeline_title": {
+        "message": "Update Activity",
+        "description": "Title for the update timeline visualization"
+    },
+    "options_timeline_avg_days": {
+        "message": "Avg: $1 days between updates",
+        "description": "Shows average days between updates in timeline"
+    },
+    "options_timeline_version": {
+        "message": "Version",
+        "description": "Version label for timeline tooltip accessibility"
+    },
+    "options_timeline_from_version": {
+        "message": "From v$1",
+        "description": "Shows previous version in timeline tooltip"
+    },
+    "options_timeline_days_gap": {
+        "message": "$1 days since previous",
+        "description": "Shows days since previous update in timeline tooltip"
     }
 }

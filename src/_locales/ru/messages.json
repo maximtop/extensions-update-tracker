@@ -420,5 +420,25 @@
     "options_update_item_new_badge_aria": {
         "message": "Новое обновление",
         "description": "Aria label for new/unread update badge"
+    },
+    "options_timeline_title": {
+        "message": "Активность обновлений",
+        "description": "Title for the update timeline visualization"
+    },
+    "options_timeline_avg_days": {
+        "message": "В среднем: $1 дней между обновлениями",
+        "description": "Shows average days between updates in timeline"
+    },
+    "options_timeline_version": {
+        "message": "Версия",
+        "description": "Version label for timeline tooltip accessibility"
+    },
+    "options_timeline_from_version": {
+        "message": "С v$1",
+        "description": "Shows previous version in timeline tooltip"
+    },
+    "options_timeline_days_gap": {
+        "message": "$1 дней с предыдущего",
+        "description": "Shows days since previous update in timeline tooltip"
     }
 }

@@ -420,5 +420,25 @@
     "options_update_item_new_badge_aria": {
         "message": "새 업데이트",
         "description": "Aria label for new/unread update badge"
+    },
+    "options_timeline_title": {
+        "message": "업데이트 활동",
+        "description": "Title for the update timeline visualization"
+    },
+    "options_timeline_avg_days": {
+        "message": "평균: 업데이트 간격 $1일",
+        "description": "Shows average days between updates in timeline"
+    },
+    "options_timeline_version": {
+        "message": "버전",
+        "description": "Version label for timeline tooltip accessibility"
+    },
+    "options_timeline_from_version": {
+        "message": "v$1에서",
+        "description": "Shows previous version in timeline tooltip"
+    },
+    "options_timeline_days_gap": {
+        "message": "이전 업데이트로부터 $1일",
+        "description": "Shows days since previous update in timeline tooltip"
     }
 }

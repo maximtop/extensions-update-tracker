@@ -420,5 +420,25 @@
     "options_update_item_new_badge_aria": {
         "message": "新更新",
         "description": "Aria label for new/unread update badge"
+    },
+    "options_timeline_title": {
+        "message": "更新活动",
+        "description": "Title for the update timeline visualization"
+    },
+    "options_timeline_avg_days": {
+        "message": "平均：更新间隔$1天",
+        "description": "Shows average days between updates in timeline"
+    },
+    "options_timeline_version": {
+        "message": "版本",
+        "description": "Version label for timeline tooltip accessibility"
+    },
+    "options_timeline_from_version": {
+        "message": "从 v$1",
+        "description": "Shows previous version in timeline tooltip"
+    },
+    "options_timeline_days_gap": {
+        "message": "距上次更新$1天",
+        "description": "Shows days since previous update in timeline tooltip"
     }
 }

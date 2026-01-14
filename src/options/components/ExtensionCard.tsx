@@ -7,6 +7,7 @@ import { useRootStore } from '../stores/root-store';
 
 import { FallbackIcon } from './FallbackIcon';
 import { UpdateItem } from './UpdateItem';
+import { UpdateTimeline } from './UpdateTimeline';
 
 interface ExtensionCardProps {
     extensionId: string;
@@ -155,6 +156,9 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
 
             {isExpanded && (
                 <>
+                    {/* Update Timeline Visualization */}
+                    {updates.length > 1 && <UpdateTimeline updates={updates} />}
+
                     <ul className="extension-updates">
                         {visibleUpdates.map((update) => (
                             <UpdateItem

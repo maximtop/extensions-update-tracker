@@ -131,6 +131,9 @@ export const genCommonConfig = (
                     {
                         from: path.resolve(currentDirPath, '../../src/assets'),
                         to: 'assets',
+                        globOptions: {
+                            ignore: ['**/.DS_Store'],
+                        },
                     },
                     {
                         from: path.resolve(currentDirPath, '../../src/_locales'),

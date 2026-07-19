@@ -12,7 +12,7 @@
         "description": "Title for the options page"
     },
     "options_tab_general": {
-        "message": "General",
+        "message": "Actualizaciones",
         "description": "Label for the General tab"
     },
     "options_tab_settings": {
@@ -274,7 +274,7 @@
         "description": "Settings description"
     },
     "options_settings_section_notifications": {
-        "message": "Configuración de Notificaciones",
+        "message": "Notificaciones",
         "description": "Notification settings section header"
     },
     "options_settings_enable_notifications": {
@@ -302,7 +302,7 @@
         "description": "Description for notification sound toggle"
     },
     "options_settings_section_security": {
-        "message": "Configuración de Seguridad",
+        "message": "Protección de actualizaciones",
         "description": "Security settings section header"
     },
     "options_settings_auto_disable_on_update": {
@@ -420,5 +420,89 @@
     "options_update_item_new_badge_aria": {
         "message": "Nueva actualización",
         "description": "Aria label for new/unread update badge"
+    },
+    "popup_app_since_last_review": {
+        "message": "Desde tu última revisión",
+        "description": "Kicker line above the unread count in popup"
+    },
+    "popup_app_unread_update": {
+        "message": "actualización sin leer",
+        "description": "Singular label next to the big unread count in popup"
+    },
+    "popup_app_total_recorded": {
+        "message": "actualizaciones registradas en total",
+        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\""
+    },
+    "popup_app_caught_up_desc": {
+        "message": "Los nuevos cambios de versión aparecerán aquí tras la próxima comprobación.",
+        "description": "Supporting text for the caught-up state in popup"
+    },
+    "popup_app_open_history": {
+        "message": "Abrir historial de actualizaciones",
+        "description": "Button to open the update history page from popup"
+    },
+    "popup_app_retry": {
+        "message": "Reintentar",
+        "description": "Button to retry loading updates after an error in popup"
+    },
+    "options_page_lead": {
+        "message": "Revisa los cambios, silencia las extensiones ruidosas y mantén un historial local claro de cada versión.",
+        "description": "Short utility description under the options page title"
+    },
+    "options_search_label": {
+        "message": "Buscar una extensión",
+        "description": "Label for the extension search field on options page"
+    },
+    "options_search_placeholder": {
+        "message": "Buscar por nombre de extensión",
+        "description": "Placeholder for the extension search field on options page"
+    },
+    "options_filter_show": {
+        "message": "Mostrar",
+        "description": "Label for the All/Unread filter segmented control"
+    },
+    "options_filter_all": {
+        "message": "Todas",
+        "description": "Filter option: show all updates"
+    },
+    "options_filter_unread": {
+        "message": "Sin leer",
+        "description": "Filter option: show unread updates only"
+    },
+    "options_empty_no_search_results": {
+        "message": "Ninguna extensión coincide",
+        "description": "Empty state title when search finds no extensions"
+    },
+    "options_clear_search": {
+        "message": "Borrar búsqueda",
+        "description": "Button to clear the extension search query"
+    },
+    "options_extension_card_update_count_one": {
+        "message": "1 actualización",
+        "description": "Singular form of the recorded updates count in extension card"
+    },
+    "options_extension_card_unread_count_one": {
+        "message": "1 sin leer",
+        "description": "Singular form of the unread updates count in extension card"
+    },
+    "popup_app_total_recorded_one": {
+        "message": "actualización registrada en total",
+        "description": "Singular suffix after the total updates count in popup, e.g. \"1 update recorded in total\""
+    },
+    "options_extension_card_muted": {
+        "message": "notificaciones silenciadas",
+        "description": "Meta text shown when an extension is muted"
+    },
+    "options_settings_section_reset": {
+        "message": "Empezar de nuevo",
+        "description": "Reset settings section header"
+    },
+    "options_settings_reset_desc": {
+        "message": "Restaura las preferencias de notificaciones y seguridad a sus valores originales. El historial de actualizaciones no se elimina.",
+        "description": "Explanation of what the reset settings action does"
+    },
+    "options_tracker_status": {
+        "message": "Siguiendo las extensiones instaladas",
+        "description": "Status text in the top navigation showing the tracker is active"
     }
 }

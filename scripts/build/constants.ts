@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 
 export enum BuildTargetEnv {
     Dev = 'dev',
+    Beta = 'beta',
     Release = 'release',
     Test = 'test'
 }
@@ -30,6 +31,10 @@ export const ENV_CONF: Record<BuildTargetEnv, EnvConfig> = {
     [BuildTargetEnv.Dev]: {
         outputPath: 'dev',
         mode: 'development',
+    },
+    [BuildTargetEnv.Beta]: {
+        outputPath: 'beta',
+        mode: 'production',
     },
     [BuildTargetEnv.Release]: {
         outputPath: 'release',

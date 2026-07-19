@@ -7,7 +7,7 @@ import { t } from '../common/utils/i18n';
 import { App } from './components/App';
 import { RootStore, RootStoreContext } from './stores/root-store';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
+import '../common/styles/theme.css';
 import './styles.css';
 
 export const options = {

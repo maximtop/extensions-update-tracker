@@ -12,7 +12,7 @@
         "description": "Title for the updates page"
     },
     "options_tab_general": {
-        "message": "常规",
+        "message": "更新",
         "description": "Label for the General tab"
     },
     "options_tab_settings": {
@@ -274,7 +274,7 @@
         "description": "Settings description"
     },
     "options_settings_section_notifications": {
-        "message": "通知设置",
+        "message": "通知",
         "description": "Notification settings section header"
     },
     "options_settings_enable_notifications": {
@@ -302,7 +302,7 @@
         "description": "Description for notification sound toggle"
     },
     "options_settings_section_security": {
-        "message": "安全设置",
+        "message": "更新保护",
         "description": "Security settings section header"
     },
     "options_settings_auto_disable_on_update": {
@@ -420,5 +420,89 @@
     "options_update_item_new_badge_aria": {
         "message": "新更新",
         "description": "Aria label for new/unread update badge"
+    },
+    "popup_app_since_last_review": {
+        "message": "自上次查看以来",
+        "description": "Kicker line above the unread count in popup"
+    },
+    "popup_app_unread_update": {
+        "message": "条未读更新",
+        "description": "Singular label next to the big unread count in popup"
+    },
+    "popup_app_total_recorded": {
+        "message": "条更新已记录",
+        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\""
+    },
+    "popup_app_caught_up_desc": {
+        "message": "下次检查后，新的版本变化将显示在这里。",
+        "description": "Supporting text for the caught-up state in popup"
+    },
+    "popup_app_open_history": {
+        "message": "打开更新历史",
+        "description": "Button to open the update history page from popup"
+    },
+    "popup_app_retry": {
+        "message": "重试",
+        "description": "Button to retry loading updates after an error in popup"
+    },
+    "options_page_lead": {
+        "message": "查看更新内容、静音嘈杂的扩展，并在本地保留每个版本的清晰历史记录。",
+        "description": "Short utility description under the options page title"
+    },
+    "options_search_label": {
+        "message": "查找扩展",
+        "description": "Label for the extension search field on options page"
+    },
+    "options_search_placeholder": {
+        "message": "按扩展名称搜索",
+        "description": "Placeholder for the extension search field on options page"
+    },
+    "options_filter_show": {
+        "message": "显示",
+        "description": "Label for the All/Unread filter segmented control"
+    },
+    "options_filter_all": {
+        "message": "全部",
+        "description": "Filter option: show all updates"
+    },
+    "options_filter_unread": {
+        "message": "未读",
+        "description": "Filter option: show unread updates only"
+    },
+    "options_empty_no_search_results": {
+        "message": "没有匹配的扩展",
+        "description": "Empty state title when search finds no extensions"
+    },
+    "options_clear_search": {
+        "message": "清除搜索",
+        "description": "Button to clear the extension search query"
+    },
+    "options_extension_card_update_count_one": {
+        "message": "1 条更新",
+        "description": "Singular form of the recorded updates count in extension card"
+    },
+    "options_extension_card_unread_count_one": {
+        "message": "1 条未读",
+        "description": "Singular form of the unread updates count in extension card"
+    },
+    "popup_app_total_recorded_one": {
+        "message": "条更新已记录",
+        "description": "Singular suffix after the total updates count in popup, e.g. \"1 update recorded in total\""
+    },
+    "options_extension_card_muted": {
+        "message": "通知已静音",
+        "description": "Meta text shown when an extension is muted"
+    },
+    "options_settings_section_reset": {
+        "message": "重新开始",
+        "description": "Reset settings section header"
+    },
+    "options_settings_reset_desc": {
+        "message": "将通知和安全偏好恢复为初始值。更新历史不会被删除。",
+        "description": "Explanation of what the reset settings action does"
+    },
+    "options_tracker_status": {
+        "message": "正在跟踪已安装的扩展",
+        "description": "Status text in the top navigation showing the tracker is active"
     }
 }

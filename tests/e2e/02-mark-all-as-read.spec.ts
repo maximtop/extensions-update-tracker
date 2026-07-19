@@ -56,7 +56,7 @@ test.describe('Mark All as Read Functionality', () => {
         expect(updatedUnreadCount).toBe(0);
 
         // Verify that items no longer have "New" badges
-        const newBadges = await optionsPage.locator('.badge:has-text("New")').count();
+        const newBadges = await optionsPage.locator('.new-tag').count();
         expect(newBadges).toBe(0);
 
         console.log('✓ Mark all as read completed successfully');

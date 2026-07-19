@@ -90,7 +90,11 @@ export class PopupUpdatesStore {
 
                         // Try to get extension info from snapshot first
                         const extensionName = update.infoSnapshot?.name || EXTENSION_DEFAULTS.UNKNOWN_NAME;
-                        const icon = update.infoSnapshot?.icons?.[0]?.url;
+                        // Pick the largest icon so it stays sharp at display size
+                        const icons = update.infoSnapshot?.icons;
+                        const icon = icons && icons.length > 0
+                            ? icons.reduce((prev, current) => (current.size > prev.size ? current : prev)).url
+                            : undefined;
 
                         mostRecentUnread = {
                             extensionId,

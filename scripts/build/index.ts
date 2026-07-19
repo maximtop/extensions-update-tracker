@@ -17,6 +17,10 @@ const devPlan = [
     bundleChrome,
 ];
 
+const betaPlan = [
+    bundleChrome,
+];
+
 const releasePlan = [
     bundleChrome,
 ];
@@ -39,6 +43,10 @@ const mainBuild = async (options: CommanderOptions) => {
     switch (BUILD_ENV) {
         case BuildTargetEnv.Dev: {
             await runBuild(devPlan, options);
+            break;
+        }
+        case BuildTargetEnv.Beta: {
+            await runBuild(betaPlan, options);
             break;
         }
         case BuildTargetEnv.Release: {

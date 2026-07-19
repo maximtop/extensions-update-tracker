@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { App } from './components/App';
 import { RootStore, RootStoreContext } from './stores/root-store';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
+import '../common/styles/theme.css';
 import './styles.css';
 
 export const popup = {

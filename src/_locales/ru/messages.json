@@ -12,7 +12,7 @@
         "description": "Title for the updates page"
     },
     "options_tab_general": {
-        "message": "Общее",
+        "message": "Обновления",
         "description": "Label for the General tab"
     },
     "options_tab_settings": {
@@ -20,11 +20,11 @@
         "description": "Label for the Settings tab"
     },
     "options_stats_unread_updates": {
-        "message": "Непрочитанные",
+        "message": "непрочитанных обновлений",
         "description": "Label for unread updates count"
     },
     "options_stats_total_updates": {
-        "message": "Всего",
+        "message": "всего записано",
         "description": "Label for total updates count"
     },
     "options_controls_mark_all_read": {
@@ -222,11 +222,11 @@
         "description": "Time indicator for very recent activity"
     },
     "popup_app_title": {
-        "message": "Трекер расширений",
+        "message": "Обновления расширений",
         "description": "Title for the popup app"
     },
     "popup_app_unread_updates": {
-        "message": "Непрочитанные",
+        "message": "непрочитанных обновлений",
         "description": "Label for unread updates count in popup"
     },
     "popup_app_total_updates": {
@@ -274,7 +274,7 @@
         "description": "Settings description"
     },
     "options_settings_section_notifications": {
-        "message": "Настройки уведомлений",
+        "message": "Уведомления",
         "description": "Notification settings section header"
     },
     "options_settings_enable_notifications": {
@@ -302,7 +302,7 @@
         "description": "Description for notification sound toggle"
     },
     "options_settings_section_security": {
-        "message": "Настройки безопасности",
+        "message": "Защита при обновлениях",
         "description": "Security settings section header"
     },
     "options_settings_auto_disable_on_update": {
@@ -420,5 +420,89 @@
     "options_update_item_new_badge_aria": {
         "message": "Новое обновление",
         "description": "Aria label for new/unread update badge"
+    },
+    "popup_app_since_last_review": {
+        "message": "С момента последнего просмотра",
+        "description": "Kicker line above the unread count in popup"
+    },
+    "popup_app_unread_update": {
+        "message": "непрочитанное обновление",
+        "description": "Singular label next to the big unread count in popup"
+    },
+    "popup_app_total_recorded": {
+        "message": "обновлений записано всего",
+        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\""
+    },
+    "popup_app_caught_up_desc": {
+        "message": "Новые изменения версий появятся здесь после следующей проверки.",
+        "description": "Supporting text for the caught-up state in popup"
+    },
+    "popup_app_open_history": {
+        "message": "Открыть историю обновлений",
+        "description": "Button to open the update history page from popup"
+    },
+    "popup_app_retry": {
+        "message": "Повторить",
+        "description": "Button to retry loading updates after an error in popup"
+    },
+    "options_page_lead": {
+        "message": "Просматривайте изменения, отключайте уведомления шумных расширений и храните локальную историю всех версий.",
+        "description": "Short utility description under the options page title"
+    },
+    "options_search_label": {
+        "message": "Найти расширение",
+        "description": "Label for the extension search field on options page"
+    },
+    "options_search_placeholder": {
+        "message": "Поиск по названию расширения",
+        "description": "Placeholder for the extension search field on options page"
+    },
+    "options_filter_show": {
+        "message": "Показывать",
+        "description": "Label for the All/Unread filter segmented control"
+    },
+    "options_filter_all": {
+        "message": "Все",
+        "description": "Filter option: show all updates"
+    },
+    "options_filter_unread": {
+        "message": "Непрочитанные",
+        "description": "Filter option: show unread updates only"
+    },
+    "options_empty_no_search_results": {
+        "message": "Ничего не найдено",
+        "description": "Empty state title when search finds no extensions"
+    },
+    "options_clear_search": {
+        "message": "Очистить поиск",
+        "description": "Button to clear the extension search query"
+    },
+    "options_extension_card_update_count_one": {
+        "message": "1 обновление",
+        "description": "Singular form of the recorded updates count in extension card"
+    },
+    "options_extension_card_unread_count_one": {
+        "message": "1 непрочитанное",
+        "description": "Singular form of the unread updates count in extension card"
+    },
+    "popup_app_total_recorded_one": {
+        "message": "обновление записано всего",
+        "description": "Singular suffix after the total updates count in popup, e.g. \"1 update recorded in total\""
+    },
+    "options_extension_card_muted": {
+        "message": "уведомления отключены",
+        "description": "Meta text shown when an extension is muted"
+    },
+    "options_settings_section_reset": {
+        "message": "Начать заново",
+        "description": "Reset settings section header"
+    },
+    "options_settings_reset_desc": {
+        "message": "Вернуть настройки уведомлений и безопасности к исходным значениям. История обновлений не удаляется.",
+        "description": "Explanation of what the reset settings action does"
+    },
+    "options_tracker_status": {
+        "message": "Отслеживает установленные расширения",
+        "description": "Status text in the top navigation showing the tracker is active"
     }
 }

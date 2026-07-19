@@ -12,7 +12,7 @@
         "description": "Title for the updates page"
     },
     "options_tab_general": {
-        "message": "일반",
+        "message": "업데이트",
         "description": "Label for the General tab"
     },
     "options_tab_settings": {
@@ -274,7 +274,7 @@
         "description": "Settings description"
     },
     "options_settings_section_notifications": {
-        "message": "알림 설정",
+        "message": "알림",
         "description": "Notification settings section header"
     },
     "options_settings_enable_notifications": {
@@ -302,7 +302,7 @@
         "description": "Description for notification sound toggle"
     },
     "options_settings_section_security": {
-        "message": "보안 설정",
+        "message": "업데이트 보호",
         "description": "Security settings section header"
     },
     "options_settings_auto_disable_on_update": {
@@ -420,5 +420,89 @@
     "options_update_item_new_badge_aria": {
         "message": "새 업데이트",
         "description": "Aria label for new/unread update badge"
+    },
+    "popup_app_since_last_review": {
+        "message": "마지막 확인 이후",
+        "description": "Kicker line above the unread count in popup"
+    },
+    "popup_app_unread_update": {
+        "message": "개의 읽지 않은 업데이트",
+        "description": "Singular label next to the big unread count in popup"
+    },
+    "popup_app_total_recorded": {
+        "message": "개의 업데이트가 기록됨",
+        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\""
+    },
+    "popup_app_caught_up_desc": {
+        "message": "다음 확인 후 새 버전 변경 사항이 여기에 표시됩니다.",
+        "description": "Supporting text for the caught-up state in popup"
+    },
+    "popup_app_open_history": {
+        "message": "업데이트 기록 열기",
+        "description": "Button to open the update history page from popup"
+    },
+    "popup_app_retry": {
+        "message": "다시 시도",
+        "description": "Button to retry loading updates after an error in popup"
+    },
+    "options_page_lead": {
+        "message": "변경 사항을 확인하고, 알림이 잦은 확장 프로그램을 음소거하고, 모든 버전의 로컬 기록을 관리하세요.",
+        "description": "Short utility description under the options page title"
+    },
+    "options_search_label": {
+        "message": "확장 프로그램 찾기",
+        "description": "Label for the extension search field on options page"
+    },
+    "options_search_placeholder": {
+        "message": "확장 프로그램 이름으로 검색",
+        "description": "Placeholder for the extension search field on options page"
+    },
+    "options_filter_show": {
+        "message": "표시",
+        "description": "Label for the All/Unread filter segmented control"
+    },
+    "options_filter_all": {
+        "message": "전체",
+        "description": "Filter option: show all updates"
+    },
+    "options_filter_unread": {
+        "message": "읽지 않음",
+        "description": "Filter option: show unread updates only"
+    },
+    "options_empty_no_search_results": {
+        "message": "일치하는 확장 프로그램이 없습니다",
+        "description": "Empty state title when search finds no extensions"
+    },
+    "options_clear_search": {
+        "message": "검색 지우기",
+        "description": "Button to clear the extension search query"
+    },
+    "options_extension_card_update_count_one": {
+        "message": "업데이트 1개",
+        "description": "Singular form of the recorded updates count in extension card"
+    },
+    "options_extension_card_unread_count_one": {
+        "message": "읽지 않음 1개",
+        "description": "Singular form of the unread updates count in extension card"
+    },
+    "popup_app_total_recorded_one": {
+        "message": "개의 업데이트가 기록됨",
+        "description": "Singular suffix after the total updates count in popup, e.g. \"1 update recorded in total\""
+    },
+    "options_extension_card_muted": {
+        "message": "알림 음소거됨",
+        "description": "Meta text shown when an extension is muted"
+    },
+    "options_settings_section_reset": {
+        "message": "처음부터 다시 시작",
+        "description": "Reset settings section header"
+    },
+    "options_settings_reset_desc": {
+        "message": "알림 및 보안 설정을 원래 값으로 되돌립니다. 업데이트 기록은 삭제되지 않습니다.",
+        "description": "Explanation of what the reset settings action does"
+    },
+    "options_tracker_status": {
+        "message": "설치된 확장 프로그램 추적 중",
+        "description": "Status text in the top navigation showing the tracker is active"
     }
 }

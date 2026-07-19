@@ -19,6 +19,8 @@
   "scripts": {
     "build": "tsx ./scripts/build/index.ts",
     "build:test": "cross-env BUILD_ENV=test tsx ./scripts/build/index.ts",
+    "beta": "cross-env BUILD_ENV=beta tsx ./scripts/build/index.ts",
+    "prebeta": "pnpm validate-translations",
     "release": "cross-env BUILD_ENV=release tsx ./scripts/build/index.ts",
     "prerelease": "pnpm validate-translations",
     "start": "tsx ./scripts/build/index.ts --watch",
@@ -32,7 +34,6 @@
     "test:e2e:debug": "pnpm build:test && playwright test --debug"
   },
   "dependencies": {
-    "bootstrap": "^5.3.3",
     "date-fns": "^4.1.0",
     "mobx": "^6.13.0",
     "mobx-react-lite": "^4.0.7",

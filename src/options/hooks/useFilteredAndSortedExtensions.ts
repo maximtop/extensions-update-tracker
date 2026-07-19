@@ -6,22 +6,34 @@ import { SORT_ORDER_ALPHABETICAL, SortOrder } from '../utils/storage-utils';
 interface UseFilteredAndSortedExtensionsProps {
     updatesStore: UpdatesStore;
     showUnreadOnly: boolean;
+    searchQuery: string;
     sortOrder: SortOrder;
 }
 
 /**
- * Custom hook to filter and sort extension IDs based on update status, date, and sort preference
+ * Custom hook to filter and sort extension IDs based on search query,
+ * update status, and sort preference
  */
 export function useFilteredAndSortedExtensions({
     updatesStore,
     showUnreadOnly,
+    searchQuery,
     sortOrder,
 }: UseFilteredAndSortedExtensionsProps): string[] {
     return useMemo(() => {
         const { extensionIds } = updatesStore;
+        const normalizedQuery = searchQuery.trim().toLowerCase();
 
-        // Filter based on unread status
         const filteredIds = extensionIds.filter((id) => {
+            // Filter by extension name search query
+            if (normalizedQuery) {
+                const name = updatesStore.getExtensionInfo(id)?.name.toLowerCase() || '';
+                if (!name.includes(normalizedQuery)) {
+                    return false;
+                }
+            }
+
+            // Filter based on unread status
             if (!showUnreadOnly) {
                 return true;
             }
@@ -46,5 +58,5 @@ export function useFilteredAndSortedExtensions({
         });
 
         return sortedIds;
-    }, [updatesStore, showUnreadOnly, sortOrder, updatesStore.extensionIds]);
+    }, [updatesStore, showUnreadOnly, searchQuery, sortOrder, updatesStore.extensionIds]);
 }

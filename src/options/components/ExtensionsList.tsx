@@ -8,21 +8,40 @@ import { ExtensionCard } from './ExtensionCard';
 interface ExtensionsListProps {
     extensionIds: string[];
     showUnreadOnly: boolean;
+    searchQuery: string;
+    onClearSearch: () => void;
     getUpdatesForExtension: (extensionId: string) => ExtensionUpdate[];
 }
 
 /**
- * List of extension cards with their updates
+ * Extension update ledger: one group per extension, separated by rules
  */
 export function ExtensionsList({
     extensionIds,
     showUnreadOnly,
+    searchQuery,
+    onClearSearch,
     getUpdatesForExtension,
 }: ExtensionsListProps): React.JSX.Element {
     if (extensionIds.length === 0) {
+        const isSearchEmpty = searchQuery.trim().length > 0;
         return (
-            <div className="alert alert-info text-center" role="alert">
-                {showUnreadOnly ? t('options_empty_no_unread') : t('options_empty_no_updates')}
+            <div className="empty-state">
+                <div className="state-inner" role="status">
+                    <h2>
+                        {isSearchEmpty && t('options_empty_no_search_results')}
+                        {!isSearchEmpty && (showUnreadOnly
+                            ? t('options_empty_no_unread')
+                            : t('options_empty_no_updates'))}
+                    </h2>
+                    {isSearchEmpty ? (
+                        <button type="button" className="btn btn-secondary" onClick={onClearSearch}>
+                            {t('options_clear_search')}
+                        </button>
+                    ) : (
+                        !showUnreadOnly && <p>{t('options_empty_install_hint')}</p>
+                    )}
+                </div>
             </div>
         );
     }
@@ -34,6 +53,7 @@ export function ExtensionsList({
                     key={extensionId}
                     extensionId={extensionId}
                     updates={getUpdatesForExtension(extensionId)}
+                    showUnreadOnly={showUnreadOnly}
                 />
             ))}
         </div>

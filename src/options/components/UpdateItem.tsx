@@ -34,41 +34,48 @@ export function UpdateItem({ update }: UpdateItemProps): React.JSX.Element {
     const getAriaLabel = () => {
         const timeAgo = getTimeAgo(update.updateDate);
         if (!update.isRead) {
-            return t('options-update-item-aria-label-unread', [update.version, timeAgo]);
+            return t('options_update_item_aria_label_unread', [update.version, timeAgo]);
         }
-        return t('options-update-item-aria-label-read', [update.version, timeAgo]);
+        return t('options_update_item_aria_label_read', [update.version, timeAgo]);
     };
 
     return (
         <li
-            className={`update-item ${!update.isRead ? 'unread' : ''}`}
+            className={`version-row ${!update.isRead ? 'unread' : ''}`}
             role="article"
             aria-label={getAriaLabel()}
         >
-            <div className="d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center">
-                    <span className="version">
-                        {t('options_update_item_version')}
-                        {' '}
-                        {update.version}
+            <div className="version-main">
+                <span className="version-number num">
+                    {t('options_update_item_version')}
+                    {' '}
+                    {update.version}
+                </span>
+                {!update.isRead && (
+                    <span
+                        className="new-tag"
+                        role="status"
+                        aria-label={t('options_update_item_new_badge_aria')}
+                    >
+                        {t('options_update_item_new_badge')}
                     </span>
-                    {!update.isRead && (
-                        <span
-                            className="badge badge-primary rounded-pill ms-2"
-                            role="status"
-                            aria-label={t('options_update_item_new_badge_aria')}
-                        >
-                            {t('options_update_item_new_badge')}
-                        </span>
-                    )}
-                </div>
-                <time className="date" dateTime={update.updateDate} title={formatDate(update.updateDate)}>
-                    {getTimeAgo(update.updateDate)}
-                </time>
+                )}
             </div>
+            <span className="version-route">
+                {update.previousVersion
+                    ? `${update.previousVersion} → ${update.version}`
+                    : ''}
+            </span>
+            <time
+                className="version-date"
+                dateTime={update.updateDate}
+                title={formatDate(update.updateDate)}
+            >
+                {getTimeAgo(update.updateDate)}
+            </time>
 
             {update.notes && (
-                <div className="notes mt-2" role="note">
+                <div className="version-notes" role="note">
                     {update.notes}
                 </div>
             )}

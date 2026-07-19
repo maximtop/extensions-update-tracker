@@ -3,18 +3,27 @@ import React from 'react';
 import { t } from '../../../common/utils/i18n';
 
 /**
- * Loading state component displayed while fetching extension updates
+ * Loading state component displayed while fetching extension updates.
+ * Skeleton ledger rows keep the layout stable while data loads.
  */
 export function LoadingState(): React.JSX.Element {
     return (
-        <>
-            <h1>{t('options_page_title')}</h1>
-            {/* Min height ensures loading spinner is visible and doesn't cause layout shift */}
-            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">{t('options_loading')}</span>
+        <div className="loading-state">
+            <div className="state-inner" role="status" aria-live="polite">
+                <span className="sr-only">{t('options_loading')}</span>
+                <div className="loading-ledger" aria-hidden="true">
+                    {[0, 1, 2].map((index) => (
+                        <div className="loading-row" key={index}>
+                            <span className="loading-icon" />
+                            <span className="loading-lines">
+                                <span />
+                                <span />
+                            </span>
+                            <span className="loading-date" />
+                        </div>
+                    ))}
                 </div>
             </div>
-        </>
+        </div>
     );
 }

@@ -27,9 +27,15 @@ export class SettingsStore {
 
     /**
      * Load settings from background page via messaging
+     *
+     * @param showLoadingState Pass false for silent refreshes after user actions:
+     * flipping the global isLoading flag swaps the whole page for the loading
+     * skeleton and makes the layout jump.
      */
-    async loadSettings() {
-        this.isLoading = true;
+    async loadSettings(showLoadingState = true) {
+        if (showLoadingState) {
+            this.isLoading = true;
+        }
         this.error = null;
 
         try {
@@ -95,8 +101,8 @@ export class SettingsStore {
             extensionId,
             muted: !isMuted,
         });
-        // Reload settings to reflect the change
-        await this.loadSettings();
+        // Silent reload to reflect the change without swapping in the loading state
+        await this.loadSettings(false);
     }
 
     /**
@@ -139,8 +145,8 @@ export class SettingsStore {
                 type: MessageType.UpdateSettings,
                 settings: partial,
             });
-            // Reload settings to reflect the change
-            await this.loadSettings();
+            // Silent reload to reflect the change without swapping in the loading state
+            await this.loadSettings(false);
         } catch (err) {
             runInAction(() => {
                 this.error = err instanceof Error ? err.message : 'Failed to update settings';

@@ -1,19 +1,22 @@
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 
+import { FallbackIcon } from '../../common/components/FallbackIcon';
 import { ExtensionUpdate } from '../../common/update-storage';
 import { t } from '../../common/utils/i18n';
 import { useRootStore } from '../stores/root-store';
 
-import { FallbackIcon } from './FallbackIcon';
 import { UpdateItem } from './UpdateItem';
 
 interface ExtensionCardProps {
     extensionId: string;
     updates: ExtensionUpdate[];
+    showUnreadOnly: boolean;
 }
 
-export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extensionId, updates }) => {
+const MAX_VISIBLE_VERSIONS = 3;
+
+export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extensionId, updates, showUnreadOnly }) => {
     const { updatesStore, settingsStore } = useRootStore();
     const [isExpanded, setIsExpanded] = useState(true);
     // Component-local state is appropriate here: showAllVersions is pure UI state that
@@ -36,12 +39,11 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
         return null; // Don't render if we couldn't get extension info
     }
 
-    // Sort updates by date (newest first) and limit displayed versions to 3 by default
-    const sortedUpdates = [...updates].sort((a, b) => {
-        return new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime();
-    });
+    // Sort updates by date (newest first); the unread filter narrows version rows too
+    const sortedUpdates = [...updates]
+        .filter((update) => !showUnreadOnly || !update.isRead)
+        .sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime());
 
-    const MAX_VISIBLE_VERSIONS = 3;
     const hasMoreVersions = sortedUpdates.length > MAX_VISIBLE_VERSIONS;
     const visibleUpdates = showAllVersions ? sortedUpdates : sortedUpdates.slice(0, MAX_VISIBLE_VERSIONS);
 
@@ -62,125 +64,157 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
 
     // Aria label for the extension header
     const expandAction = isExpanded ? t('options_extension_card_collapse') : t('options_extension_card_expand');
-    const updatesCountText = t('options-extension-card-update-count', updates.length.toString());
-    const unreadCountText = t('options-extension-card-unread-count', unreadCount.toString());
+    const updatesCountText = updates.length === 1
+        ? t('options_extension_card_update_count_one')
+        : t('options_extension_card_update_count', updates.length.toString());
+    const unreadCountText = unreadCount === 1
+        ? t('options_extension_card_unread_count_one')
+        : t('options_extension_card_unread_count', unreadCount.toString());
     const updatesSummary = `${updatesCountText}, ${unreadCountText}`;
-    const headerAriaLabel = t('options-extension-card-aria-label', [extensionInfo.name, updatesSummary, expandAction]);
+    const headerAriaLabel = t('options_extension_card_aria_label', [extensionInfo.name, updatesSummary, expandAction]);
 
-    // Chevron rotation style
-    const chevronStyle = {
-        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-        transition: 'transform 0.2s ease',
-    };
-
-    // Chevron icon SVG path
-    const chevronPath = 'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 '
-        + '01-1.414 0l-4-4a1 1 0 010-1.414z';
+    const muteLabel = isMuted ? t('options_settings_unmute_extension') : t('options_settings_mute_extension');
+    const historyId = `history-${extensionId}`;
 
     return (
-        <div className="extension-card">
-            <div
-                className="extension-header"
-                role="button"
-                onClick={toggleExpanded}
-                tabIndex={0}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        toggleExpanded();
-                    }
-                }}
-                aria-expanded={isExpanded}
-                aria-label={headerAriaLabel}
-            >
-                {hasIcon ? (
-                    <img className="extension-icon" src={getIconUrl()} alt="" role="presentation" />
-                ) : (
-                    <FallbackIcon name={extensionInfo.name} />
-                )}
-                <h2 className="extension-name">
-                    {extensionInfo.name}
-                    {extensionInfo.installType === 'development' && (
-                        <span className="badge bg-warning text-dark rounded-pill ms-2">
-                            {t('options_extension_card_local_badge')}
+        <article className="extension-group">
+            <div className="group-head">
+                <button
+                    type="button"
+                    className="group-toggle"
+                    onClick={toggleExpanded}
+                    aria-expanded={isExpanded}
+                    aria-controls={historyId}
+                    aria-label={headerAriaLabel}
+                >
+                    <span className="record-icon">
+                        {hasIcon ? (
+                            <img src={getIconUrl()} alt="" width="32" height="32" />
+                        ) : (
+                            <FallbackIcon name={extensionInfo.name} />
+                        )}
+                    </span>
+                    <span className="identity">
+                        <span className="identity-line">
+                            <h2 className="extension-name">{extensionInfo.name}</h2>
+                            {extensionInfo.installType === 'development' && (
+                                <span className="tag">{t('options_extension_card_local_badge')}</span>
+                            )}
+                            {unreadCount > 0 && (
+                                <span className="tag">{unreadCountText}</span>
+                            )}
                         </span>
-                    )}
-                    {unreadCount > 0 && (
-                        <span className="badge badge-primary rounded-pill ms-2">{unreadCount}</span>
-                    )}
-                </h2>
+                        <span className="identity-meta">
+                            {isMuted
+                                ? `${updatesCountText} · ${t('options_extension_card_muted')}`
+                                : updatesCountText}
+                        </span>
+                    </span>
+                </button>
 
-                <div className="d-flex align-items-center gap-2">
+                <div className="group-actions">
                     {extensionInfo.installType === 'normal' && (
                         <button
                             type="button"
-                            className="btn btn-sm btn-outline-primary me-2"
-                            onClick={(e) => {
-                                e.stopPropagation();
+                            className="icon-btn"
+                            onClick={() => {
                                 window.open(`https://chrome.google.com/webstore/detail/${extensionId}`, '_blank');
                             }}
+                            title={t('options_update_item_view_web_store')}
+                            aria-label={t('options_update_item_view_web_store')}
                         >
-                            {t('options_update_item_view_web_store')}
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                aria-hidden="true"
+                            >
+                                <path d="M14 5h5v5M13 11l6-6M19 13v6H5V5h6" />
+                            </svg>
                         </button>
                     )}
                     <button
                         type="button"
-                        className={`btn btn-sm ${isMuted ? 'btn-outline-warning' : 'btn-outline-secondary'}`}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            settingsStore.toggleExtensionMuted(extensionId);
-                        }}
-                        title={
-                            isMuted ? t('options_settings_unmute_extension') : t('options_settings_mute_extension')
-                        }
-                        aria-label={
-                            isMuted ? t('options_settings_unmute_extension') : t('options_settings_mute_extension')
-                        }
+                        className={`icon-btn ${isMuted ? 'icon-btn-active' : ''}`}
+                        onClick={() => settingsStore.toggleExtensionMuted(extensionId)}
+                        title={muteLabel}
+                        aria-label={muteLabel}
+                        aria-pressed={isMuted}
                     >
-                        {isMuted ? '🔕' : '🔔'}
+                        {isMuted ? (
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d={'m3 3 18 18M10.7 5.1A6 6 0 0 1 18 11v1.8c.3 1.8 2 2.5 2 '
+                                        + '4.2H8M6 8c0 7-3 7-3 9h2m5 4h4'}
+                                />
+                            </svg>
+                        ) : (
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                aria-hidden="true"
+                            >
+                                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+                            </svg>
+                        )}
                     </button>
-                    <span className="badge badge-secondary rounded-pill">{updates.length}</span>
-                    <svg
-                        className="chevron-icon"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        style={chevronStyle}
+                    <button
+                        type="button"
+                        className="icon-btn"
+                        onClick={toggleExpanded}
+                        aria-expanded={isExpanded}
+                        aria-controls={historyId}
+                        aria-label={expandAction}
                     >
-                        <path fillRule="evenodd" d={chevronPath} clipRule="evenodd" />
-                    </svg>
+                        <svg
+                            className={`chevron ${isExpanded ? 'expanded' : ''}`}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            aria-hidden="true"
+                        >
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
             {isExpanded && (
-                <>
-                    <ul className="extension-updates">
+                <div id={historyId}>
+                    <ol className="version-list">
                         {visibleUpdates.map((update) => (
                             <UpdateItem
                                 key={`${update.extensionId}-${update.version}-${update.updateDate}`}
                                 update={update}
                             />
                         ))}
-                    </ul>
+                    </ol>
                     {hasMoreVersions && (
-                        <div className="text-center mt-2 mb-2">
-                            <button
-                                type="button"
-                                className="btn btn-sm btn-link"
-                                onClick={() => setShowAllVersions(!showAllVersions)}
-                            >
-                                {showAllVersions
-                                    ? t('options_extension_card_show_less')
-                                    : t(
-                                        'options_extension_card_show_more',
-                                        (updates.length - MAX_VISIBLE_VERSIONS).toString(),
-                                    )}
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            className="btn btn-ghost show-more"
+                            onClick={() => setShowAllVersions(!showAllVersions)}
+                        >
+                            {showAllVersions
+                                ? t('options_extension_card_show_less')
+                                : t(
+                                    'options_extension_card_show_more',
+                                    (sortedUpdates.length - MAX_VISIBLE_VERSIONS).toString(),
+                                )}
+                        </button>
                     )}
-                </>
+                </div>
             )}
-        </div>
+        </article>
     );
 });

@@ -129,8 +129,8 @@ export class NotificationService {
 
         const title = t('notification_title');
         const message = previousVersion
-            ? t('notification_message', [extensionName, previousVersion, currentVersion])
-            : t('notification_message_first_install', [extensionName, currentVersion]);
+            ? t('notification_message', { name: extensionName, old: previousVersion, new: currentVersion })
+            : t('notification_message_first_install', { name: extensionName, version: currentVersion });
 
         const settings = settingsStorage.get();
 

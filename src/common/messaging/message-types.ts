@@ -35,6 +35,12 @@ export enum MessageType {
     MarkUpdateAsRead = 'MarkUpdateAsRead',
 
     /**
+     * Request to mark a set of updates as unread again
+     * Used by the options page to undo a mark-all-as-read action
+     */
+    MarkUpdatesAsUnread = 'MarkUpdatesAsUnread',
+
+    /**
      * Request to get current user settings
      * Used by UI pages to retrieve settings through background
      */
@@ -118,6 +124,22 @@ export interface MarkUpdateAsReadMessage extends BaseMessage {
 }
 
 /**
+ * A single update reference used when restoring unread state
+ */
+export interface UpdateRef {
+    extensionId: string;
+    version: string;
+}
+
+/**
+ * Message sent to mark a set of updates as unread (undo of mark-all-as-read)
+ */
+export interface MarkUpdatesAsUnreadMessage extends BaseMessage {
+    type: MessageType.MarkUpdatesAsUnread;
+    items: UpdateRef[];
+}
+
+/**
  * Message sent to request current settings
  */
 export interface GetSettingsMessage extends BaseMessage {
@@ -172,6 +194,7 @@ export type Message =
     | GetUpdatesMessage
     | GetExtensionsInfoMessage
     | MarkUpdateAsReadMessage
+    | MarkUpdatesAsUnreadMessage
     | GetSettingsMessage
     | UpdateSettingsMessage
     | ResetSettingsMessage

@@ -41,6 +41,7 @@ export class RpcHandlers {
         this.registerGetUpdates();
         this.registerGetExtensionsInfo();
         this.registerMarkUpdateAsRead();
+        this.registerMarkUpdatesAsUnread();
         this.registerGetSettings();
         this.registerUpdateSettings();
         this.registerResetSettings();
@@ -131,6 +132,25 @@ export class RpcHandlers {
             await this.extensionsUpdateStorage.markUpdateAsRead(message.extensionId, message.version);
 
             // Refresh badge after marking update as read
+            this.badgeService.refresh();
+        });
+    }
+
+    /**
+     * Handler: Mark a set of updates as unread again (undo of mark-all-as-read)
+     */
+    private registerMarkUpdatesAsUnread(): void {
+        this.messageDispatcher.on(MessageType.MarkUpdatesAsUnread, async (message) => {
+            if (message.type !== MessageType.MarkUpdatesAsUnread) {
+                return;
+            }
+
+            Logger.info(`Received MarkUpdatesAsUnread message for ${message.items.length} update(s)`);
+
+            await this.extensionsUpdateStorage.ensureInitialized();
+            await this.extensionsUpdateStorage.markUpdatesAsUnread(message.items);
+
+            // Refresh badge after restoring unread state
             this.badgeService.refresh();
         });
     }

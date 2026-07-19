@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { MessageSender } from '../../common/messaging/message-sender';
+import { UpdateRef } from '../../common/messaging/message-types';
 import { ExtensionInfo, ExtensionUpdate } from '../../common/update-storage';
 import { getErrorMessage } from '../../common/utils/error';
 import { Logger } from '../../common/utils/logger';
@@ -165,14 +166,56 @@ export class UpdatesStore {
 
     /**
      * Mark all updates as read via background page messaging
+     *
+     * @returns References to the updates that were unread before the action,
+     * so the caller can offer an undo; empty array if nothing changed or on error
      */
-    async markAllAsRead() {
+    async markAllAsRead(): Promise<UpdateRef[]> {
+        // Snapshot the unread set before the bulk action so it can be restored
+        const snapshot: UpdateRef[] = [];
+        for (const updates of this.updates.values()) {
+            for (const update of updates) {
+                if (!update.isRead) {
+                    snapshot.push({ extensionId: update.extensionId, version: update.version });
+                }
+            }
+        }
+
         try {
             await MessageSender.markAllAsRead();
             // Reload to update UI without showing loading state (smoother UX)
             await this.loadUpdates(false);
+            return snapshot;
         } catch (err) {
             Logger.error('Failed to mark all as read:', getErrorMessage(err));
+            return [];
+        }
+    }
+
+    /**
+     * Mark a single update as read via background page messaging
+     */
+    async markUpdateAsRead(extensionId: string, version: string) {
+        try {
+            await MessageSender.markUpdateAsRead(extensionId, version);
+            await this.loadUpdates(false);
+        } catch (err) {
+            Logger.error('Failed to mark update as read:', getErrorMessage(err));
+        }
+    }
+
+    /**
+     * Restore a set of updates to unread (undo of mark-all-as-read)
+     */
+    async markUpdatesAsUnread(items: UpdateRef[]) {
+        if (items.length === 0) {
+            return;
+        }
+        try {
+            await MessageSender.markUpdatesAsUnread(items);
+            await this.loadUpdates(false);
+        } catch (err) {
+            Logger.error('Failed to mark updates as unread:', getErrorMessage(err));
         }
     }
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { t } from '../../common/utils/i18n';
+import { t, tPlural } from '../../common/utils/i18n';
 
 interface StatsBarProps {
     totalUpdateCount: number;
@@ -23,16 +23,16 @@ export function StatsBar({
                 <span
                     className={`summary-num num ${unreadUpdateCount === 0 ? 'is-zero' : ''}`}
                     data-testid="unread-updates-count"
-                    aria-label={t('options_stats_unread_updates_aria', unreadUpdateCount.toString())}
+                    aria-label={tPlural('options_stats_unread_updates_aria', unreadUpdateCount)}
                 >
                     {unreadUpdateCount}
                 </span>
-                <span className="summary-label">{t('options_stats_unread_updates')}</span>
+                <span className="summary-label">{tPlural('options_stats_unread_updates', unreadUpdateCount)}</span>
                 <span className="summary-total">
                     <span
                         className="num"
                         data-testid="total-updates-count"
-                        aria-label={t('options_stats_total_updates_aria', totalUpdateCount.toString())}
+                        aria-label={tPlural('options_stats_total_updates_aria', totalUpdateCount)}
                     >
                         {totalUpdateCount}
                     </span>
@@ -43,7 +43,7 @@ export function StatsBar({
             {unreadUpdateCount > 0 && (
                 <button
                     type="button"
-                    className="btn btn-dark"
+                    className="btn btn-primary"
                     onClick={onMarkAllAsRead}
                     data-testid="mark-all-read-button"
                 >

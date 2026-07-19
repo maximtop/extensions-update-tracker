@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 import { FallbackIcon } from '../../common/components/FallbackIcon';
 import { ExtensionUpdate } from '../../common/update-storage';
-import { t } from '../../common/utils/i18n';
+import { t, tPlural } from '../../common/utils/i18n';
 import { useRootStore } from '../stores/root-store';
 
 import { UpdateItem } from './UpdateItem';
@@ -64,14 +64,14 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
 
     // Aria label for the extension header
     const expandAction = isExpanded ? t('options_extension_card_collapse') : t('options_extension_card_expand');
-    const updatesCountText = updates.length === 1
-        ? t('options_extension_card_update_count_one')
-        : t('options_extension_card_update_count', updates.length.toString());
-    const unreadCountText = unreadCount === 1
-        ? t('options_extension_card_unread_count_one')
-        : t('options_extension_card_unread_count', unreadCount.toString());
+    const updatesCountText = tPlural('options_extension_card_update_count', updates.length);
+    const unreadCountText = tPlural('options_extension_card_unread_count', unreadCount);
     const updatesSummary = `${updatesCountText}, ${unreadCountText}`;
-    const headerAriaLabel = t('options_extension_card_aria_label', [extensionInfo.name, updatesSummary, expandAction]);
+    const headerAriaLabel = t('options_extension_card_aria_label', {
+        name: extensionInfo.name,
+        summary: updatesSummary,
+        action: expandAction,
+    });
 
     const muteLabel = isMuted ? t('options_settings_unmute_extension') : t('options_settings_mute_extension');
     const historyId = `history-${extensionId}`;
@@ -98,10 +98,12 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
                         <span className="identity-line">
                             <h2 className="extension-name">{extensionInfo.name}</h2>
                             {extensionInfo.installType === 'development' && (
-                                <span className="tag">{t('options_extension_card_local_badge')}</span>
+                                <span className="tag" title={t('options_extension_card_local_badge_title')}>
+                                    {t('options_extension_card_local_badge')}
+                                </span>
                             )}
                             {unreadCount > 0 && (
-                                <span className="tag">{unreadCountText}</span>
+                                <span className="tag tag-unread">{unreadCountText}</span>
                             )}
                         </span>
                         <span className="identity-meta">
@@ -207,9 +209,9 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
                         >
                             {showAllVersions
                                 ? t('options_extension_card_show_less')
-                                : t(
+                                : tPlural(
                                     'options_extension_card_show_more',
-                                    (sortedUpdates.length - MAX_VISIBLE_VERSIONS).toString(),
+                                    sortedUpdates.length - MAX_VISIBLE_VERSIONS,
                                 )}
                         </button>
                     )}

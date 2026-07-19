@@ -1,7 +1,12 @@
 import React from 'react';
 
 import { t } from '../../common/utils/i18n';
-import { OptionsTab, TAB_GENERAL, TAB_SETTINGS } from '../types/tab-types';
+import {
+    OptionsTab,
+    TAB_ABOUT,
+    TAB_GENERAL,
+    TAB_SETTINGS,
+} from '../types/tab-types';
 
 interface TabNavigationProps {
     activeTab: OptionsTab;
@@ -17,6 +22,7 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps): R
             <div className="tab-navigation" role="tablist">
                 <button
                     type="button"
+                    id="general-tab"
                     role="tab"
                     aria-selected={activeTab === TAB_GENERAL}
                     aria-controls="general-panel"
@@ -30,6 +36,7 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps): R
                 </button>
                 <button
                     type="button"
+                    id="settings-tab"
                     role="tab"
                     aria-selected={activeTab === TAB_SETTINGS}
                     aria-controls="settings-panel"
@@ -48,6 +55,22 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps): R
                         />
                     </svg>
                     {t('options_tab_settings')}
+                </button>
+                <button
+                    type="button"
+                    id="about-tab"
+                    role="tab"
+                    aria-selected={activeTab === TAB_ABOUT}
+                    aria-controls="about-panel"
+                    className={`tab-button ${activeTab === TAB_ABOUT ? 'active' : ''}`}
+                    onClick={() => onTabChange(TAB_ABOUT)}
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path strokeLinecap="round" d="M12 11.2v4.6" />
+                        <circle cx="12" cy="8" r="0.4" fill="currentColor" />
+                    </svg>
+                    {t('options_tab_about')}
                 </button>
             </div>
         </nav>

@@ -20,8 +20,8 @@
         "description": "Label for the Settings tab"
     },
     "options_stats_unread_updates": {
-        "message": "未読の更新",
-        "description": "Label for unread updates count"
+        "message": "未読の更新 | 未読の更新",
+        "description": "Label for unread updates count in stats bar. Plural forms separated by |, chosen by that count"
     },
     "options_stats_total_updates": {
         "message": "更新総数",
@@ -60,32 +60,20 @@
         "description": "Button text to view the extension on Chrome Web Store"
     },
     "options_extension_card_show_more": {
-        "message": "さらに$1バージョン表示",
-        "description": "Button to show more version history. $1 is the number of hidden versions"
+        "message": "さらに%count%バージョン表示 | さらに%count%バージョン表示",
+        "description": "Button to show more version history. Plural forms separated by |; %count% is the number of hidden versions"
     },
     "options_extension_card_show_less": {
         "message": "表示を減らす",
         "description": "Button to collapse version history"
     },
     "options_extension_card_update_count": {
-        "message": "$1件の更新",
-        "description": "Shows the number of updates for an extension in extension card",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "5"
-            }
-        }
+        "message": "%count%件の更新 | %count%件の更新",
+        "description": "Recorded updates count in extension card. Plural forms separated by |; %count% is the number"
     },
     "options_extension_card_unread_count": {
-        "message": "$1件未読",
-        "description": "Shows the number of unread updates in extension card",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
+        "message": "未読%count%件 | 未読%count%件",
+        "description": "Unread updates count in extension card. Plural forms separated by |; %count% is the number"
     },
     "options_extension_card_expand": {
         "message": "展開",
@@ -100,86 +88,32 @@
         "description": "Badge shown for locally installed (development) extensions"
     },
     "options_extension_card_aria_label": {
-        "message": "$NAME$、$SUMMARY$。$ACTION$するにはクリック",
-        "description": "Aria label for extension card header",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "summary": {
-                "content": "$2",
-                "example": "5件の更新、3件未読"
-            },
-            "action": {
-                "content": "$3",
-                "example": "展開"
-            }
-        }
+        "message": "%name%、%summary%。%action%するにはクリック",
+        "description": "Aria label for extension card header"
     },
-    "common_time_minute": {
-        "message": "分",
-        "description": "Singular form of minute for common time utility"
+    "common_time_minutes_ago": {
+        "message": "0 分前 | %count% 分前",
+        "description": "Relative time in minutes, e.g. \"5 minutes ago\". Plural forms separated by |; %count% is the number of minutes"
     },
-    "common_time_minutes": {
-        "message": "分",
-        "description": "Plural form of minutes for common time utility"
+    "common_time_hours_ago": {
+        "message": "0 時間前 | %count% 時間前",
+        "description": "Relative time in hours, e.g. \"2 hours ago\". Plural forms separated by |; %count% is the number of hours"
     },
-    "common_time_hour": {
-        "message": "時間",
-        "description": "Singular form of hour for common time utility"
-    },
-    "common_time_hours": {
-        "message": "時間",
-        "description": "Plural form of hours for common time utility"
-    },
-    "common_time_day": {
-        "message": "日",
-        "description": "Singular form of day for common time utility"
-    },
-    "common_time_days": {
-        "message": "日",
-        "description": "Plural form of days for common time utility"
-    },
-    "common_time_ago": {
-        "message": "前",
-        "description": "Time ago suffix for common time utility"
+    "common_time_days_ago": {
+        "message": "0 日前 | %count% 日前",
+        "description": "Relative time in days, e.g. \"3 days ago\". Plural forms separated by |; %count% is the number of days"
     },
     "notification_title": {
         "message": "拡張機能が更新されました",
         "description": "Notification title when an extension is updated"
     },
     "notification_message": {
-        "message": "$NAME$ が $OLD$ から $NEW$ に更新されました",
-        "description": "Notification message body with extension name and version details",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "old": {
-                "content": "$2",
-                "example": "1.0.0"
-            },
-            "new": {
-                "content": "$3",
-                "example": "1.0.1"
-            }
-        }
+        "message": "%name% が %old% から %new% に更新されました",
+        "description": "Notification message body with extension name and version details"
     },
     "notification_message_first_install": {
-        "message": "$NAME$ がインストールされました（バージョン $VERSION$）",
-        "description": "Notification message for first installation",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "version": {
-                "content": "$2",
-                "example": "1.0.0"
-            }
-        }
+        "message": "%name% がインストールされました（バージョン %version%）",
+        "description": "Notification message for first installation"
     },
     "notification_button_view_details": {
         "message": "詳細を表示",
@@ -206,20 +140,12 @@
         "description": "Title for the popup app"
     },
     "popup_app_unread_updates": {
-        "message": "未読",
-        "description": "Label for unread updates count in popup"
+        "message": "件の未読の更新 | 件の未読の更新",
+        "description": "Label next to the big unread count in popup. Plural forms separated by |, chosen by that count"
     },
-    "popup_app_total_updates": {
-        "message": "合計",
-        "description": "Label for total updates count in popup"
-    },
-    "popup_app_view_new_update": {
-        "message": "新しい更新を表示",
-        "description": "Button text to view a single new update in popup"
-    },
-    "popup_app_view_all_updates": {
-        "message": "すべて表示",
-        "description": "Button text to view all updates in popup"
+    "popup_app_view_updates": {
+        "message": "更新を表示 | 更新を表示",
+        "description": "Primary popup button opening the update history. Plural forms separated by |, chosen by the unread count"
     },
     "popup_app_mark_all_read": {
         "message": "すべて既読にする",
@@ -241,37 +167,13 @@
         "message": "拡張機能をインストールまたは更新すると、ここに表示されます",
         "description": "Helper text for empty state"
     },
-    "options_controls_show_unread_only": {
-        "message": "未読のみ表示",
-        "description": "Checkbox label to filter unread updates"
-    },
     "options_empty_no_unread": {
         "message": "未読の更新はありません",
         "description": "Message when filtering by unread shows no results"
     },
-    "options_update_item_just_now": {
-        "message": "たった今",
-        "description": "Time indicator for very recent activity"
-    },
-    "popup_app_just_now": {
-        "message": "たった今",
-        "description": "Time indicator for very recent activity in popup app"
-    },
     "common_time_just_now": {
         "message": "たった今",
         "description": "Time indicator for very recent activity in time utility"
-    },
-    "options_settings_title": {
-        "message": "設定",
-        "description": "Settings panel title in options page"
-    },
-    "options_toolbar_settings_button": {
-        "message": "設定",
-        "description": "Settings button in the options page toolbar"
-    },
-    "options_settings_description": {
-        "message": "通知設定と拡張機能の動作を構成",
-        "description": "Settings description"
     },
     "options_settings_section_notifications": {
         "message": "通知",
@@ -284,14 +186,6 @@
     "options_settings_enable_notifications_desc": {
         "message": "拡張機能が更新されたときにデスクトップ通知を表示する",
         "description": "Description for enable notifications toggle"
-    },
-    "options_settings_auto_close_timeout": {
-        "message": "自動クローズタイムアウト",
-        "description": "Auto-close timeout setting label"
-    },
-    "options_settings_auto_close_timeout_desc": {
-        "message": "指定した秒数後に通知を自動的に閉じる（0 = 閉じない）",
-        "description": "Description for auto-close timeout"
     },
     "options_settings_notification_sound": {
         "message": "通知音",
@@ -310,16 +204,8 @@
         "description": "Auto-disable on update toggle label"
     },
     "options_settings_auto_disable_on_update_desc": {
-        "message": "拡張機能が更新されたときに自動的に無効化する（セキュリティ機能）",
-        "description": "Description for auto-disable on update"
-    },
-    "options_settings_section_experimental": {
-        "message": "実験的機能",
-        "description": "Experimental settings section header"
-    },
-    "options_settings_section_per_extension": {
-        "message": "拡張機能ごとの通知",
-        "description": "Per-extension settings section header"
+        "message": "拡張機能が更新されると、変更を確認して再度有効にするまで無効のままになります。有効化ボタン付きの通知が届きます。",
+        "description": "Explanation of the auto-disable security setting and what to expect after enabling it"
     },
     "options_settings_mute_extension": {
         "message": "ミュート",
@@ -349,10 +235,6 @@
         "message": "キャンセル",
         "description": "Cancel button text in reset settings dialog"
     },
-    "options_settings_seconds": {
-        "message": "秒",
-        "description": "Time unit: seconds"
-    },
     "notification_welcome_title": {
         "message": "Extensions Update Trackerへようこそ！",
         "description": "Welcome notification title"
@@ -370,52 +252,20 @@
         "description": "Document title for the options page"
     },
     "options_stats_total_updates_aria": {
-        "message": "合計$COUNT$件の更新",
-        "description": "Aria label for total updates badge",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "15"
-            }
-        }
+        "message": "合計%count%件の更新 | 合計%count%件の更新",
+        "description": "Aria label for total updates count in stats bar. Plural forms separated by |; %count% is the number"
     },
     "options_stats_unread_updates_aria": {
-        "message": "未読$COUNT$件の更新",
-        "description": "Aria label for unread updates badge",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
+        "message": "未読%count%件の更新 | 未読%count%件の更新",
+        "description": "Aria label for unread updates count in stats bar. Plural forms separated by |; %count% is the number"
     },
     "options_update_item_aria_label_read": {
-        "message": "バージョン$VERSION$、$TIME_AGO$更新",
-        "description": "Aria label for read update item",
-        "placeholders": {
-            "version": {
-                "content": "$1",
-                "example": "1.2.3"
-            },
-            "time_ago": {
-                "content": "$2",
-                "example": "2時間前"
-            }
-        }
+        "message": "バージョン%version%、%time_ago%更新",
+        "description": "Aria label for read update item"
     },
     "options_update_item_aria_label_unread": {
-        "message": "バージョン$VERSION$、未読、$TIME_AGO$更新",
-        "description": "Aria label for unread update item",
-        "placeholders": {
-            "version": {
-                "content": "$1",
-                "example": "1.2.3"
-            },
-            "time_ago": {
-                "content": "$2",
-                "example": "2時間前"
-            }
-        }
+        "message": "バージョン%version%、未読、%time_ago%更新",
+        "description": "Aria label for unread update item"
     },
     "options_update_item_new_badge_aria": {
         "message": "新しい更新",
@@ -425,13 +275,9 @@
         "message": "前回の確認以降",
         "description": "Kicker line above the unread count in popup"
     },
-    "popup_app_unread_update": {
-        "message": "件の未読の更新",
-        "description": "Singular label next to the big unread count in popup"
-    },
     "popup_app_total_recorded": {
-        "message": "件の更新を記録済み",
-        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\""
+        "message": "件の更新を記録済み | 件の更新を記録済み",
+        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\". Plural forms separated by |, chosen by that count"
     },
     "popup_app_caught_up_desc": {
         "message": "次回のチェック後、新しいバージョンの変更がここに表示されます。",
@@ -477,24 +323,12 @@
         "message": "検索をクリア",
         "description": "Button to clear the extension search query"
     },
-    "options_extension_card_update_count_one": {
-        "message": "1件の更新",
-        "description": "Singular form of the recorded updates count in extension card"
-    },
-    "options_extension_card_unread_count_one": {
-        "message": "未読1件",
-        "description": "Singular form of the unread updates count in extension card"
-    },
-    "popup_app_total_recorded_one": {
-        "message": "件の更新を記録済み",
-        "description": "Singular suffix after the total updates count in popup, e.g. \"1 update recorded in total\""
-    },
     "options_extension_card_muted": {
         "message": "通知はミュート中",
         "description": "Meta text shown when an extension is muted"
     },
     "options_settings_section_reset": {
-        "message": "最初からやり直す",
+        "message": "設定をリセット",
         "description": "Reset settings section header"
     },
     "options_settings_reset_desc": {
@@ -504,5 +338,73 @@
     "options_tracker_status": {
         "message": "インストール済みの拡張機能を追跡中",
         "description": "Status text in the top navigation showing the tracker is active"
+    },
+    "options_tab_about": {
+        "message": "概要",
+        "description": "Label for the About tab"
+    },
+    "options_about_version": {
+        "message": "バージョン %version%",
+        "description": "Version line on the About tab, e.g. \"Version 1.1.0\""
+    },
+    "options_about_section_resources": {
+        "message": "リソース",
+        "description": "Resources section header on the About tab"
+    },
+    "options_about_github": {
+        "message": "GitHub リポジトリ",
+        "description": "Link title to the GitHub repository on the About tab"
+    },
+    "options_about_github_desc": {
+        "message": "ソースコードとリリース履歴を見る",
+        "description": "Description under the GitHub repository link on the About tab"
+    },
+    "options_about_report_issue": {
+        "message": "問題を報告",
+        "description": "Link title to open a GitHub issue on the About tab"
+    },
+    "options_about_report_issue_desc": {
+        "message": "バグや提案があれば GitHub で Issue を作成してください",
+        "description": "Description under the report-an-issue link on the About tab"
+    },
+    "options_about_rate": {
+        "message": "この拡張機能を評価",
+        "description": "Link title to rate the extension on the About tab"
+    },
+    "options_about_rate_desc": {
+        "message": "Chrome ウェブストアにレビューを投稿",
+        "description": "Description under the rate-this-extension link on the About tab"
+    },
+    "options_about_privacy_desc": {
+        "message": "この拡張機能はデータを収集・送信しません。更新履歴は端末内にのみ保存されます。",
+        "description": "Privacy statement text on the About tab"
+    },
+    "options_about_author": {
+        "message": "作成者: %author%",
+        "description": "Author credit line on the About tab, e.g. \"Created by Maxim Topciu\""
+    },
+    "options_about_license": {
+        "message": "MIT ライセンス",
+        "description": "License link text on the About tab"
+    },
+    "popup_app_more_updates": {
+        "message": "他 %count% 件の更新 | 他 %count% 件の更新",
+        "description": "Overflow row in popup when more unread updates exist than listed. Plural forms separated by |; %count% is the hidden count"
+    },
+    "options_toast_marked_read": {
+        "message": "%count% 件の更新を既読にしました | %count% 件の更新を既読にしました",
+        "description": "Toast message after mark-all-as-read. Plural forms separated by |; %count% is how many updates were marked"
+    },
+    "options_toast_undo": {
+        "message": "元に戻す",
+        "description": "Undo action button in the mark-all-as-read toast"
+    },
+    "options_update_item_mark_read": {
+        "message": "既読にする",
+        "description": "Per-row button marking a single update as read"
+    },
+    "options_extension_card_local_badge_title": {
+        "message": "Chrome ウェブストア外からインストールされました",
+        "description": "Tooltip explaining the LOCAL badge on an extension card"
     }
 }

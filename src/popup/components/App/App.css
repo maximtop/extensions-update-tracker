@@ -32,7 +32,7 @@
 .status-kicker {
     color: var(--muted);
     font-size: 13px;
-    font-weight: 550;
+    font-weight: 600;
     letter-spacing: 0.01em;
 }
 
@@ -46,15 +46,17 @@
 .status-count {
     min-width: 72px;
     text-align: center;
-    font-size: clamp(56px, 17vw, 72px);
+    color: var(--accent);
+    font-size: clamp(48px, 15vw, 56px);
     line-height: 1;
-    font-weight: 590;
+    font-weight: 650;
 }
 
 .status-label {
     max-width: 12ch;
     color: var(--fg);
-    font-size: 17px;
+    font-family: var(--font-display);
+    font-size: 19px;
     line-height: 1.15;
     font-weight: 600;
 }
@@ -145,6 +147,26 @@
     letter-spacing: 0.01em;
 }
 
+/* Overflow row when there are more unread updates than the popup lists */
+.more-updates {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: color 160ms ease;
+}
+
+.more-updates:hover {
+    color: var(--fg);
+}
+
 /* Actions */
 .actions {
     display: grid;
@@ -198,7 +220,7 @@
 }
 
 .state-panel h2 {
-    font-size: 28px;
+    font-size: 32px;
     line-height: 1.08;
     letter-spacing: -0.01em;
 }

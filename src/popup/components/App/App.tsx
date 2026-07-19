@@ -2,8 +2,9 @@ import { observer } from 'mobx-react-lite';
 import React, { useContext } from 'react';
 
 import { FallbackIcon } from '../../../common/components/FallbackIcon';
-import { t } from '../../../common/utils/i18n';
-import { formatTimeAgo } from '../../../common/utils/time';
+import { t, tPlural } from '../../../common/utils/i18n';
+import { formatDate, formatTimeAgo } from '../../../common/utils/time';
+import { MAX_VISIBLE_UNREAD } from '../../stores/popup-updates-store/PopupUpdatesStore';
 import { RootStoreContext } from '../../stores/root-store';
 
 import './App.css';
@@ -13,7 +14,7 @@ function AppComponent() {
     const {
         unreadCount,
         updateCount,
-        latestUnread,
+        recentUnread,
         lastChecked,
         isLoading,
         error,
@@ -105,48 +106,62 @@ function AppComponent() {
                         <div className="status-line">
                             <span className="status-count num">{unreadCount}</span>
                             <span className="status-label">
-                                {unreadCount === 1
-                                    ? t('popup_app_unread_update')
-                                    : t('popup_app_unread_updates')}
+                                {tPlural('popup_app_unread_updates', unreadCount)}
                             </span>
                         </div>
                         <p className="status-total">
                             <strong>{updateCount}</strong>
                             {' '}
-                            {updateCount === 1
-                                ? t('popup_app_total_recorded_one')
-                                : t('popup_app_total_recorded')}
+                            {tPlural('popup_app_total_recorded', updateCount)}
                         </p>
                     </div>
 
-                    {latestUnread && (
-                        <button type="button" className="latest" onClick={handleViewUpdates}>
-                            <span className="latest-top">
-                                <span className="record-icon">
-                                    {latestUnread.icon ? (
-                                        <img src={latestUnread.icon} alt="" width="28" height="28" />
-                                    ) : (
-                                        <FallbackIcon name={latestUnread.extensionName} />
-                                    )}
+                    <div className="latest-list">
+                        {recentUnread.map((unread) => (
+                            <button
+                                key={`${unread.extensionId}-${unread.version}`}
+                                type="button"
+                                className="latest"
+                                onClick={handleViewUpdates}
+                            >
+                                <span className="latest-top">
+                                    <span className="record-icon">
+                                        {unread.icon ? (
+                                            <img src={unread.icon} alt="" width="28" height="28" />
+                                        ) : (
+                                            <FallbackIcon name={unread.extensionName} />
+                                        )}
+                                    </span>
+                                    <strong className="latest-name">{unread.extensionName}</strong>
+                                    <span
+                                        className="latest-time"
+                                        title={formatDate(new Date(unread.timestamp).toISOString())}
+                                    >
+                                        {formatTimeAgo(unread.timestamp)}
+                                    </span>
+                                    <svg
+                                        className="latest-chevron"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        aria-hidden="true"
+                                    >
+                                        <path d="m9 6 6 6-6 6" />
+                                    </svg>
                                 </span>
-                                <strong className="latest-name">{latestUnread.extensionName}</strong>
-                                <span className="latest-time">{formatTimeAgo(latestUnread.timestamp)}</span>
-                                <svg
-                                    className="latest-chevron"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    aria-hidden="true"
-                                >
-                                    <path d="m9 6 6 6-6 6" />
-                                </svg>
-                            </span>
-                            <span className="version-route num">
-                                {latestUnread.previousVersion
-                                    ? `${latestUnread.previousVersion} → ${latestUnread.version}`
-                                    : latestUnread.version}
-                            </span>
+                                <span className="version-route num">
+                                    {unread.previousVersion
+                                        ? `${unread.previousVersion} → ${unread.version}`
+                                        : unread.version}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {unreadCount > MAX_VISIBLE_UNREAD && (
+                        <button type="button" className="more-updates" onClick={handleViewUpdates}>
+                            {tPlural('popup_app_more_updates', unreadCount - MAX_VISIBLE_UNREAD)}
                         </button>
                     )}
                 </>
@@ -171,9 +186,7 @@ function AppComponent() {
                     {hasUnread && (
                         <>
                             <button type="button" className="btn btn-primary" onClick={handleViewUpdates}>
-                                {unreadCount === 1
-                                    ? t('popup_app_view_new_update')
-                                    : t('popup_app_view_all_updates')}
+                                {tPlural('popup_app_view_updates', unreadCount)}
                             </button>
                             <button type="button" className="btn btn-ghost" onClick={handleMarkAllAsRead}>
                                 {t('popup_app_mark_all_read')}

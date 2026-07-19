@@ -8,9 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@adguard/translate':
+        specifier: ^2.0.8
+        version: 2.0.8
       date-fns:
-        specifier: ^4.1.0
-        version: 4.1.0
+        specifier: ^4.4.0
+        version: 4.4.0
       mobx:
         specifier: ^6.13.0
         version: 6.13.7
@@ -158,6 +161,9 @@ importers:
         version: 4.0.3(webpack-sources@3.3.3)(webpack@5.101.2(@swc/core@1.13.3))
 
 packages:
+
+  '@adguard/translate@2.0.8':
+    resolution: {integrity: sha512-9k/JdLhC9PgInN/T10DydfsxcpXO094CBIXiiW97owGlQLnL4Dc0B9Qktg+0+InCMlLoVL5+Le784gjS9/i3Mg==}
 
   '@adobe/css-tools@4.4.4':
     resolution: {integrity: sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==}
@@ -1558,8 +1564,8 @@ packages:
     resolution: {integrity: sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==}
     engines: {node: '>= 0.4'}
 
-  date-fns@4.1.0:
-    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
+  date-fns@4.4.0:
+    resolution: {integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==}
 
   debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
@@ -3482,6 +3488,8 @@ packages:
 
 snapshots:
 
+  '@adguard/translate@2.0.8': {}
+
   '@adobe/css-tools@4.4.4': {}
 
   '@babel/code-frame@7.27.1':
@@ -4762,7 +4770,7 @@ snapshots:
       es-errors: 1.3.0
       is-data-view: 1.0.2
 
-  date-fns@4.1.0: {}
+  date-fns@4.4.0: {}
 
   debug@3.2.7:
     dependencies:

@@ -8,9 +8,12 @@
     --bg: oklch(1 0 89.88);
     --surface: oklch(0.9816 0.0017 247.84);
     --fg: oklch(0.2621 0.0095 248.19);
-    --muted: oklch(0.5575 0.0165 244.89);
+    --muted: oklch(0.51 0.017 245);
     --border: oklch(0.9109 0.007 247.9);
-    --accent: oklch(0.5782 0.2282 260.03);
+    /* Stronger border for interactive controls (inputs, selects, icon buttons):
+       hairline --border stays for separators only, this one clears WCAG 1.4.11 */
+    --border-strong: oklch(0.66 0.012 248);
+    --accent: oklch(0.52 0.21 262);
     --success: oklch(0.6401 0.1751 146.74);
     --danger: oklch(0.5915 0.202 21.24);
     --accent-soft: color-mix(in oklch, var(--accent) 12%, transparent);
@@ -137,7 +140,7 @@ h2 {
     color: var(--bg);
     background: var(--accent);
     border-color: var(--accent);
-    box-shadow: 0 8px 18px color-mix(in oklch, var(--accent) 22%, transparent);
+    box-shadow: 0 1px 2px color-mix(in oklch, var(--accent) 10%, transparent);
 }
 
 .btn-primary:hover {
@@ -148,7 +151,7 @@ h2 {
     color: var(--bg);
     background: var(--fg);
     border-color: var(--fg);
-    box-shadow: 0 8px 18px color-mix(in oklch, var(--fg) 16%, transparent);
+    box-shadow: 0 1px 2px color-mix(in oklch, var(--fg) 10%, transparent);
 }
 
 .btn-dark:hover {
@@ -156,7 +159,7 @@ h2 {
 }
 
 .btn-secondary {
-    border-color: var(--border);
+    border-color: var(--border-strong);
 }
 
 .btn-secondary:hover {
@@ -187,7 +190,7 @@ h2 {
     height: 44px;
     display: grid;
     place-items: center;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius);
     background: transparent;
     color: var(--muted);
@@ -255,12 +258,22 @@ h2 {
     white-space: nowrap;
 }
 
+/* Unread count: the one status badge, tied to the accent so it cannot be
+   confused with neutral metadata tags like LOCAL */
+.tag-unread {
+    border: 0;
+    padding: 4px 9px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+}
+
 .new-tag {
     padding: 2px 7px;
-    border: 1px solid var(--fg);
+    border: 1px solid var(--accent);
     border-radius: 999px;
-    color: var(--fg);
-    font-size: 9px;
+    color: var(--accent);
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;

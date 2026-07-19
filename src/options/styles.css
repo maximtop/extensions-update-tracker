@@ -18,13 +18,13 @@ body {
 }
 
 h1 {
-    font-size: clamp(40px, 5vw, 56px);
+    font-size: clamp(34px, 4vw, 44px);
     line-height: 1.02;
     letter-spacing: -0.035em;
 }
 
 h2 {
-    font-size: clamp(28px, 3.5vw, 38px);
+    font-size: clamp(28px, 3vw, 32px);
     line-height: 1.08;
     letter-spacing: -0.025em;
 }
@@ -33,7 +33,7 @@ h2 {
     margin-top: 14px;
     max-width: 56ch;
     color: var(--muted);
-    font-size: 17px;
+    font-size: 18px;
 }
 
 /* Top navigation */
@@ -89,7 +89,7 @@ h2 {
 
 /* Page intro and tabs */
 .page-intro {
-    padding-top: clamp(36px, 5.5vw, 64px);
+    padding-top: clamp(28px, 4vw, 44px);
 }
 
 .page-heading {
@@ -99,7 +99,7 @@ h2 {
 .tab-navigation {
     display: flex;
     gap: 28px;
-    margin-top: 40px;
+    margin-top: 32px;
     border-bottom: 1px solid var(--border);
 }
 
@@ -156,7 +156,8 @@ h2 {
     gap: 28px;
     align-items: center;
     padding: 24px 0;
-    border-block: 1px solid var(--fg);
+    /* Bottom rule only: a top rule would double up with the tab border above */
+    border-bottom: 1px solid var(--fg);
 }
 
 .summary-copy {
@@ -168,8 +169,8 @@ h2 {
 
 .summary-num {
     color: var(--accent);
-    font-size: clamp(42px, 7vw, 66px);
-    font-weight: 600;
+    font-size: clamp(42px, 6vw, 56px);
+    font-weight: 650;
     line-height: 0.9;
     letter-spacing: -0.03em;
 }
@@ -218,7 +219,7 @@ h2 {
     width: 100%;
     min-height: 44px;
     padding: 10px 13px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius);
     background: var(--bg);
     color: var(--fg);
@@ -241,7 +242,7 @@ h2 {
     display: inline-flex;
     min-height: 44px;
     padding: 3px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius);
 }
 
@@ -352,7 +353,9 @@ h2 {
 
 .version-row {
     display: grid;
-    grid-template-columns: minmax(150px, 0.8fr) minmax(180px, 1fr) auto;
+    /* Version, route, and timestamp cluster on the left so related data stays
+       together; the trailing column holds the per-row mark-as-read action */
+    grid-template-columns: auto auto 1fr auto;
     gap: 4px 18px;
     align-items: center;
     min-height: 58px;
@@ -363,6 +366,7 @@ h2 {
 .version-row.unread {
     background: var(--fg-soft);
     border-radius: 8px;
+    box-shadow: inset 2px 0 0 var(--accent);
     font-weight: 600;
 }
 
@@ -393,7 +397,6 @@ h2 {
     color: var(--muted);
     font-family: var(--font-mono);
     font-size: 11px;
-    text-align: right;
     white-space: nowrap;
 }
 
@@ -402,6 +405,23 @@ h2 {
     color: var(--muted);
     font-size: 13px;
     font-weight: 400;
+}
+
+.mark-read-btn {
+    justify-self: end;
+    padding: 6px 8px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 160ms ease;
+}
+
+.mark-read-btn:hover {
+    color: var(--accent);
 }
 
 .show-more {
@@ -426,7 +446,7 @@ h2 {
 }
 
 .state-inner h2 {
-    font-size: 30px;
+    font-size: 32px;
 }
 
 .state-inner p {
@@ -512,6 +532,9 @@ h2 {
 
 /* Settings */
 .settings-section {
+    /* Keep rows and their trailing controls within reading distance:
+       a full-width row puts the toggle ~1000px away from its label */
+    max-width: 760px;
     padding: 0 0 42px;
 }
 
@@ -521,7 +544,7 @@ h2 {
 }
 
 .settings-section h2 {
-    font-size: 34px;
+    font-size: 32px;
 }
 
 .settings-section-desc {
@@ -533,6 +556,12 @@ h2 {
 .switch-list {
     margin-top: 26px;
     border-top: 1px solid var(--border);
+}
+
+/* The section divider that follows takes over after the last row:
+   a row border right before it would read as a double line */
+.switch-list > :last-child {
+    border-bottom: 0;
 }
 
 .switch-row {
@@ -576,7 +605,8 @@ h2 {
     width: 48px;
     height: 28px;
     border-radius: 999px;
-    background: var(--border);
+    /* Off-state track needs >= 3:1 against the page background (WCAG 1.4.11) */
+    background: oklch(0.655 0.012 248);
     transition: background 180ms ease;
 }
 
@@ -603,6 +633,111 @@ h2 {
 
 .reset-action {
     margin-top: 22px;
+}
+
+/* About */
+.about-lead {
+    max-width: 58ch;
+    font-size: 18px;
+    line-height: 1.55;
+}
+
+.about-link-row {
+    position: relative;
+    min-height: 82px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 20px;
+    align-items: center;
+    /* Bleed the hover highlight slightly past the text column, like the
+       popup's latest-update rows, so the whole row reads as clickable */
+    padding: 16px 12px;
+    margin-inline: -12px;
+    border-radius: 10px;
+    transition: background 160ms ease;
+}
+
+.about-link-row:hover {
+    background: var(--fg-soft);
+}
+
+/* Separator drawn inset so hairlines stay aligned with the page column
+   while the hover highlight bleeds past it */
+.about-link-row::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 0;
+    height: 1px;
+    background: var(--border);
+}
+
+.about-link-row:last-child::after {
+    display: none;
+}
+
+.about-link-row svg {
+    width: 20px;
+    height: 20px;
+    color: var(--muted);
+    transition: color 180ms ease, transform 180ms ease;
+}
+
+.about-link-row:hover svg {
+    color: var(--fg);
+    transform: translate(2px, -2px);
+}
+
+.about-credits {
+    margin-top: 18px;
+    color: var(--muted);
+}
+
+.about-credits a {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Undo toast */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    z-index: 60;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 12px 12px 12px 18px;
+    border-radius: var(--radius);
+    background: var(--fg);
+    color: var(--bg);
+    box-shadow: 0 10px 30px color-mix(in oklch, var(--fg) 25%, transparent);
+    animation: fade-in 180ms ease;
+}
+
+.toast-message {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.toast-action {
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: oklch(0.8 0.09 262);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 160ms ease, background 160ms ease;
+}
+
+.toast-action:hover {
+    color: var(--bg);
+    background: color-mix(in oklch, var(--bg) 14%, transparent);
 }
 
 /* Confirmation dialog */

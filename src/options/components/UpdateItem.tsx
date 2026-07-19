@@ -1,42 +1,26 @@
-import { differenceInMinutes, differenceInHours, differenceInDays } from 'date-fns';
 import React from 'react';
 
 import { ExtensionUpdate } from '../../common/update-storage';
-import { formatTimeAgo, t } from '../../common/utils/i18n';
-import { formatDate } from '../../common/utils/time';
+import { t } from '../../common/utils/i18n';
+import { formatDate, formatTimeAgo } from '../../common/utils/time';
+import { useRootStore } from '../stores/root-store';
 
 interface UpdateItemProps {
     update: ExtensionUpdate;
 }
 
 export function UpdateItem({ update }: UpdateItemProps): React.JSX.Element {
-    // Calculate how long ago the update was
-    const getTimeAgo = (dateString: string) => {
-        const updateDate = new Date(dateString);
-        const now = new Date();
+    const { updatesStore } = useRootStore();
 
-        const diffInMinutes = differenceInMinutes(now, updateDate);
-        const diffInHours = differenceInHours(now, updateDate);
-        const diffInDays = differenceInDays(now, updateDate);
-
-        if (diffInMinutes < 1) {
-            return t('options_update_item_just_now');
-        }
-        if (diffInMinutes < 60) {
-            return formatTimeAgo(diffInMinutes, 'common_time_minute', 'common_time_minutes');
-        }
-        if (diffInHours < 24) {
-            return formatTimeAgo(diffInHours, 'common_time_hour', 'common_time_hours');
-        }
-        return formatTimeAgo(diffInDays, 'common_time_day', 'common_time_days');
-    };
+    // Shared relative-time formatting (same wording as the popup)
+    const getTimeAgo = (dateString: string) => formatTimeAgo(new Date(dateString).getTime());
 
     const getAriaLabel = () => {
         const timeAgo = getTimeAgo(update.updateDate);
         if (!update.isRead) {
-            return t('options_update_item_aria_label_unread', [update.version, timeAgo]);
+            return t('options_update_item_aria_label_unread', { version: update.version, time_ago: timeAgo });
         }
-        return t('options_update_item_aria_label_read', [update.version, timeAgo]);
+        return t('options_update_item_aria_label_read', { version: update.version, time_ago: timeAgo });
     };
 
     return (
@@ -73,6 +57,16 @@ export function UpdateItem({ update }: UpdateItemProps): React.JSX.Element {
             >
                 {getTimeAgo(update.updateDate)}
             </time>
+
+            {!update.isRead && (
+                <button
+                    type="button"
+                    className="mark-read-btn"
+                    onClick={() => updatesStore.markUpdateAsRead(update.extensionId, update.version)}
+                >
+                    {t('options_update_item_mark_read')}
+                </button>
+            )}
 
             {update.notes && (
                 <div className="version-notes" role="note">

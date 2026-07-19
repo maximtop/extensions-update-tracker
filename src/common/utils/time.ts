@@ -2,7 +2,14 @@
  * Time-related utility functions
  */
 
-import { t } from './i18n';
+import {
+    differenceInDays,
+    differenceInHours,
+    differenceInMinutes,
+    format,
+} from 'date-fns';
+
+import { t, tPlural } from './i18n';
 
 /**
  * Formats a Date object to a readable timestamp string for logging.
@@ -19,11 +26,7 @@ import { t } from './i18n';
  * ```
  */
 export function formatTime(date: Date): string {
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
-    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+    return format(date, 'HH:mm:ss.SSS');
 }
 
 /**
@@ -61,30 +64,25 @@ export function formatDate(dateString: string): string {
  * ```
  */
 export function formatTimeAgo(timestamp: number): string {
-    const now = Date.now();
-    const diff = now - timestamp;
+    const now = new Date();
+    const date = new Date(timestamp);
+
+    const minutes = differenceInMinutes(now, date);
+    const hours = differenceInHours(now, date);
+    const days = differenceInDays(now, date);
 
     // For very recent times (less than 1 minute), show "just now"
-    const oneMinute = 60 * 1000;
-    if (diff < oneMinute) {
+    if (minutes < 1) {
         return t('common_time_just_now');
     }
 
-    const minutes = Math.floor(diff / (60 * 1000));
-    const hours = Math.floor(diff / (60 * 60 * 1000));
-    const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-
-    // Use i18n for proper pluralization
     if (minutes < 60) {
-        const unit = minutes === 1 ? t('common_time_minute') : t('common_time_minutes');
-        return `${minutes} ${unit} ${t('common_time_ago')}`;
+        return tPlural('common_time_minutes_ago', minutes);
     }
 
     if (hours < 24) {
-        const unit = hours === 1 ? t('common_time_hour') : t('common_time_hours');
-        return `${hours} ${unit} ${t('common_time_ago')}`;
+        return tPlural('common_time_hours_ago', hours);
     }
 
-    const unit = days === 1 ? t('common_time_day') : t('common_time_days');
-    return `${days} ${unit} ${t('common_time_ago')}`;
+    return tPlural('common_time_days_ago', days);
 }

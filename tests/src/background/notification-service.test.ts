@@ -50,14 +50,14 @@ vi.mock('webextension-polyfill', () => ({
 
 // Mock i18n
 vi.mock('../../../src/common/utils/i18n', () => ({
-    t: vi.fn((key: string, substitutions?: string[]) => {
+    t: vi.fn((key: string, params?: Record<string, string | number>) => {
         const messages: Record<string, string> = {
             notification_title: 'Extension Updated',
-            notification_message: substitutions
-                ? `${substitutions[0]} updated from ${substitutions[1]} to ${substitutions[2]}`
+            notification_message: params
+                ? `${params.name} updated from ${params.old} to ${params.new}`
                 : 'Extension updated',
-            notification_message_first_install: substitutions
-                ? `${substitutions[0]} installed (version ${substitutions[1]})`
+            notification_message_first_install: params
+                ? `${params.name} installed (version ${params.version})`
                 : 'Extension installed',
             notification_button_view_details: 'View Details',
             notification_button_dismiss: 'Dismiss',

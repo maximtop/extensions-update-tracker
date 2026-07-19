@@ -608,4 +608,76 @@ export class ExtensionsUpdateStorage {
             Logger.info('Marked all updates as read across all extensions');
         }
     }
+
+    /**
+     * Marks a specific set of updates as unread again
+     *
+     * Used to undo a mark-all-as-read action: the UI captures which updates were
+     * unread before the bulk action and restores exactly that set. The operation
+     * is queued to ensure thread-safe sequential execution.
+     *
+     * @param items - References to the updates to restore, as extensionId/version pairs
+     * @returns Promise that resolves when the operation completes
+     */
+    async markUpdatesAsUnread(items: { extensionId: string; version: string }[]): Promise<void> {
+        // Queue this operation to prevent concurrent writes from racing
+        this.saveQueue = this.saveQueue.then(async () => {
+            await this.performMarkUpdatesAsUnread(items);
+        }).catch((error) => {
+            Logger.error(`Failed to mark updates as unread: ${error}`);
+        });
+
+        return this.saveQueue;
+    }
+
+    /**
+     * Internal implementation of mark-as-unread operation - executes within the save queue
+     *
+     * Reads fresh data from storage and clears the isRead flag on every referenced
+     * update entry. Only writes to storage if any changes were actually made.
+     *
+     * @param items - References to the updates to restore, as extensionId/version pairs
+     * @private
+     */
+    private async performMarkUpdatesAsUnread(items: { extensionId: string; version: string }[]): Promise<void> {
+        // Read fresh data from storage to avoid stale cache
+        const rawData = await this.storage.get(ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY);
+        const dataToParse = rawData ?? {};
+        const parseResult = v.safeParse(ExtensionsUpdateStorageSchema, dataToParse);
+
+        const currentStorage: ExtensionsUpdateStorageType = parseResult.success
+            ? parseResult.output
+            : {};
+
+        let updated = false;
+
+        for (const { extensionId, version } of items) {
+            const extensionData = currentStorage[extensionId];
+            if (extensionData) {
+                for (let i = 0; i < extensionData.updateHistory.length; i += 1) {
+                    const entry = extensionData.updateHistory[i];
+                    if (entry.version === version && entry.isRead) {
+                        const updatedEntry: ExtensionVersionInfo = {
+                            ...entry,
+                            isRead: false,
+                        };
+                        extensionData.updateHistory[i] = updatedEntry;
+                        updated = true;
+                    }
+                }
+            }
+        }
+
+        // Only write to storage if we actually updated something
+        if (updated) {
+            await this.storage.set(
+                ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
+                currentStorage,
+            );
+
+            // Update in-memory cache after successful write
+            this.extensionsUpdateStorage = currentStorage;
+            Logger.info(`Restored ${items.length} update(s) to unread`);
+        }
+    }
 }

@@ -20,8 +20,8 @@
         "description": "Label for the Settings tab"
     },
     "options_stats_unread_updates": {
-        "message": "未读更新",
-        "description": "Label for unread updates count"
+        "message": "未读更新 | 未读更新",
+        "description": "Label for unread updates count in stats bar. Plural forms separated by |, chosen by that count"
     },
     "options_stats_total_updates": {
         "message": "总更新数",
@@ -60,32 +60,20 @@
         "description": "Button text to view the extension on Chrome Web Store"
     },
     "options_extension_card_show_more": {
-        "message": "显示更多 $1 个版本",
-        "description": "Button to show more version history. $1 is the number of hidden versions"
+        "message": "显示更多 %count% 个版本 | 显示更多 %count% 个版本",
+        "description": "Button to show more version history. Plural forms separated by |; %count% is the number of hidden versions"
     },
     "options_extension_card_show_less": {
         "message": "显示更少",
         "description": "Button to collapse version history"
     },
     "options_extension_card_update_count": {
-        "message": "$1 个更新",
-        "description": "Shows the number of updates for an extension in extension card",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "5"
-            }
-        }
+        "message": "%count% 条更新 | %count% 条更新",
+        "description": "Recorded updates count in extension card. Plural forms separated by |; %count% is the number"
     },
     "options_extension_card_unread_count": {
-        "message": "$1 个未读",
-        "description": "Shows the number of unread updates in extension card",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
+        "message": "%count% 条未读 | %count% 条未读",
+        "description": "Unread updates count in extension card. Plural forms separated by |; %count% is the number"
     },
     "options_extension_card_expand": {
         "message": "展开",
@@ -100,86 +88,32 @@
         "description": "Badge shown for locally installed (development) extensions"
     },
     "options_extension_card_aria_label": {
-        "message": "$NAME$，$SUMMARY$。点击以$ACTION$",
-        "description": "Aria label for extension card header",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "summary": {
-                "content": "$2",
-                "example": "5 个更新，3 个未读"
-            },
-            "action": {
-                "content": "$3",
-                "example": "展开"
-            }
-        }
+        "message": "%name%，%summary%。点击以%action%",
+        "description": "Aria label for extension card header"
     },
-    "common_time_minute": {
-        "message": "分钟",
-        "description": "Singular form of minute for common time utility"
+    "common_time_minutes_ago": {
+        "message": "0 分钟前 | %count% 分钟前",
+        "description": "Relative time in minutes, e.g. \"5 minutes ago\". Plural forms separated by |; %count% is the number of minutes"
     },
-    "common_time_minutes": {
-        "message": "分钟",
-        "description": "Plural form of minutes for common time utility"
+    "common_time_hours_ago": {
+        "message": "0 小时前 | %count% 小时前",
+        "description": "Relative time in hours, e.g. \"2 hours ago\". Plural forms separated by |; %count% is the number of hours"
     },
-    "common_time_hour": {
-        "message": "小时",
-        "description": "Singular form of hour for common time utility"
-    },
-    "common_time_hours": {
-        "message": "小时",
-        "description": "Plural form of hours for common time utility"
-    },
-    "common_time_day": {
-        "message": "天",
-        "description": "Singular form of day for common time utility"
-    },
-    "common_time_days": {
-        "message": "天",
-        "description": "Plural form of days for common time utility"
-    },
-    "common_time_ago": {
-        "message": "前",
-        "description": "Time ago suffix for common time utility"
+    "common_time_days_ago": {
+        "message": "0 天前 | %count% 天前",
+        "description": "Relative time in days, e.g. \"3 days ago\". Plural forms separated by |; %count% is the number of days"
     },
     "notification_title": {
         "message": "扩展已更新",
         "description": "Notification title when an extension is updated"
     },
     "notification_message": {
-        "message": "$NAME$ 已从 $OLD$ 更新到 $NEW$",
-        "description": "Notification message body with extension name and version details",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "old": {
-                "content": "$2",
-                "example": "1.0.0"
-            },
-            "new": {
-                "content": "$3",
-                "example": "1.0.1"
-            }
-        }
+        "message": "%name% 已从 %old% 更新到 %new%",
+        "description": "Notification message body with extension name and version details"
     },
     "notification_message_first_install": {
-        "message": "$NAME$ 已安装（版本 $VERSION$）",
-        "description": "Notification message for first installation",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "version": {
-                "content": "$2",
-                "example": "1.0.0"
-            }
-        }
+        "message": "%name% 已安装（版本 %version%）",
+        "description": "Notification message for first installation"
     },
     "notification_button_view_details": {
         "message": "查看详情",
@@ -206,20 +140,12 @@
         "description": "Title for the popup app"
     },
     "popup_app_unread_updates": {
-        "message": "未读",
-        "description": "Label for unread updates count in popup"
+        "message": "条未读更新 | 条未读更新",
+        "description": "Label next to the big unread count in popup. Plural forms separated by |, chosen by that count"
     },
-    "popup_app_total_updates": {
-        "message": "总计",
-        "description": "Label for total updates count in popup"
-    },
-    "popup_app_view_new_update": {
-        "message": "查看新更新",
-        "description": "Button text to view a single new update in popup"
-    },
-    "popup_app_view_all_updates": {
-        "message": "查看全部",
-        "description": "Button text to view all updates in popup"
+    "popup_app_view_updates": {
+        "message": "查看更新 | 查看更新",
+        "description": "Primary popup button opening the update history. Plural forms separated by |, chosen by the unread count"
     },
     "popup_app_mark_all_read": {
         "message": "全部标为已读",
@@ -241,37 +167,13 @@
         "message": "安装或更新扩展程序以在此处查看它们",
         "description": "Helper text for empty state"
     },
-    "options_controls_show_unread_only": {
-        "message": "仅显示未读",
-        "description": "Checkbox label to filter unread updates"
-    },
     "options_empty_no_unread": {
         "message": "没有未读更新",
         "description": "Message when filtering by unread shows no results"
     },
-    "options_update_item_just_now": {
-        "message": "刚刚",
-        "description": "Time indicator for very recent activity"
-    },
-    "popup_app_just_now": {
-        "message": "刚刚",
-        "description": "Time indicator for very recent activity in popup app"
-    },
     "common_time_just_now": {
         "message": "刚刚",
         "description": "Time indicator for very recent activity in time utility"
-    },
-    "options_settings_title": {
-        "message": "设置",
-        "description": "Settings panel title in options page"
-    },
-    "options_toolbar_settings_button": {
-        "message": "设置",
-        "description": "Settings button in the options page toolbar"
-    },
-    "options_settings_description": {
-        "message": "配置通知首选项和扩展程序行为",
-        "description": "Settings description"
     },
     "options_settings_section_notifications": {
         "message": "通知",
@@ -284,14 +186,6 @@
     "options_settings_enable_notifications_desc": {
         "message": "当扩展程序更新时显示桌面通知",
         "description": "Description for enable notifications toggle"
-    },
-    "options_settings_auto_close_timeout": {
-        "message": "自动关闭超时",
-        "description": "Auto-close timeout setting label"
-    },
-    "options_settings_auto_close_timeout_desc": {
-        "message": "在指定秒数后自动关闭通知（0 = 永不）",
-        "description": "Description for auto-close timeout"
     },
     "options_settings_notification_sound": {
         "message": "通知声音",
@@ -310,16 +204,8 @@
         "description": "Auto-disable on update toggle label"
     },
     "options_settings_auto_disable_on_update_desc": {
-        "message": "在扩展程序更新时自动禁用它们（安全功能）",
-        "description": "Description for auto-disable on update"
-    },
-    "options_settings_section_experimental": {
-        "message": "实验性功能",
-        "description": "Experimental settings section header"
-    },
-    "options_settings_section_per_extension": {
-        "message": "每个扩展程序的通知",
-        "description": "Per-extension settings section header"
+        "message": "扩展更新后将被停用，直到您查看变更并重新启用它。您会收到带有启用按钮的通知。",
+        "description": "Explanation of the auto-disable security setting and what to expect after enabling it"
     },
     "options_settings_mute_extension": {
         "message": "静音",
@@ -349,10 +235,6 @@
         "message": "取消",
         "description": "Cancel button text in reset settings dialog"
     },
-    "options_settings_seconds": {
-        "message": "秒",
-        "description": "Time unit: seconds"
-    },
     "notification_welcome_title": {
         "message": "欢迎使用 Extensions Update Tracker！",
         "description": "Welcome notification title"
@@ -370,52 +252,20 @@
         "description": "Document title for the options page"
     },
     "options_stats_total_updates_aria": {
-        "message": "共$COUNT$个更新",
-        "description": "Aria label for total updates badge",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "15"
-            }
-        }
+        "message": "共%count%个更新 | 共%count%个更新",
+        "description": "Aria label for total updates count in stats bar. Plural forms separated by |; %count% is the number"
     },
     "options_stats_unread_updates_aria": {
-        "message": "$COUNT$个未读更新",
-        "description": "Aria label for unread updates badge",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
+        "message": "%count%个未读更新 | %count%个未读更新",
+        "description": "Aria label for unread updates count in stats bar. Plural forms separated by |; %count% is the number"
     },
     "options_update_item_aria_label_read": {
-        "message": "版本$VERSION$，更新于$TIME_AGO$",
-        "description": "Aria label for read update item",
-        "placeholders": {
-            "version": {
-                "content": "$1",
-                "example": "1.2.3"
-            },
-            "time_ago": {
-                "content": "$2",
-                "example": "2小时前"
-            }
-        }
+        "message": "版本%version%，更新于%time_ago%",
+        "description": "Aria label for read update item"
     },
     "options_update_item_aria_label_unread": {
-        "message": "版本$VERSION$，未读，更新于$TIME_AGO$",
-        "description": "Aria label for unread update item",
-        "placeholders": {
-            "version": {
-                "content": "$1",
-                "example": "1.2.3"
-            },
-            "time_ago": {
-                "content": "$2",
-                "example": "2小时前"
-            }
-        }
+        "message": "版本%version%，未读，更新于%time_ago%",
+        "description": "Aria label for unread update item"
     },
     "options_update_item_new_badge_aria": {
         "message": "新更新",
@@ -425,13 +275,9 @@
         "message": "自上次查看以来",
         "description": "Kicker line above the unread count in popup"
     },
-    "popup_app_unread_update": {
-        "message": "条未读更新",
-        "description": "Singular label next to the big unread count in popup"
-    },
     "popup_app_total_recorded": {
-        "message": "条更新已记录",
-        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\""
+        "message": "条更新已记录 | 条更新已记录",
+        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\". Plural forms separated by |, chosen by that count"
     },
     "popup_app_caught_up_desc": {
         "message": "下次检查后，新的版本变化将显示在这里。",
@@ -477,24 +323,12 @@
         "message": "清除搜索",
         "description": "Button to clear the extension search query"
     },
-    "options_extension_card_update_count_one": {
-        "message": "1 条更新",
-        "description": "Singular form of the recorded updates count in extension card"
-    },
-    "options_extension_card_unread_count_one": {
-        "message": "1 条未读",
-        "description": "Singular form of the unread updates count in extension card"
-    },
-    "popup_app_total_recorded_one": {
-        "message": "条更新已记录",
-        "description": "Singular suffix after the total updates count in popup, e.g. \"1 update recorded in total\""
-    },
     "options_extension_card_muted": {
         "message": "通知已静音",
         "description": "Meta text shown when an extension is muted"
     },
     "options_settings_section_reset": {
-        "message": "重新开始",
+        "message": "重置设置",
         "description": "Reset settings section header"
     },
     "options_settings_reset_desc": {
@@ -504,5 +338,73 @@
     "options_tracker_status": {
         "message": "正在跟踪已安装的扩展",
         "description": "Status text in the top navigation showing the tracker is active"
+    },
+    "options_tab_about": {
+        "message": "关于",
+        "description": "Label for the About tab"
+    },
+    "options_about_version": {
+        "message": "版本 %version%",
+        "description": "Version line on the About tab, e.g. \"Version 1.1.0\""
+    },
+    "options_about_section_resources": {
+        "message": "相关链接",
+        "description": "Resources section header on the About tab"
+    },
+    "options_about_github": {
+        "message": "GitHub 仓库",
+        "description": "Link title to the GitHub repository on the About tab"
+    },
+    "options_about_github_desc": {
+        "message": "查看源代码和版本历史",
+        "description": "Description under the GitHub repository link on the About tab"
+    },
+    "options_about_report_issue": {
+        "message": "报告问题",
+        "description": "Link title to open a GitHub issue on the About tab"
+    },
+    "options_about_report_issue_desc": {
+        "message": "发现 bug 或有建议？请在 GitHub 上提交 issue",
+        "description": "Description under the report-an-issue link on the About tab"
+    },
+    "options_about_rate": {
+        "message": "评价此扩展",
+        "description": "Link title to rate the extension on the About tab"
+    },
+    "options_about_rate_desc": {
+        "message": "在 Chrome 网上应用店留下评价",
+        "description": "Description under the rate-this-extension link on the About tab"
+    },
+    "options_about_privacy_desc": {
+        "message": "此扩展不会收集或传输任何数据。更新历史仅保存在您的设备本地。",
+        "description": "Privacy statement text on the About tab"
+    },
+    "options_about_author": {
+        "message": "作者：%author%",
+        "description": "Author credit line on the About tab, e.g. \"Created by Maxim Topciu\""
+    },
+    "options_about_license": {
+        "message": "MIT 许可证",
+        "description": "License link text on the About tab"
+    },
+    "popup_app_more_updates": {
+        "message": "还有 %count% 个更新 | 还有 %count% 个更新",
+        "description": "Overflow row in popup when more unread updates exist than listed. Plural forms separated by |; %count% is the hidden count"
+    },
+    "options_toast_marked_read": {
+        "message": "已将 %count% 个更新标记为已读 | 已将 %count% 个更新标记为已读",
+        "description": "Toast message after mark-all-as-read. Plural forms separated by |; %count% is how many updates were marked"
+    },
+    "options_toast_undo": {
+        "message": "撤销",
+        "description": "Undo action button in the mark-all-as-read toast"
+    },
+    "options_update_item_mark_read": {
+        "message": "标为已读",
+        "description": "Per-row button marking a single update as read"
+    },
+    "options_extension_card_local_badge_title": {
+        "message": "从 Chrome 网上应用店以外安装",
+        "description": "Tooltip explaining the LOCAL badge on an extension card"
     }
 }

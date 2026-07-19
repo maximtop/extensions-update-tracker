@@ -1,12 +1,14 @@
 import { observer } from 'mobx-react-lite';
 import React, { useState, useEffect } from 'react';
 
-import { t } from '../../common/utils/i18n';
+import { UpdateRef } from '../../common/messaging/message-types';
+import { t, tPlural } from '../../common/utils/i18n';
 import { useFilteredAndSortedExtensions } from '../hooks/useFilteredAndSortedExtensions';
 import { useRootStore } from '../stores/root-store';
-import { TAB_GENERAL, TAB_SETTINGS } from '../types/tab-types';
+import { TAB_ABOUT, TAB_GENERAL, TAB_SETTINGS } from '../types/tab-types';
 import { getSortOrderFromStorage, saveSortOrderToStorage } from '../utils/storage-utils';
 
+import { AboutContent } from './AboutContent';
 import { ExtensionsControls } from './ExtensionsControls';
 import { ExtensionsList } from './ExtensionsList';
 import { PageHeader } from './PageHeader';
@@ -16,6 +18,7 @@ import { ErrorState } from './states/ErrorState';
 import { LoadingState } from './states/LoadingState';
 import { StatsBar } from './StatsBar';
 import { TabNavigation } from './TabNavigation';
+import { Toast } from './Toast';
 
 /**
  * Main app component - orchestrates the options page layout
@@ -28,6 +31,8 @@ export const App = observer(() => {
     // making it page-specific UI preference rather than cross-component application state.
     // The useEffect pattern properly syncs state changes to localStorage.
     const [sortOrder, setSortOrder] = useState(() => getSortOrderFromStorage());
+    // Undo state for the bulk mark-all-as-read action
+    const [undoItems, setUndoItems] = useState<UpdateRef[] | null>(null);
 
     // Persist sort order changes to localStorage
     useEffect(() => {
@@ -43,11 +48,73 @@ export const App = observer(() => {
 
     const isLoading = updatesStore.isLoading || settingsStore.isLoading;
     const hasError = updatesStore.error;
-    const isEmpty = !isLoading && !hasError && updatesStore.extensionIds.length === 0;
+    const isEmpty = updatesStore.extensionIds.length === 0;
 
-    // Main content - mutually exclusive states rendered in priority order
-    // State priority: loading -> error -> empty -> loaded
-    // This approach is simpler than a state machine for this use case
+    // Mutually exclusive states rendered in priority order:
+    // loading -> error -> tab content (with an empty state on the Updates tab)
+    const renderTabPanel = () => {
+        if (isLoading) {
+            return <LoadingState />;
+        }
+
+        if (hasError) {
+            return <ErrorState error={hasError} />;
+        }
+
+        switch (settingsStore.activeTab) {
+            case TAB_SETTINGS:
+                return (
+                    <div role="tabpanel" id="settings-panel" aria-labelledby="settings-tab">
+                        <SettingsContent />
+                    </div>
+                );
+
+            case TAB_ABOUT:
+                return (
+                    <div role="tabpanel" id="about-panel" aria-labelledby="about-tab">
+                        <AboutContent />
+                    </div>
+                );
+
+            case TAB_GENERAL:
+            default:
+                if (isEmpty) {
+                    return <EmptyState />;
+                }
+                return (
+                    <div role="tabpanel" id="general-panel" aria-labelledby="general-tab">
+                        <StatsBar
+                            totalUpdateCount={updatesStore.totalUpdateCount}
+                            unreadUpdateCount={updatesStore.unreadUpdateCount}
+                            onMarkAllAsRead={async () => {
+                                const snapshot = await updatesStore.markAllAsRead();
+                                if (snapshot.length > 0) {
+                                    setUndoItems(snapshot);
+                                }
+                            }}
+                        />
+
+                        <ExtensionsControls
+                            searchQuery={searchQuery}
+                            onSearchQueryChange={setSearchQuery}
+                            showUnreadOnly={showUnreadOnly}
+                            onToggleUnreadOnly={setShowUnreadOnly}
+                            sortOrder={sortOrder}
+                            onSortOrderChange={setSortOrder}
+                        />
+
+                        <ExtensionsList
+                            extensionIds={sortedExtensionIds}
+                            showUnreadOnly={showUnreadOnly}
+                            searchQuery={searchQuery}
+                            onClearSearch={() => setSearchQuery('')}
+                            getUpdatesForExtension={(id) => updatesStore.getUpdatesForExtension(id)}
+                        />
+                    </div>
+                );
+        }
+    };
+
     return (
         <>
             <header className="topnav">
@@ -69,49 +136,20 @@ export const App = observer(() => {
                     />
                 </div>
 
-                <div className="tab-panel">
-                    {isLoading && <LoadingState />}
-
-                    {!isLoading && hasError && <ErrorState error={hasError} />}
-
-                    {!isLoading && !hasError && isEmpty && settingsStore.activeTab === TAB_GENERAL && (
-                        <EmptyState />
-                    )}
-
-                    {!isLoading && !hasError && !isEmpty && settingsStore.activeTab === TAB_GENERAL && (
-                        <div role="tabpanel" id="general-panel" aria-labelledby="general-tab">
-                            <StatsBar
-                                totalUpdateCount={updatesStore.totalUpdateCount}
-                                unreadUpdateCount={updatesStore.unreadUpdateCount}
-                                onMarkAllAsRead={() => updatesStore.markAllAsRead()}
-                            />
-
-                            <ExtensionsControls
-                                searchQuery={searchQuery}
-                                onSearchQueryChange={setSearchQuery}
-                                showUnreadOnly={showUnreadOnly}
-                                onToggleUnreadOnly={setShowUnreadOnly}
-                                sortOrder={sortOrder}
-                                onSortOrderChange={setSortOrder}
-                            />
-
-                            <ExtensionsList
-                                extensionIds={sortedExtensionIds}
-                                showUnreadOnly={showUnreadOnly}
-                                searchQuery={searchQuery}
-                                onClearSearch={() => setSearchQuery('')}
-                                getUpdatesForExtension={(id) => updatesStore.getUpdatesForExtension(id)}
-                            />
-                        </div>
-                    )}
-
-                    {!isLoading && !hasError && settingsStore.activeTab === TAB_SETTINGS && (
-                        <div role="tabpanel" id="settings-panel" aria-labelledby="settings-tab">
-                            <SettingsContent />
-                        </div>
-                    )}
-                </div>
+                <div className="tab-panel">{renderTabPanel()}</div>
             </main>
+
+            {undoItems && (
+                <Toast
+                    message={tPlural('options_toast_marked_read', undoItems.length)}
+                    actionLabel={t('options_toast_undo')}
+                    onAction={async () => {
+                        await updatesStore.markUpdatesAsUnread(undoItems);
+                        setUndoItems(null);
+                    }}
+                    onDismiss={() => setUndoItems(null)}
+                />
+            )}
         </>
     );
 });

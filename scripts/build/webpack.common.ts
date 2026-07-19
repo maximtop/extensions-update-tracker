@@ -36,6 +36,30 @@ const OUTPUT_PATH = config.outputPath;
 
 const isDev = BUILD_ENV === BuildTargetEnv.Dev;
 
+/**
+ * Suffix appended to the localized extension name (the one the manifest shows
+ * via __MSG_name__) so dev and beta installs are distinguishable from release.
+ */
+const NAME_SUFFIXES: Partial<Record<BuildTargetEnv, string>> = {
+    [BuildTargetEnv.Dev]: ' (Dev)',
+    [BuildTargetEnv.Beta]: ' (Beta)',
+};
+
+/**
+ * Appends the build-specific name suffix to a copied locale messages.json file
+ */
+const transformLocaleMessages = (content: Buffer): string | Buffer => {
+    const suffix = NAME_SUFFIXES[BUILD_ENV];
+    if (!suffix) {
+        return content;
+    }
+    const messages = JSON.parse(content.toString());
+    if (messages.name?.message) {
+        messages.name.message += suffix;
+    }
+    return JSON.stringify(messages, null, 4);
+};
+
 export const genCommonConfig = (
     browserConfig: BrowserConfig,
     isWatchMode: boolean,
@@ -111,6 +135,7 @@ export const genCommonConfig = (
                     {
                         from: path.resolve(currentDirPath, '../../src/_locales'),
                         to: '_locales',
+                        transform: transformLocaleMessages,
                     },
                     {
                         from: path.resolve(currentDirPath, '../../src/manifest.json'),

@@ -20,8 +20,8 @@
         "description": "Label for the Settings tab"
     },
     "options_stats_unread_updates": {
-        "message": "Ungelesene Updates",
-        "description": "Label for unread updates count in stats bar"
+        "message": "Ungelesene Updates | Ungelesenes Update | Ungelesene Updates",
+        "description": "Label for unread updates count in stats bar. Plural forms separated by |, chosen by that count"
     },
     "options_stats_total_updates": {
         "message": "Gesamte Updates",
@@ -59,69 +59,29 @@
         "message": "Im Web Store anzeigen",
         "description": "Button text to view the extension on Chrome Web Store"
     },
-    "common_time_minute": {
-        "message": "Minute",
-        "description": "Singular form of minute for common time utility"
+    "common_time_minutes_ago": {
+        "message": "vor 0 Minuten | vor %count% Minute | vor %count% Minuten",
+        "description": "Relative time in minutes, e.g. \"5 minutes ago\". Plural forms separated by |; %count% is the number of minutes"
     },
-    "common_time_minutes": {
-        "message": "Minuten",
-        "description": "Plural form of minutes for common time utility"
+    "common_time_hours_ago": {
+        "message": "vor 0 Stunden | vor %count% Stunde | vor %count% Stunden",
+        "description": "Relative time in hours, e.g. \"2 hours ago\". Plural forms separated by |; %count% is the number of hours"
     },
-    "common_time_hour": {
-        "message": "Stunde",
-        "description": "Singular form of hour for common time utility"
-    },
-    "common_time_hours": {
-        "message": "Stunden",
-        "description": "Plural form of hours for common time utility"
-    },
-    "common_time_day": {
-        "message": "Tag",
-        "description": "Singular form of day for common time utility"
-    },
-    "common_time_days": {
-        "message": "Tage",
-        "description": "Plural form of days for common time utility"
-    },
-    "common_time_ago": {
-        "message": "vor",
-        "description": "Time ago suffix for common time utility"
+    "common_time_days_ago": {
+        "message": "vor 0 Tagen | vor %count% Tag | vor %count% Tagen",
+        "description": "Relative time in days, e.g. \"3 days ago\". Plural forms separated by |; %count% is the number of days"
     },
     "notification_title": {
         "message": "Erweiterung aktualisiert",
         "description": "Notification title when an extension is updated"
     },
     "notification_message": {
-        "message": "$NAME$ von $OLD$ auf $NEW$ aktualisiert",
-        "description": "Notification message body with extension name and version details",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "old": {
-                "content": "$2",
-                "example": "1.0.0"
-            },
-            "new": {
-                "content": "$3",
-                "example": "1.0.1"
-            }
-        }
+        "message": "%name% von %old% auf %new% aktualisiert",
+        "description": "Notification message body with extension name and version details"
     },
     "notification_message_first_install": {
-        "message": "$NAME$ installiert (Version $VERSION$)",
-        "description": "Notification message for first installation",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "version": {
-                "content": "$2",
-                "example": "1.0.0"
-            }
-        }
+        "message": "%name% installiert (Version %version%)",
+        "description": "Notification message for first installation"
     },
     "notification_button_view_details": {
         "message": "Details anzeigen",
@@ -148,20 +108,12 @@
         "description": "Title for the popup app"
     },
     "popup_app_unread_updates": {
-        "message": "Ungelesene Updates",
-        "description": "Label for unread updates count in popup"
+        "message": "ungelesene Updates | ungelesenes Update | ungelesene Updates",
+        "description": "Label next to the big unread count in popup. Plural forms separated by |, chosen by that count"
     },
-    "popup_app_total_updates": {
-        "message": "Gesamte Updates",
-        "description": "Label for total updates count in popup"
-    },
-    "popup_app_view_new_update": {
-        "message": "Neues Update anzeigen",
-        "description": "Button text to view a single new update in popup"
-    },
-    "popup_app_view_all_updates": {
-        "message": "Alle Updates anzeigen",
-        "description": "Button text to view all updates in popup"
+    "popup_app_view_updates": {
+        "message": "Alle Updates anzeigen | Neues Update anzeigen | Alle Updates anzeigen",
+        "description": "Primary popup button opening the update history. Plural forms separated by |, chosen by the unread count"
     },
     "popup_app_mark_all_read": {
         "message": "Alle als gelesen markieren",
@@ -183,37 +135,13 @@
         "message": "Installieren oder aktualisieren Sie Erweiterungen, um sie hier zu sehen",
         "description": "Helper text for empty state"
     },
-    "options_controls_show_unread_only": {
-        "message": "Nur ungelesene anzeigen",
-        "description": "Checkbox label to filter unread updates in controls"
-    },
     "options_empty_no_unread": {
         "message": "Keine ungelesenen Updates",
         "description": "Message when filtering by unread shows no results"
     },
-    "options_update_item_just_now": {
-        "message": "gerade eben",
-        "description": "Time indicator for very recent activity"
-    },
-    "popup_app_just_now": {
-        "message": "gerade eben",
-        "description": "Time indicator for very recent activity in popup app"
-    },
     "common_time_just_now": {
         "message": "gerade eben",
         "description": "Time indicator for very recent activity in time utility"
-    },
-    "options_settings_title": {
-        "message": "Einstellungen",
-        "description": "Settings panel title in options page"
-    },
-    "options_toolbar_settings_button": {
-        "message": "Einstellungen",
-        "description": "Settings button in the options page toolbar"
-    },
-    "options_settings_description": {
-        "message": "Benachrichtigungseinstellungen und Erweiterungsverhalten konfigurieren",
-        "description": "Settings panel description"
     },
     "options_settings_section_notifications": {
         "message": "Benachrichtigungen",
@@ -226,14 +154,6 @@
     "options_settings_enable_notifications_desc": {
         "message": "Desktop-Benachrichtigungen anzeigen, wenn Erweiterungen aktualisiert werden",
         "description": "Description for enable notifications toggle"
-    },
-    "options_settings_auto_close_timeout": {
-        "message": "Automatisches Schließen",
-        "description": "Auto-close timeout setting label"
-    },
-    "options_settings_auto_close_timeout_desc": {
-        "message": "Benachrichtigungen automatisch nach angegebenen Sekunden schließen (0 = nie)",
-        "description": "Description for auto-close timeout"
     },
     "options_settings_notification_sound": {
         "message": "Benachrichtigungston",
@@ -252,16 +172,8 @@
         "description": "Auto-disable on update toggle label"
     },
     "options_settings_auto_disable_on_update_desc": {
-        "message": "Erweiterungen automatisch deaktivieren, wenn sie aktualisiert werden (Sicherheitsfunktion)",
-        "description": "Description for auto-disable on update"
-    },
-    "options_settings_section_experimental": {
-        "message": "Experimentelle Funktionen",
-        "description": "Experimental settings section header"
-    },
-    "options_settings_section_per_extension": {
-        "message": "Benachrichtigungen pro Erweiterung",
-        "description": "Per-extension settings section header"
+        "message": "Aktualisierte Erweiterungen bleiben deaktiviert, bis die Änderung geprüft und die Erweiterung wieder aktiviert wird. Eine Benachrichtigung mit Aktivieren-Schaltfläche wird angezeigt.",
+        "description": "Explanation of the auto-disable security setting and what to expect after enabling it"
     },
     "options_settings_mute_extension": {
         "message": "Stummschalten",
@@ -291,10 +203,6 @@
         "message": "Abbrechen",
         "description": "Cancel button text in reset settings dialog"
     },
-    "options_settings_seconds": {
-        "message": "Sekunden",
-        "description": "Time unit: seconds"
-    },
     "notification_welcome_title": {
         "message": "Willkommen bei Extensions Update Tracker!",
         "description": "Welcome notification title"
@@ -312,24 +220,12 @@
         "description": "Document title for the options page"
     },
     "options_extension_card_update_count": {
-        "message": "$COUNT$ Updates",
-        "description": "Shows the number of updates for an extension in extension card",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "5"
-            }
-        }
+        "message": "%count% Updates | %count% Update | %count% Updates",
+        "description": "Recorded updates count in extension card. Plural forms separated by |; %count% is the number"
     },
     "options_extension_card_unread_count": {
-        "message": "$COUNT$ ungelesen",
-        "description": "Shows the number of unread updates in extension card",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
+        "message": "%count% ungelesen | %count% ungelesen | %count% ungelesen",
+        "description": "Unread updates count in extension card. Plural forms separated by |; %count% is the number"
     },
     "options_extension_card_expand": {
         "message": "erweitern",
@@ -340,8 +236,8 @@
         "description": "Action to collapse an expanded extension card"
     },
     "options_extension_card_show_more": {
-        "message": "$1 weitere Versionen anzeigen",
-        "description": "Button to show more version history. $1 is the number of hidden versions"
+        "message": "%count% weitere Versionen anzeigen | %count% weitere Version anzeigen | %count% weitere Versionen anzeigen",
+        "description": "Button to show more version history. Plural forms separated by |; %count% is the number of hidden versions"
     },
     "options_extension_card_show_less": {
         "message": "Weniger anzeigen",
@@ -352,70 +248,24 @@
         "description": "Badge shown for locally installed (development) extensions"
     },
     "options_extension_card_aria_label": {
-        "message": "$NAME$, $SUMMARY$. Klicken zum $ACTION$",
-        "description": "Aria label for extension card header",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "summary": {
-                "content": "$2",
-                "example": "5 updates, 3 unread"
-            },
-            "action": {
-                "content": "$3",
-                "example": "expand"
-            }
-        }
+        "message": "%name%, %summary%. Klicken zum %action%",
+        "description": "Aria label for extension card header"
     },
     "options_stats_total_updates_aria": {
-        "message": "$COUNT$ Updates insgesamt",
-        "description": "Aria label for total updates badge in stats bar",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "15"
-            }
-        }
+        "message": "%count% Updates insgesamt | %count% Update insgesamt | %count% Updates insgesamt",
+        "description": "Aria label for total updates count in stats bar. Plural forms separated by |; %count% is the number"
     },
     "options_stats_unread_updates_aria": {
-        "message": "$COUNT$ ungelesene Updates",
-        "description": "Aria label for unread updates badge in stats bar",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
+        "message": "%count% ungelesene Updates | %count% ungelesenes Update | %count% ungelesene Updates",
+        "description": "Aria label for unread updates count in stats bar. Plural forms separated by |; %count% is the number"
     },
     "options_update_item_aria_label_read": {
-        "message": "Version $VERSION$, aktualisiert $TIME_AGO$",
-        "description": "Aria label for read update item",
-        "placeholders": {
-            "version": {
-                "content": "$1",
-                "example": "1.2.3"
-            },
-            "time_ago": {
-                "content": "$2",
-                "example": "vor 2 Stunden"
-            }
-        }
+        "message": "Version %version%, aktualisiert %time_ago%",
+        "description": "Aria label for read update item"
     },
     "options_update_item_aria_label_unread": {
-        "message": "Version $VERSION$, ungelesen, aktualisiert $TIME_AGO$",
-        "description": "Aria label for unread update item",
-        "placeholders": {
-            "version": {
-                "content": "$1",
-                "example": "1.2.3"
-            },
-            "time_ago": {
-                "content": "$2",
-                "example": "vor 2 Stunden"
-            }
-        }
+        "message": "Version %version%, ungelesen, aktualisiert %time_ago%",
+        "description": "Aria label for unread update item"
     },
     "options_update_item_new_badge_aria": {
         "message": "Neues Update",
@@ -425,13 +275,9 @@
         "message": "Seit der letzten Überprüfung",
         "description": "Kicker line above the unread count in popup"
     },
-    "popup_app_unread_update": {
-        "message": "ungelesenes Update",
-        "description": "Singular label next to the big unread count in popup"
-    },
     "popup_app_total_recorded": {
-        "message": "Updates insgesamt erfasst",
-        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\""
+        "message": "Updates insgesamt erfasst | Update insgesamt erfasst | Updates insgesamt erfasst",
+        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\". Plural forms separated by |, chosen by that count"
     },
     "popup_app_caught_up_desc": {
         "message": "Neue Versionsänderungen erscheinen hier nach der nächsten Prüfung.",
@@ -477,24 +323,12 @@
         "message": "Suche löschen",
         "description": "Button to clear the extension search query"
     },
-    "options_extension_card_update_count_one": {
-        "message": "1 Update",
-        "description": "Singular form of the recorded updates count in extension card"
-    },
-    "options_extension_card_unread_count_one": {
-        "message": "1 ungelesen",
-        "description": "Singular form of the unread updates count in extension card"
-    },
-    "popup_app_total_recorded_one": {
-        "message": "Update insgesamt erfasst",
-        "description": "Singular suffix after the total updates count in popup, e.g. \"1 update recorded in total\""
-    },
     "options_extension_card_muted": {
         "message": "Benachrichtigungen stummgeschaltet",
         "description": "Meta text shown when an extension is muted"
     },
     "options_settings_section_reset": {
-        "message": "Neu beginnen",
+        "message": "Einstellungen zurücksetzen",
         "description": "Reset settings section header"
     },
     "options_settings_reset_desc": {
@@ -504,5 +338,73 @@
     "options_tracker_status": {
         "message": "Überwacht installierte Erweiterungen",
         "description": "Status text in the top navigation showing the tracker is active"
+    },
+    "options_tab_about": {
+        "message": "Über",
+        "description": "Label for the About tab"
+    },
+    "options_about_version": {
+        "message": "Version %version%",
+        "description": "Version line on the About tab, e.g. \"Version 1.1.0\""
+    },
+    "options_about_section_resources": {
+        "message": "Ressourcen",
+        "description": "Resources section header on the About tab"
+    },
+    "options_about_github": {
+        "message": "GitHub-Repository",
+        "description": "Link title to the GitHub repository on the About tab"
+    },
+    "options_about_github_desc": {
+        "message": "Quellcode und Versionshistorie ansehen",
+        "description": "Description under the GitHub repository link on the About tab"
+    },
+    "options_about_report_issue": {
+        "message": "Problem melden",
+        "description": "Link title to open a GitHub issue on the About tab"
+    },
+    "options_about_report_issue_desc": {
+        "message": "Fehler gefunden oder eine Idee? Ein Issue auf GitHub erstellen",
+        "description": "Description under the report-an-issue link on the About tab"
+    },
+    "options_about_rate": {
+        "message": "Erweiterung bewerten",
+        "description": "Link title to rate the extension on the About tab"
+    },
+    "options_about_rate_desc": {
+        "message": "Eine Bewertung im Chrome Web Store hinterlassen",
+        "description": "Description under the rate-this-extension link on the About tab"
+    },
+    "options_about_privacy_desc": {
+        "message": "Diese Erweiterung sammelt und überträgt keine Daten. Der Update-Verlauf wird lokal auf dem Gerät gespeichert.",
+        "description": "Privacy statement text on the About tab"
+    },
+    "options_about_author": {
+        "message": "Erstellt von %author%",
+        "description": "Author credit line on the About tab, e.g. \"Created by Maxim Topciu\""
+    },
+    "options_about_license": {
+        "message": "MIT-Lizenz",
+        "description": "License link text on the About tab"
+    },
+    "popup_app_more_updates": {
+        "message": "+%count% weitere Updates | +%count% weiteres Update | +%count% weitere Updates",
+        "description": "Overflow row in popup when more unread updates exist than listed. Plural forms separated by |; %count% is the hidden count"
+    },
+    "options_toast_marked_read": {
+        "message": "%count% Updates als gelesen markiert | %count% Update als gelesen markiert | %count% Updates als gelesen markiert",
+        "description": "Toast message after mark-all-as-read. Plural forms separated by |; %count% is how many updates were marked"
+    },
+    "options_toast_undo": {
+        "message": "Rückgängig",
+        "description": "Undo action button in the mark-all-as-read toast"
+    },
+    "options_update_item_mark_read": {
+        "message": "Als gelesen markieren",
+        "description": "Per-row button marking a single update as read"
+    },
+    "options_extension_card_local_badge_title": {
+        "message": "Außerhalb des Chrome Web Store installiert",
+        "description": "Tooltip explaining the LOCAL badge on an extension card"
     }
 }

@@ -5,13 +5,14 @@
 /**
  * Available tabs in the options page
  */
-export type OptionsTab = 'general' | 'settings';
+export type OptionsTab = 'general' | 'settings' | 'about';
 
 /**
  * Tab identifier constants
  */
 export const TAB_GENERAL: OptionsTab = 'general';
 export const TAB_SETTINGS: OptionsTab = 'settings';
+export const TAB_ABOUT: OptionsTab = 'about';
 
 /**
  * Default active tab

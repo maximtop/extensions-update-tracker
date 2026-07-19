@@ -17,6 +17,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { validator } from '@adguard/translate';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -61,6 +63,32 @@ function getMessageKeys(messages) {
     }).sort();
 }
 
+/**
+ * Maps a locale directory name (e.g. "pt_BR") to the @adguard/translate
+ * locale code (lowercase, e.g. "pt_br").
+ */
+function toLibLocale(locale) {
+    return locale.toLowerCase();
+}
+
+/**
+ * Checks a translated message against the base (en) message with the
+ * @adguard/translate validator: placeholder parity and, for plural strings,
+ * the correct number of |-separated forms for the locale.
+ *
+ * @returns Error description string, or null if the message is valid
+ */
+function getMessageError(baseMessage, translatedMessage, locale, key) {
+    try {
+        if (!validator.isTranslationValid(baseMessage, translatedMessage, toLibLocale(locale))) {
+            return `${key}: placeholders or plural structure do not match base locale`;
+        }
+        return null;
+    } catch (error) {
+        return `${key}: ${error.message}`;
+    }
+}
+
 function validateTranslations() {
     log('\n🌐 Validating Translations...\n', colors.bold + colors.cyan);
 
@@ -89,6 +117,24 @@ function validateTranslations() {
     }
 
     const referenceKeys = getMessageKeys(referenceMessages);
+
+    // Self-check the reference locale: catches plural strings with a wrong
+    // number of forms or broken placeholder markers in en itself
+    const referenceErrors = referenceKeys
+        .map((key) => getMessageError(
+            referenceMessages[key].message,
+            referenceMessages[key].message,
+            BASE_LOCALE,
+            key,
+        ))
+        .filter((error) => error !== null);
+
+    if (referenceErrors.length > 0) {
+        log(`❌ Reference locale (${BASE_LOCALE}) has invalid messages:`, colors.red);
+        referenceErrors.forEach((error) => log(`   - ${error}`, colors.yellow));
+        return false;
+    }
+
     log(`✓ Reference locale (${BASE_LOCALE}) has ${referenceKeys.length} keys\n`, colors.green);
 
     let hasErrors = false;
@@ -113,7 +159,17 @@ function validateTranslations() {
         const missingKeys = referenceKeys.filter((key) => !keys.includes(key));
         const extraKeys = keys.filter((key) => !referenceKeys.includes(key));
 
-        if (missingKeys.length === 0 && extraKeys.length === 0) {
+        const invalidMessages = keys
+            .filter((key) => referenceKeys.includes(key))
+            .map((key) => getMessageError(
+                referenceMessages[key].message,
+                messages[key].message,
+                locale,
+                key,
+            ))
+            .filter((error) => error !== null);
+
+        if (missingKeys.length === 0 && extraKeys.length === 0 && invalidMessages.length === 0) {
             results.push({
                 locale,
                 status: 'success',
@@ -127,6 +183,7 @@ function validateTranslations() {
                 keyCount: keys.length,
                 missingKeys,
                 extraKeys,
+                invalidMessages,
             });
         }
     }
@@ -151,6 +208,13 @@ function validateTranslations() {
                 log(`   Extra ${result.extraKeys.length} key(s) (should be removed):`, colors.yellow);
                 result.extraKeys.forEach((key) => {
                     log(`     - ${key}`, colors.yellow);
+                });
+            }
+
+            if (result.invalidMessages.length > 0) {
+                log(`   Invalid ${result.invalidMessages.length} message(s):`, colors.yellow);
+                result.invalidMessages.forEach((error) => {
+                    log(`     - ${error}`, colors.yellow);
                 });
             }
             log('');

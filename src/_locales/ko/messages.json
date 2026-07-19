@@ -20,8 +20,8 @@
         "description": "Label for the Settings tab"
     },
     "options_stats_unread_updates": {
-        "message": "읽지 않은 업데이트",
-        "description": "Label for unread updates count"
+        "message": "읽지 않은 업데이트 | 읽지 않은 업데이트",
+        "description": "Label for unread updates count in stats bar. Plural forms separated by |, chosen by that count"
     },
     "options_stats_total_updates": {
         "message": "전체 업데이트",
@@ -60,32 +60,20 @@
         "description": "Button text to view the extension on Chrome Web Store"
     },
     "options_extension_card_show_more": {
-        "message": "$1개 버전 더 보기",
-        "description": "Button to show more version history. $1 is the number of hidden versions"
+        "message": "%count%개 버전 더 보기 | %count%개 버전 더 보기",
+        "description": "Button to show more version history. Plural forms separated by |; %count% is the number of hidden versions"
     },
     "options_extension_card_show_less": {
         "message": "간략히 보기",
         "description": "Button to collapse version history"
     },
     "options_extension_card_update_count": {
-        "message": "$1개 업데이트",
-        "description": "Shows the number of updates for an extension in extension card",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "5"
-            }
-        }
+        "message": "업데이트 %count%개 | 업데이트 %count%개",
+        "description": "Recorded updates count in extension card. Plural forms separated by |; %count% is the number"
     },
     "options_extension_card_unread_count": {
-        "message": "$1개 읽지 않음",
-        "description": "Shows the number of unread updates in extension card",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
+        "message": "읽지 않음 %count%개 | 읽지 않음 %count%개",
+        "description": "Unread updates count in extension card. Plural forms separated by |; %count% is the number"
     },
     "options_extension_card_expand": {
         "message": "확장",
@@ -100,86 +88,32 @@
         "description": "Badge shown for locally installed (development) extensions"
     },
     "options_extension_card_aria_label": {
-        "message": "$NAME$, $SUMMARY$. $ACTION$하려면 클릭",
-        "description": "Aria label for extension card header",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "summary": {
-                "content": "$2",
-                "example": "5개 업데이트, 3개 읽지 않음"
-            },
-            "action": {
-                "content": "$3",
-                "example": "확장"
-            }
-        }
+        "message": "%name%, %summary%. %action%하려면 클릭",
+        "description": "Aria label for extension card header"
     },
-    "common_time_minute": {
-        "message": "분",
-        "description": "Singular form of minute for common time utility"
+    "common_time_minutes_ago": {
+        "message": "0분 전 | %count%분 전",
+        "description": "Relative time in minutes, e.g. \"5 minutes ago\". Plural forms separated by |; %count% is the number of minutes"
     },
-    "common_time_minutes": {
-        "message": "분",
-        "description": "Plural form of minutes for common time utility"
+    "common_time_hours_ago": {
+        "message": "0시간 전 | %count%시간 전",
+        "description": "Relative time in hours, e.g. \"2 hours ago\". Plural forms separated by |; %count% is the number of hours"
     },
-    "common_time_hour": {
-        "message": "시간",
-        "description": "Singular form of hour for common time utility"
-    },
-    "common_time_hours": {
-        "message": "시간",
-        "description": "Plural form of hours for common time utility"
-    },
-    "common_time_day": {
-        "message": "일",
-        "description": "Singular form of day for common time utility"
-    },
-    "common_time_days": {
-        "message": "일",
-        "description": "Plural form of days for common time utility"
-    },
-    "common_time_ago": {
-        "message": "전",
-        "description": "Time ago suffix for common time utility"
+    "common_time_days_ago": {
+        "message": "0일 전 | %count%일 전",
+        "description": "Relative time in days, e.g. \"3 days ago\". Plural forms separated by |; %count% is the number of days"
     },
     "notification_title": {
         "message": "확장 프로그램 업데이트됨",
         "description": "Notification title when an extension is updated"
     },
     "notification_message": {
-        "message": "$NAME$이(가) $OLD$에서 $NEW$(으)로 업데이트되었습니다",
-        "description": "Notification message body with extension name and version details",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "old": {
-                "content": "$2",
-                "example": "1.0.0"
-            },
-            "new": {
-                "content": "$3",
-                "example": "1.0.1"
-            }
-        }
+        "message": "%name%이(가) %old%에서 %new%(으)로 업데이트되었습니다",
+        "description": "Notification message body with extension name and version details"
     },
     "notification_message_first_install": {
-        "message": "$NAME$ 설치됨 (버전 $VERSION$)",
-        "description": "Notification message for first installation",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "AdBlock"
-            },
-            "version": {
-                "content": "$2",
-                "example": "1.0.0"
-            }
-        }
+        "message": "%name% 설치됨 (버전 %version%)",
+        "description": "Notification message for first installation"
     },
     "notification_button_view_details": {
         "message": "자세히 보기",
@@ -206,20 +140,12 @@
         "description": "Title for the popup app"
     },
     "popup_app_unread_updates": {
-        "message": "읽지 않음",
-        "description": "Label for unread updates count in popup"
+        "message": "개의 읽지 않은 업데이트 | 개의 읽지 않은 업데이트",
+        "description": "Label next to the big unread count in popup. Plural forms separated by |, chosen by that count"
     },
-    "popup_app_total_updates": {
-        "message": "전체",
-        "description": "Label for total updates count in popup"
-    },
-    "popup_app_view_new_update": {
-        "message": "새 업데이트 보기",
-        "description": "Button text to view a single new update in popup"
-    },
-    "popup_app_view_all_updates": {
-        "message": "모두 보기",
-        "description": "Button text to view all updates in popup"
+    "popup_app_view_updates": {
+        "message": "업데이트 보기 | 업데이트 보기",
+        "description": "Primary popup button opening the update history. Plural forms separated by |, chosen by the unread count"
     },
     "popup_app_mark_all_read": {
         "message": "모두 읽음 표시",
@@ -241,37 +167,13 @@
         "message": "확장 프로그램을 설치하거나 업데이트하면 여기에 표시됩니다",
         "description": "Helper text for empty state"
     },
-    "options_controls_show_unread_only": {
-        "message": "읽지 않음만 표시",
-        "description": "Checkbox label to filter unread updates"
-    },
     "options_empty_no_unread": {
         "message": "읽지 않은 업데이트가 없습니다",
         "description": "Message when filtering by unread shows no results"
     },
-    "options_update_item_just_now": {
-        "message": "방금",
-        "description": "Time indicator for very recent activity"
-    },
-    "popup_app_just_now": {
-        "message": "방금",
-        "description": "Time indicator for very recent activity in popup app"
-    },
     "common_time_just_now": {
         "message": "방금",
         "description": "Time indicator for very recent activity in time utility"
-    },
-    "options_settings_title": {
-        "message": "설정",
-        "description": "Settings panel title in options page"
-    },
-    "options_toolbar_settings_button": {
-        "message": "설정",
-        "description": "Settings button in the options page toolbar"
-    },
-    "options_settings_description": {
-        "message": "알림 설정 및 확장 프로그램 동작 구성",
-        "description": "Settings description"
     },
     "options_settings_section_notifications": {
         "message": "알림",
@@ -284,14 +186,6 @@
     "options_settings_enable_notifications_desc": {
         "message": "확장 프로그램이 업데이트될 때 데스크톱 알림 표시",
         "description": "Description for enable notifications toggle"
-    },
-    "options_settings_auto_close_timeout": {
-        "message": "자동 닫기 시간 제한",
-        "description": "Auto-close timeout setting label"
-    },
-    "options_settings_auto_close_timeout_desc": {
-        "message": "지정된 초 후에 알림 자동 닫기 (0 = 닫지 않음)",
-        "description": "Description for auto-close timeout"
     },
     "options_settings_notification_sound": {
         "message": "알림 소리",
@@ -310,16 +204,8 @@
         "description": "Auto-disable on update toggle label"
     },
     "options_settings_auto_disable_on_update_desc": {
-        "message": "업데이트될 때 확장 프로그램을 자동으로 비활성화 (보안 기능)",
-        "description": "Description for auto-disable on update"
-    },
-    "options_settings_section_experimental": {
-        "message": "실험적 기능",
-        "description": "Experimental settings section header"
-    },
-    "options_settings_section_per_extension": {
-        "message": "확장 프로그램별 알림",
-        "description": "Per-extension settings section header"
+        "message": "확장 프로그램이 업데이트되면 변경 내용을 확인하고 다시 활성화할 때까지 비활성화됩니다. 활성화 버튼이 있는 알림이 표시됩니다.",
+        "description": "Explanation of the auto-disable security setting and what to expect after enabling it"
     },
     "options_settings_mute_extension": {
         "message": "음소거",
@@ -349,10 +235,6 @@
         "message": "취소",
         "description": "Cancel button text in reset settings dialog"
     },
-    "options_settings_seconds": {
-        "message": "초",
-        "description": "Time unit: seconds"
-    },
     "notification_welcome_title": {
         "message": "Extensions Update Tracker에 오신 것을 환영합니다!",
         "description": "Welcome notification title"
@@ -370,52 +252,20 @@
         "description": "Document title for the options page"
     },
     "options_stats_total_updates_aria": {
-        "message": "전체 업데이트 $COUNT$개",
-        "description": "Aria label for total updates badge",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "15"
-            }
-        }
+        "message": "전체 업데이트 %count%개 | 전체 업데이트 %count%개",
+        "description": "Aria label for total updates count in stats bar. Plural forms separated by |; %count% is the number"
     },
     "options_stats_unread_updates_aria": {
-        "message": "읽지 않은 업데이트 $COUNT$개",
-        "description": "Aria label for unread updates badge",
-        "placeholders": {
-            "count": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
+        "message": "읽지 않은 업데이트 %count%개 | 읽지 않은 업데이트 %count%개",
+        "description": "Aria label for unread updates count in stats bar. Plural forms separated by |; %count% is the number"
     },
     "options_update_item_aria_label_read": {
-        "message": "버전 $VERSION$, $TIME_AGO$ 업데이트됨",
-        "description": "Aria label for read update item",
-        "placeholders": {
-            "version": {
-                "content": "$1",
-                "example": "1.2.3"
-            },
-            "time_ago": {
-                "content": "$2",
-                "example": "2시간 전"
-            }
-        }
+        "message": "버전 %version%, %time_ago% 업데이트됨",
+        "description": "Aria label for read update item"
     },
     "options_update_item_aria_label_unread": {
-        "message": "버전 $VERSION$, 읽지 않음, $TIME_AGO$ 업데이트됨",
-        "description": "Aria label for unread update item",
-        "placeholders": {
-            "version": {
-                "content": "$1",
-                "example": "1.2.3"
-            },
-            "time_ago": {
-                "content": "$2",
-                "example": "2시간 전"
-            }
-        }
+        "message": "버전 %version%, 읽지 않음, %time_ago% 업데이트됨",
+        "description": "Aria label for unread update item"
     },
     "options_update_item_new_badge_aria": {
         "message": "새 업데이트",
@@ -425,13 +275,9 @@
         "message": "마지막 확인 이후",
         "description": "Kicker line above the unread count in popup"
     },
-    "popup_app_unread_update": {
-        "message": "개의 읽지 않은 업데이트",
-        "description": "Singular label next to the big unread count in popup"
-    },
     "popup_app_total_recorded": {
-        "message": "개의 업데이트가 기록됨",
-        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\""
+        "message": "개의 업데이트가 기록됨 | 개의 업데이트가 기록됨",
+        "description": "Suffix after the total updates count in popup, e.g. \"126 updates recorded in total\". Plural forms separated by |, chosen by that count"
     },
     "popup_app_caught_up_desc": {
         "message": "다음 확인 후 새 버전 변경 사항이 여기에 표시됩니다.",
@@ -477,24 +323,12 @@
         "message": "검색 지우기",
         "description": "Button to clear the extension search query"
     },
-    "options_extension_card_update_count_one": {
-        "message": "업데이트 1개",
-        "description": "Singular form of the recorded updates count in extension card"
-    },
-    "options_extension_card_unread_count_one": {
-        "message": "읽지 않음 1개",
-        "description": "Singular form of the unread updates count in extension card"
-    },
-    "popup_app_total_recorded_one": {
-        "message": "개의 업데이트가 기록됨",
-        "description": "Singular suffix after the total updates count in popup, e.g. \"1 update recorded in total\""
-    },
     "options_extension_card_muted": {
         "message": "알림 음소거됨",
         "description": "Meta text shown when an extension is muted"
     },
     "options_settings_section_reset": {
-        "message": "처음부터 다시 시작",
+        "message": "설정 초기화",
         "description": "Reset settings section header"
     },
     "options_settings_reset_desc": {
@@ -504,5 +338,73 @@
     "options_tracker_status": {
         "message": "설치된 확장 프로그램 추적 중",
         "description": "Status text in the top navigation showing the tracker is active"
+    },
+    "options_tab_about": {
+        "message": "정보",
+        "description": "Label for the About tab"
+    },
+    "options_about_version": {
+        "message": "버전 %version%",
+        "description": "Version line on the About tab, e.g. \"Version 1.1.0\""
+    },
+    "options_about_section_resources": {
+        "message": "리소스",
+        "description": "Resources section header on the About tab"
+    },
+    "options_about_github": {
+        "message": "GitHub 저장소",
+        "description": "Link title to the GitHub repository on the About tab"
+    },
+    "options_about_github_desc": {
+        "message": "소스 코드와 릴리스 기록 보기",
+        "description": "Description under the GitHub repository link on the About tab"
+    },
+    "options_about_report_issue": {
+        "message": "문제 신고",
+        "description": "Link title to open a GitHub issue on the About tab"
+    },
+    "options_about_report_issue_desc": {
+        "message": "버그나 아이디어가 있나요? GitHub에 이슈를 등록해 주세요",
+        "description": "Description under the report-an-issue link on the About tab"
+    },
+    "options_about_rate": {
+        "message": "확장 프로그램 평가하기",
+        "description": "Link title to rate the extension on the About tab"
+    },
+    "options_about_rate_desc": {
+        "message": "Chrome 웹 스토어에 리뷰 남기기",
+        "description": "Description under the rate-this-extension link on the About tab"
+    },
+    "options_about_privacy_desc": {
+        "message": "이 확장 프로그램은 어떤 데이터도 수집하거나 전송하지 않습니다. 업데이트 기록은 기기에만 저장됩니다.",
+        "description": "Privacy statement text on the About tab"
+    },
+    "options_about_author": {
+        "message": "제작: %author%",
+        "description": "Author credit line on the About tab, e.g. \"Created by Maxim Topciu\""
+    },
+    "options_about_license": {
+        "message": "MIT 라이선스",
+        "description": "License link text on the About tab"
+    },
+    "popup_app_more_updates": {
+        "message": "외 %count%개 업데이트 | 외 %count%개 업데이트",
+        "description": "Overflow row in popup when more unread updates exist than listed. Plural forms separated by |; %count% is the hidden count"
+    },
+    "options_toast_marked_read": {
+        "message": "업데이트 %count%개를 읽음으로 표시했습니다 | 업데이트 %count%개를 읽음으로 표시했습니다",
+        "description": "Toast message after mark-all-as-read. Plural forms separated by |; %count% is how many updates were marked"
+    },
+    "options_toast_undo": {
+        "message": "실행 취소",
+        "description": "Undo action button in the mark-all-as-read toast"
+    },
+    "options_update_item_mark_read": {
+        "message": "읽음으로 표시",
+        "description": "Per-row button marking a single update as read"
+    },
+    "options_extension_card_local_badge_title": {
+        "message": "Chrome 웹 스토어 외부에서 설치됨",
+        "description": "Tooltip explaining the LOCAL badge on an extension card"
     }
 }

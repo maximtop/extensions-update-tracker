@@ -8,7 +8,7 @@ import { Logger } from '../../../common/utils/logger';
 import type { ExtensionsUpdateStorageType } from '../../../common/update-storage';
 
 /**
- * Represents the most recent unread update to display in the popup.
+ * Represents an unread update to display in the popup.
  */
 export interface UnreadUpdate {
     extensionId: string;
@@ -20,8 +20,14 @@ export interface UnreadUpdate {
 }
 
 /**
+ * How many unread updates the popup lists before collapsing
+ * the rest into a "+N more" link to the options page
+ */
+export const MAX_VISIBLE_UNREAD = 3;
+
+/**
  * MobX store managing popup-specific update state.
- * Tracks unread counts, total updates, latest unread update, and last checked timestamp.
+ * Tracks unread counts, total updates, recent unread updates, and last checked timestamp.
  */
 export class PopupUpdatesStore {
     // Observable state
@@ -29,7 +35,8 @@ export class PopupUpdatesStore {
 
     updateCount = 0;
 
-    latestUnread: UnreadUpdate | null = null;
+    /** Most recent unread updates, newest first, capped at MAX_VISIBLE_UNREAD */
+    recentUnread: UnreadUpdate[] = [];
 
     lastChecked: number | null = null;
 
@@ -65,7 +72,7 @@ export class PopupUpdatesStore {
                 runInAction(() => {
                     this.unreadCount = 0;
                     this.updateCount = 0;
-                    this.latestUnread = null;
+                    this.recentUnread = [];
                     this.lastChecked = lastCheckedTimestamp;
                     this.isLoading = false;
                 });
@@ -73,45 +80,37 @@ export class PopupUpdatesStore {
             }
 
             let totalUpdates = 0;
-            let totalUnread = 0;
-            let mostRecentUnread: UnreadUpdate | null = null;
-            let mostRecentTimestamp = 0;
+            const allUnread: UnreadUpdate[] = [];
 
             for (const [extensionId, data] of Object.entries(storageData)) {
                 totalUpdates += data.updateHistory.length;
 
-                const unreadUpdates = data.updateHistory.filter((u) => !u.isRead);
-                totalUnread += unreadUpdates.length;
+                for (const update of data.updateHistory.filter((u) => !u.isRead)) {
+                    // Try to get extension info from snapshot first
+                    const extensionName = update.infoSnapshot?.name || EXTENSION_DEFAULTS.UNKNOWN_NAME;
+                    // Pick the largest icon so it stays sharp at display size
+                    const icons = update.infoSnapshot?.icons;
+                    const icon = icons && icons.length > 0
+                        ? icons.reduce((prev, current) => (current.size > prev.size ? current : prev)).url
+                        : undefined;
 
-                // Find the most recent unread update
-                for (const update of unreadUpdates) {
-                    if (update.detectedTimestampMs > mostRecentTimestamp) {
-                        mostRecentTimestamp = update.detectedTimestampMs;
-
-                        // Try to get extension info from snapshot first
-                        const extensionName = update.infoSnapshot?.name || EXTENSION_DEFAULTS.UNKNOWN_NAME;
-                        // Pick the largest icon so it stays sharp at display size
-                        const icons = update.infoSnapshot?.icons;
-                        const icon = icons && icons.length > 0
-                            ? icons.reduce((prev, current) => (current.size > prev.size ? current : prev)).url
-                            : undefined;
-
-                        mostRecentUnread = {
-                            extensionId,
-                            extensionName,
-                            version: update.version,
-                            previousVersion: update.previousVersion,
-                            timestamp: update.detectedTimestampMs,
-                            icon,
-                        };
-                    }
+                    allUnread.push({
+                        extensionId,
+                        extensionName,
+                        version: update.version,
+                        previousVersion: update.previousVersion,
+                        timestamp: update.detectedTimestampMs,
+                        icon,
+                    });
                 }
             }
 
+            allUnread.sort((a, b) => b.timestamp - a.timestamp);
+
             runInAction(() => {
                 this.updateCount = totalUpdates;
-                this.unreadCount = totalUnread;
-                this.latestUnread = mostRecentUnread;
+                this.unreadCount = allUnread.length;
+                this.recentUnread = allUnread.slice(0, MAX_VISIBLE_UNREAD);
                 this.lastChecked = lastCheckedTimestamp;
                 this.isLoading = false;
             });

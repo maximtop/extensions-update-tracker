@@ -3,7 +3,7 @@ import browser from 'webextension-polyfill';
 import { ExtensionInfo } from '../update-storage';
 import { Logger } from '../utils/logger';
 
-import { Message, MessageType } from './message-types';
+import { Message, MessageType, UpdateRef } from './message-types';
 
 /**
  * Service for sending messages to the background script
@@ -65,6 +65,15 @@ export class MessageSender {
      */
     static async markUpdateAsRead(extensionId: string, version?: string): Promise<void> {
         await this.send({ type: MessageType.MarkUpdateAsRead, extensionId, version });
+    }
+
+    /**
+     * Requests the background script to mark a set of updates as unread again
+     * Used to undo a mark-all-as-read action
+     * @param items References to the updates to restore
+     */
+    static async markUpdatesAsUnread(items: UpdateRef[]): Promise<void> {
+        await this.send({ type: MessageType.MarkUpdatesAsUnread, items });
     }
 
     /**

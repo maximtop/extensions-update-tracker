@@ -20,8 +20,8 @@ export interface UnreadUpdate {
 }
 
 /**
- * How many unread updates the popup lists before collapsing
- * the rest into a "+N more" link to the options page
+ * How many unread updates the popup lists before collapsing the rest
+ * into a "+N more" link to the options page
  */
 export const MAX_VISIBLE_UNREAD = 3;
 

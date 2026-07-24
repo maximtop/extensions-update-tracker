@@ -15,7 +15,6 @@ function AppComponent() {
         unreadCount,
         updateCount,
         recentUnread,
-        lastChecked,
         isLoading,
         error,
     } = popupUpdatesStore;
@@ -37,17 +36,30 @@ function AppComponent() {
     const hasUnread = !isLoading && !error && unreadCount > 0;
     const isCaughtUp = !isLoading && !error && unreadCount === 0;
 
+    const renderIcon = (unread: (typeof recentUnread)[number]) => (
+        <span className="record-icon">
+            {unread.icon ? (
+                <img src={unread.icon} alt="" />
+            ) : (
+                <FallbackIcon name={unread.extensionName} />
+            )}
+        </span>
+    );
+
+    const renderRoute = (unread: (typeof recentUnread)[number]) => (
+        unread.previousVersion
+            ? `${unread.previousVersion} → ${unread.version}`
+            : unread.version
+    );
+
     return (
         <div className="container popup-shell">
-            <header className="row brand">
-                <img className="brand-mark" src="assets/icons/icon-128.png" alt="" />
-                <div>
-                    <h1>{t('popup_app_title')}</h1>
-                    {lastChecked !== null && (
-                        <p className="meta">
-                            {`${t('popup_app_last_checked')}: ${formatTimeAgo(lastChecked)}`}
-                        </p>
-                    )}
+            <header className="row-between popup-header">
+                <div className="row brand">
+                    <img className="brand-mark" src="assets/icons/icon-128.png" alt="" />
+                    <div className="brand-text">
+                        <h1>{t('popup_app_title')}</h1>
+                    </div>
                 </div>
             </header>
 
@@ -90,19 +102,13 @@ function AppComponent() {
                         </span>
                         <h2>{t('popup_app_all_caught_up')}</h2>
                         <p>{t('popup_app_caught_up_desc')}</p>
-                        {lastChecked !== null && (
-                            <p className="meta">
-                                {`${t('popup_app_last_checked')}: ${formatTimeAgo(lastChecked)}`}
-                            </p>
-                        )}
                     </div>
                 </div>
             )}
 
             {hasUnread && (
                 <>
-                    <div className="status-block">
-                        <p className="status-kicker">{t('popup_app_since_last_review')}</p>
+                    <div className="status">
                         <div className="status-line">
                             <span className="status-count num">{unreadCount}</span>
                             <span className="status-label">
@@ -116,54 +122,79 @@ function AppComponent() {
                         </p>
                     </div>
 
-                    <div className="latest-list">
-                        {recentUnread.map((unread) => (
+                    <div className="updates">
+                        {unreadCount === 1 ? (
                             <button
-                                key={`${unread.extensionId}-${unread.version}`}
                                 type="button"
                                 className="latest"
                                 onClick={handleViewUpdates}
                             >
                                 <span className="latest-top">
-                                    <span className="record-icon">
-                                        {unread.icon ? (
-                                            <img src={unread.icon} alt="" width="28" height="28" />
-                                        ) : (
-                                            <FallbackIcon name={unread.extensionName} />
-                                        )}
+                                    {renderIcon(recentUnread[0])}
+                                    <strong className="latest-name">
+                                        {recentUnread[0].extensionName}
+                                    </strong>
+                                </span>
+                                <span className="latest-meta">
+                                    <span className="version-route num">
+                                        {renderRoute(recentUnread[0])}
                                     </span>
-                                    <strong className="latest-name">{unread.extensionName}</strong>
                                     <span
                                         className="latest-time"
-                                        title={formatDate(new Date(unread.timestamp).toISOString())}
+                                        title={formatDate(
+                                            new Date(recentUnread[0].timestamp).toISOString(),
+                                        )}
                                     >
-                                        {formatTimeAgo(unread.timestamp)}
+                                        {formatTimeAgo(recentUnread[0].timestamp)}
                                     </span>
-                                    <svg
-                                        className="latest-chevron"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="1.8"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="m9 6 6 6-6 6" />
-                                    </svg>
-                                </span>
-                                <span className="version-route num">
-                                    {unread.previousVersion
-                                        ? `${unread.previousVersion} → ${unread.version}`
-                                        : unread.version}
                                 </span>
                             </button>
-                        ))}
+                        ) : (
+                            <>
+                                {recentUnread.slice(0, MAX_VISIBLE_UNREAD).map((unread) => (
+                                    <button
+                                        key={`${unread.extensionId}-${unread.version}`}
+                                        type="button"
+                                        className="compact"
+                                        onClick={handleViewUpdates}
+                                    >
+                                        {renderIcon(unread)}
+                                        <span className="compact-cell">
+                                            <strong className="latest-name">
+                                                {unread.extensionName}
+                                            </strong>
+                                            <span className="version-route num">
+                                                {renderRoute(unread)}
+                                            </span>
+                                        </span>
+                                        <span
+                                            className="latest-time"
+                                            title={formatDate(
+                                                new Date(unread.timestamp).toISOString(),
+                                            )}
+                                        >
+                                            {formatTimeAgo(unread.timestamp)}
+                                        </span>
+                                    </button>
+                                ))}
+                                {unreadCount > MAX_VISIBLE_UNREAD && (
+                                    <button
+                                        type="button"
+                                        className="updates-more"
+                                        onClick={handleViewUpdates}
+                                    >
+                                        <span>
+                                            {tPlural(
+                                                'popup_app_more_updates',
+                                                unreadCount - MAX_VISIBLE_UNREAD,
+                                            )}
+                                        </span>
+                                        <span className="updates-more-chev" aria-hidden="true">→</span>
+                                    </button>
+                                )}
+                            </>
+                        )}
                     </div>
-
-                    {unreadCount > MAX_VISIBLE_UNREAD && (
-                        <button type="button" className="more-updates" onClick={handleViewUpdates}>
-                            {tPlural('popup_app_more_updates', unreadCount - MAX_VISIBLE_UNREAD)}
-                        </button>
-                    )}
                 </>
             )}
 

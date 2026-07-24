@@ -1,4 +1,14 @@
-/* Popup layout per the update-tracker design system */
+/* Popup layout: adaptive-density design.
+   One unread update -> a single expanded row; two or three -> compact rows;
+   four or more -> three rows + "+N more". Deliberately quiet: the only
+   separator line sits under the status block, the rest reads by the icon
+   column and whitespace. The popup shrinks to its content (see styles.css:
+   no fixed min-height), so low counts leave no empty band. */
+
+/* Header: brand mark + serif title */
+.popup-header {
+    flex: 0 0 auto;
+}
 
 .brand {
     min-width: 0;
@@ -10,61 +20,51 @@
     flex: 0 0 auto;
 }
 
-.brand h1 {
+.brand-text {
+    min-width: 0;
+}
+
+.popup-header h1 {
     font-size: 20px;
     line-height: 1.1;
     font-weight: 600;
     letter-spacing: -0.015em;
 }
 
-.brand .meta {
-    margin-top: 3px;
-    font-size: 11px;
-    letter-spacing: 0.02em;
-}
-
-/* Unread summary */
-.status-block {
-    padding: 30px 0 24px;
+/* Status block: medium count in the ink colour (accent is reserved for the
+   button so nothing competes with it), lifetime total beneath. The single
+   hairline of the whole popup lives here. */
+.status {
+    padding: 12px 0 10px;
     border-bottom: 1px solid var(--border);
-}
-
-.status-kicker {
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
 }
 
 .status-line {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: 5px;
 }
 
 .status-count {
-    min-width: 72px;
-    text-align: center;
-    color: var(--accent);
-    font-size: clamp(48px, 15vw, 56px);
+    min-width: 38px;
+    color: var(--fg);
+    font-size: 38px;
     line-height: 1;
-    font-weight: 650;
+    font-weight: 590;
 }
 
 .status-label {
     max-width: 12ch;
     color: var(--fg);
-    font-family: var(--font-display);
-    font-size: 19px;
+    font-size: 15px;
     line-height: 1.15;
     font-weight: 600;
 }
 
 .status-total {
-    margin-top: 16px;
+    margin-top: 6px;
     color: var(--muted);
-    font-size: 13px;
+    font-size: 12.5px;
 }
 
 .status-total strong {
@@ -73,15 +73,22 @@
     font-weight: 600;
 }
 
-/* Latest unread update preview: hover is a rounded highlight centered
-   on the row content, slightly wider than the text column */
-.latest {
-    display: block;
-    width: calc(100% + 24px);
-    margin: 14px -12px 0;
-    padding: 14px 12px;
+/* Update list */
+.updates {
+    margin-top: 10px;
+}
+
+/* Shared row affordances: whole row is a button opening the options page.
+   The hover highlight is a rounded pill that bleeds 8px past the text column
+   on each side, so it reads as a deliberate highlight rather than a full-bleed
+   bar, and every row (including "+N more") shares the same even shape. */
+.latest,
+.compact,
+.updates-more {
+    width: calc(100% + 16px);
+    margin: 0 -8px;
     border: 0;
-    border-radius: 12px;
+    border-radius: 8px;
     background: transparent;
     color: var(--fg);
     text-align: left;
@@ -89,27 +96,41 @@
     transition: background 160ms ease;
 }
 
-.latest:hover {
+.latest:hover,
+.compact:hover,
+.updates-more:hover {
     background: var(--fg-soft);
+}
+
+.latest:focus-visible,
+.compact:focus-visible,
+.updates-more:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: -3px;
+}
+
+/* Single-update state: an expanded row (no separator — it is the only row) */
+.latest {
+    display: block;
+    padding: 14px 8px;
 }
 
 .latest-top {
     display: grid;
-    grid-template-columns: 40px minmax(0, 1fr) auto 16px;
+    grid-template-columns: 40px minmax(0, 1fr);
     align-items: center;
     gap: 12px;
 }
 
-.latest-chevron {
-    width: 16px;
-    height: 16px;
-    color: var(--muted);
-    transition: color 160ms ease, transform 160ms ease;
-}
-
-.latest:hover .latest-chevron {
-    color: var(--fg);
-    transform: translateX(2px);
+/* Second line of the hero row: version route on the left, time on the right.
+   Giving the name the whole first line keeps long names readable (the wide
+   "N minutes ago" no longer squeezes them) and fills the otherwise-empty line. */
+.latest-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 11px 0 0 52px;
 }
 
 .latest .record-icon {
@@ -123,13 +144,61 @@
     height: 28px;
 }
 
+.latest .version-route {
+    font-size: 13px;
+    letter-spacing: 0.01em;
+}
+
+/* Two-or-more state: compact rows, icon column + stacked name/version */
+.compact {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 8px;
+}
+
+.compact .record-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+}
+
+.compact .record-icon img {
+    width: 20px;
+    height: 20px;
+}
+
+.compact-cell {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
 .latest-name {
     min-width: 0;
     font-weight: 600;
-    font-size: 15px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.compact .latest-name {
+    font-size: 14px;
+}
+
+.compact .version-route {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.version-route {
+    letter-spacing: 0.01em;
 }
 
 .latest-time {
@@ -140,43 +209,43 @@
     white-space: nowrap;
 }
 
-.version-route {
-    margin: 11px 0 0 52px;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    letter-spacing: 0.01em;
-}
-
-/* Overflow row when there are more unread updates than the popup lists */
-.more-updates {
-    display: block;
-    width: 100%;
-    margin-top: 8px;
-    padding: 10px 0;
-    border: 0;
-    background: transparent;
-    color: var(--muted);
+/* Overflow affordance: sits in the list rhythm, same rounded highlight as the
+   rows. Symmetric vertical padding so the label is centred in the hover pill. */
+.updates-more {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 8px;
+    color: var(--fg);
     font-size: 13px;
     font-weight: 600;
-    text-align: center;
-    cursor: pointer;
-    transition: color 160ms ease;
 }
 
-.more-updates:hover {
-    color: var(--fg);
+.updates-more-chev {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
 }
 
-/* Actions */
+/* Actions: stacked full-width, primary lifted with an accent shadow */
 .actions {
     display: grid;
     gap: 10px;
     margin-top: auto;
-    padding-top: 22px;
+    padding-top: 14px;
 }
 
 .actions .btn {
     min-height: 46px;
+}
+
+.actions .btn-ghost {
+    min-height: 44px;
+}
+
+.actions .btn-primary {
+    box-shadow: 0 8px 18px color-mix(in oklch, var(--accent) 22%, transparent);
 }
 
 /* Full-panel states: caught up, loading, error */

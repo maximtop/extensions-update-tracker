@@ -1,16 +1,18 @@
 body {
-    width: 400px;
+    width: 380px;
     overflow: hidden;
     font-size: 15px;
 }
 
 .container {
     width: 100%;
-    padding: 22px 22px 20px;
+    padding: 18px 18px 16px;
 }
 
+/* The popup hugs its content: the actions stay pinned to the bottom via
+   margin-top:auto, and with few updates the popup simply shrinks instead
+   of leaving an empty band. */
 .popup-shell {
-    min-height: 360px;
     display: flex;
     flex-direction: column;
 }

@@ -7,22 +7,26 @@ automatically — a build is submitted to the store for review with **staged
 
 ## How a release flows
 
-1. **Tag** a commit on `master`: `git tag vX.Y.Z && git push origin vX.Y.Z`.
-   The **git tag is the source of truth** for the version — CI stamps it into
-   the manifest at build time, so you do **not** need to bump `package.json`
-   for a release (the `version` field there is only a local-dev marker).
-2. **`release.yml`** builds the Chrome bundle, runs the e2e suite, and creates
-   a **draft** GitHub Release with `chrome.zip` + `SHA256SUMS`.
-3. **Publish the draft Release** in the GitHub UI once you're happy with it.
-4. Publishing the Release triggers **`deploy-chrome-store.yml`**, which uploads
-   `chrome.zip` to the Chrome Web Store and submits it for review (staged).
+Everything is driven by publishing a GitHub Release — no manual `git tag`, no
+`package.json` bump.
+
+1. On GitHub, go to **Releases → Draft a new release**.
+2. Under **Choose a tag**, type a new tag `vX.Y.Z` ("Create new tag on publish")
+   and set **Target: `master`**. The **tag is the source of truth** for the
+   version — CI stamps `X.Y.Z` into the manifest at build time, so `package.json`
+   never needs a manual bump (its `version` is only a local-dev marker).
+3. Write the notes and click **Publish release**. Publishing creates the tag and
+   triggers **`deploy-chrome-store.yml`**.
+4. The workflow checks out the tag, builds the Chrome bundle, runs the e2e suite,
+   attaches `chrome.zip` + `SHA256SUMS` to the Release, then uploads to the
+   Chrome Web Store and submits it for review with **staged** publishing.
 5. After the store approves it (email), **publish the approved version manually**
    in the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
    within ~30 days (an approved staged submission otherwise reverts to a draft).
 
-`workflow_dispatch` fallbacks exist on both workflows: `release.yml` can be run
-manually as a build dry run, and `deploy-chrome-store.yml` accepts a `tag` input
-to re-deploy an already-published Release.
+To re-deploy an already-published Release (e.g. after fixing store config), run
+`deploy-chrome-store.yml` from the **Actions** tab via **Run workflow** and pass
+the release `tag`.
 
 ## One-time repository setup
 
@@ -63,6 +67,6 @@ OAuth Playground.
 
 - **`ci.yml`** — lint, unit tests, e2e, and a release build on every push to
   `master` and every pull request.
-- **`release.yml`** — build + draft GitHub Release on `vX.Y.Z` tags.
-- **`deploy-chrome-store.yml`** — upload + staged submit when a Release is
-  published.
+- **`deploy-chrome-store.yml`** — on a published Release: build from the tag,
+  run e2e, attach the archive to the Release, then upload + staged-submit to the
+  Chrome Web Store.

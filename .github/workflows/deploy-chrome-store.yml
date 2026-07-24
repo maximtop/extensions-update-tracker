@@ -1,21 +1,25 @@
 name: Deploy Chrome Web Store
 
+# Publishing a GitHub Release (which creates the vX.Y.Z tag) builds the
+# extension from that tag and submits it to the Chrome Web Store for review
+# with staged (deferred) publishing. Nothing goes live automatically.
+
 on:
   release:
     types: [published]
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Published release tag to deploy (vX.Y.Z)'
+        description: 'Published release tag to (re)deploy (vX.Y.Z)'
         required: true
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   deploy:
-    name: Upload and submit for review
+    name: Build and submit to the Chrome Web Store
     if: github.event_name == 'workflow_dispatch' || !github.event.release.prerelease
     runs-on: ubuntu-latest
     concurrency:
@@ -35,18 +39,12 @@ jobs:
           set -euo pipefail
           if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             RELEASE_TAG="$INPUT_TAG"
-            if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "Release tag must match vX.Y.Z: $RELEASE_TAG" >&2
-              exit 1
-            fi
           else
             RELEASE_TAG="$EVENT_TAG"
-            if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "::notice::Release tag $RELEASE_TAG does not match" \
-                "vX.Y.Z; skipping store deployment."
-              echo "deploy=false" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
+          fi
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tag must match vX.Y.Z: $RELEASE_TAG" >&2
+            exit 1
           fi
 
           RELEASE_JSON="$(gh release view "$RELEASE_TAG" \
@@ -62,12 +60,10 @@ jobs:
             exit 1
           fi
 
-          echo "deploy=true" >> "$GITHUB_OUTPUT"
           echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
           echo "version=${RELEASE_TAG#v}" >> "$GITHUB_OUTPUT"
 
       - name: Check store configuration
-        if: steps.release.outputs.deploy == 'true'
         env:
           CHROME_APP_ID: ${{ vars.CHROME_APP_ID }}
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
@@ -88,49 +84,82 @@ jobs:
             exit 1
           fi
 
-      - name: Download release assets
-        if: steps.release.outputs.deploy == 'true'
+      - name: Check out the released tag
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Ensure the release commit is on master
+        run: |
+          set -euo pipefail
+          git fetch origin master
+          if ! git merge-base --is-ancestor HEAD FETCH_HEAD; then
+            echo "Release commit must be reachable from master" >&2
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Stamp version from the release tag
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: npm pkg set version="$VERSION"
+
+      - name: Build release bundle
+        run: pnpm release
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: xvfb-run -a pnpm test:e2e
+
+      - name: Verify manifest version and write checksums
+        working-directory: dist/release
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          ZIP_VERSION="$(unzip -p chrome.zip manifest.json | jq -r '.version')"
+          if [[ "$ZIP_VERSION" != "$VERSION" ]]; then
+            echo "chrome.zip manifest version $ZIP_VERSION does not match" \
+              "release version $VERSION" >&2
+            exit 1
+          fi
+          sha256sum chrome.zip > SHA256SUMS
+          sha256sum -c SHA256SUMS
+
+      - name: Attach the archive to the release
         env:
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: |
           set -euo pipefail
-          gh release download "$RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --pattern chrome.zip \
-            --pattern SHA256SUMS \
-            --dir release-assets
-
-      - name: Verify asset integrity and version
-        if: steps.release.outputs.deploy == 'true'
-        working-directory: release-assets
-        env:
-          PACKAGE_VERSION: ${{ steps.release.outputs.version }}
-        run: |
-          set -euo pipefail
-          grep ' chrome\.zip$' SHA256SUMS | sha256sum --check --strict -
-          ZIP_VERSION="$(unzip -p chrome.zip manifest.json | jq -r '.version')"
-          if [[ "$ZIP_VERSION" != "$PACKAGE_VERSION" ]]; then
-            echo "chrome.zip manifest version $ZIP_VERSION does not match" \
-              "release version $PACKAGE_VERSION" >&2
-            exit 1
-          fi
+          gh release upload "$RELEASE_TAG" \
+            dist/release/chrome.zip dist/release/SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" --clobber
 
       - name: Set up Go
-        if: steps.release.outputs.deploy == 'true'
         uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version: '1.26.x'
           cache: false
 
       - name: Install go-webext
-        if: steps.release.outputs.deploy == 'true'
         run: |
           set -euo pipefail
           go install "github.com/adguardteam/go-webext@${GO_WEBEXT_VERSION}"
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Upload to Chrome Web Store
-        if: steps.release.outputs.deploy == 'true'
         env:
           CHROME_API_VERSION: v2
           CHROME_APP_ID: ${{ vars.CHROME_APP_ID }}
@@ -142,7 +171,7 @@ jobs:
         run: |
           set -euo pipefail
           go-webext update chrome \
-            -a "$CHROME_APP_ID" -f release-assets/chrome.zip 2>&1 \
+            -a "$CHROME_APP_ID" -f dist/release/chrome.zip 2>&1 \
             | tee "$RUNNER_TEMP/upload-output.txt"
           # The v2 upload can finish asynchronously; never submit for review
           # unless the store confirmed this exact version as the draft.
@@ -162,7 +191,6 @@ jobs:
           fi
 
       - name: Submit for review with deferred publishing
-        if: steps.release.outputs.deploy == 'true'
         env:
           CHROME_API_VERSION: v2
           CHROME_APP_ID: ${{ vars.CHROME_APP_ID }}
@@ -175,7 +203,6 @@ jobs:
           go-webext publish chrome -a "$CHROME_APP_ID" --staged 2>&1
 
       - name: Report store status
-        if: steps.release.outputs.deploy == 'true'
         env:
           CHROME_API_VERSION: v2
           CHROME_APP_ID: ${{ vars.CHROME_APP_ID }}

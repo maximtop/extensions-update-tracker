@@ -1,0 +1,141 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+jobs:
+  validate-release:
+    name: Validate release context
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ctx.outputs.version }}
+      tag: ${{ steps.ctx.outputs.tag }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+      - name: Resolve and validate release
+        id: ctx
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          # The git tag is the source of truth for the released version.
+          if [[ "$EVENT_NAME" == "push" ]]; then
+            RELEASE_TAG="${RELEASE_REF#refs/tags/}"
+            if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Release tag must match vX.Y.Z: $RELEASE_TAG" >&2
+              exit 1
+            fi
+            VERSION="${RELEASE_TAG#v}"
+            git fetch origin master
+            TAG_COMMIT="$(git rev-parse "$RELEASE_TAG^{commit}")"
+            if ! git merge-base --is-ancestor "$TAG_COMMIT" origin/master; then
+              echo "Tagged commit must be reachable from master" >&2
+              exit 1
+            fi
+          else
+            # Manual dispatch has no tag: build a dry run from package.json.
+            VERSION="$(node -p "require('./package.json').version")"
+            if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "package.json version is not semantic: $VERSION" >&2
+              exit 1
+            fi
+            RELEASE_TAG="v$VERSION"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+
+  build-extension:
+    name: Build store archive
+    needs: validate-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+      - name: Stamp version from the release tag
+        env:
+          VERSION: ${{ needs.validate-release.outputs.version }}
+        run: npm pkg set version="$VERSION"
+      - name: Build release bundle
+        run: pnpm release
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: End-to-end tests
+        run: xvfb-run -a pnpm test:e2e
+      - name: Verify manifest version and write checksums
+        working-directory: dist/release
+        env:
+          VERSION: ${{ needs.validate-release.outputs.version }}
+        run: |
+          set -euo pipefail
+          ZIP_VERSION="$(unzip -p chrome.zip manifest.json | jq -r '.version')"
+          if [[ "$ZIP_VERSION" != "$VERSION" ]]; then
+            echo "chrome.zip manifest version $ZIP_VERSION does not match" \
+              "release version $VERSION" >&2
+            exit 1
+          fi
+          sha256sum chrome.zip > SHA256SUMS
+          sha256sum -c SHA256SUMS
+      - name: Retain store-ready archive
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: extensions-update-tracker-${{ needs.validate-release.outputs.version }}
+          path: |
+            dist/release/chrome.zip
+            dist/release/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 30
+
+  draft-release:
+    name: Create draft GitHub release
+    if: github.event_name == 'push'
+    needs: [validate-release, build-extension]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ needs.validate-release.outputs.tag }}
+      PACKAGE_VERSION: ${{ needs.validate-release.outputs.version }}
+    steps:
+      - name: Download store archive
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: extensions-update-tracker-${{ needs.validate-release.outputs.version }}
+          path: release-assets
+      - name: Verify checksums
+        working-directory: release-assets
+        run: sha256sum -c SHA256SUMS
+      - name: Refuse to replace an existing release
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists" >&2
+            exit 1
+          fi
+      - name: Create draft release
+        run: |
+          set -euo pipefail
+          gh release create "$RELEASE_TAG" release-assets/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --draft \
+            --verify-tag \
+            --title "Extensions Update Tracker $PACKAGE_VERSION" \
+            --notes "Store-ready Chrome extension archive for Extensions Update Tracker $PACKAGE_VERSION. Publishing this release submits the build to the Chrome Web Store for review (staged publishing)."

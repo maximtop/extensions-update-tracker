@@ -6,7 +6,7 @@
   - Show permission diff in update history UI
   - Alert users to significant permission changes (security feature)
 - [ ] Increase the number of locales to 40
-- [ ] Set up deployment to Chrome Web Store via GitHub Actions
+- [x] Set up deployment to Chrome Web Store via GitHub Actions (done in 1.3.0 — see docs/RELEASE.md)
 - [ ] Publish to Microsoft Edge Add-ons and set up deployment via GitHub Actions
 - [ ] Publish to Firefox Add-ons and set up deployment via GitHub Actions
 

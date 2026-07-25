@@ -1,46 +1,39 @@
 /* eslint-disable no-console */
-import webpack, { Stats } from 'webpack';
-import { merge } from 'webpack-merge';
+import { type Configuration, rspack, type Stats } from '@rspack/core';
 
 type Options = {
     watch: boolean,
     cache: boolean,
 };
 
-type RunCallback<T> = (err: Error | null, stats: T | undefined) => void;
+type RunCallback = (err: Error | null, stats: Stats | undefined) => void;
 
-export const bundleRunner = (webpackConfig: webpack.Configuration, options: Options): Promise<void> => {
+export const bundleRunner = async (rspackConfig: Configuration, options: Options): Promise<void> => {
     const { watch, cache } = options;
 
     // Without cache, building watches linked dependencies, but building takes 5-7 seconds.
     // With cache, building happens almost instantly, but changes from linked dependencies are not applied.
-    if (watch) {
-        // eslint-disable-next-line no-param-reassign
-        webpackConfig = merge(webpackConfig, { cache });
-    }
-
-    const compiler = webpack(webpackConfig);
+    const compiler = rspack(watch ? { ...rspackConfig, cache } : rspackConfig);
 
     const run = watch
-        ? (cb: RunCallback<Stats>) => compiler.watch({
+        ? (cb: RunCallback) => compiler.watch({
             followSymlinks: true,
             aggregateTimeout: 300,
             ignored: [
                 'build',
             ],
         }, cb)
-        : (cb: RunCallback<Stats>) => compiler.run(cb);
+        : (cb: RunCallback) => compiler.run(cb);
 
-    return new Promise((resolve, reject) => {
+    const compiled = new Promise<void>((resolve, reject) => {
         run((err, stats) => {
             if (err) {
-                console.error(err.stack || err);
-                // @ts-ignore
-                if (err.details) {
-                    // @ts-ignore
+                // `details` carries Rspack-specific context that the error's own
+                // stack does not include; the caller logs the error itself.
+                if ('details' in err && err.details) {
                     console.error(err.details);
                 }
-                reject();
+                reject(err);
                 return;
             }
             if (stats) {
@@ -52,7 +45,9 @@ export const bundleRunner = (webpackConfig: webpack.Configuration, options: Opti
                         moduleTrace: true,
                         logging: 'error',
                     }));
-                    reject();
+                    // The formatted compiler errors are already printed above, so
+                    // this only needs to make the failure non-silent for callers.
+                    reject(new Error('Build failed: the bundle has compilation errors'));
                     return;
                 }
 
@@ -65,4 +60,16 @@ export const bundleRunner = (webpackConfig: webpack.Configuration, options: Opti
             resolve();
         });
     });
+
+    try {
+        await compiled;
+    } finally {
+        // Rspack holds native resources until the compiler is closed. Watch mode
+        // keeps the compiler alive by design, so only one-shot builds close here.
+        if (!watch) {
+            await new Promise<void>((resolve) => {
+                compiler.close(() => resolve());
+            });
+        }
+    }
 };

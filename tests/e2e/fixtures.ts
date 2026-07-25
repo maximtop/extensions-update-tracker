@@ -1,16 +1,83 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { test as base, chromium, type BrowserContext } from '@playwright/test';
+import {
+    test as base,
+    chromium,
+    type BrowserContext,
+    type Worker,
+} from '@playwright/test';
 
 import { getSampleExtensionPath } from './helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+/**
+ * How long to wait for the tracker's own service worker to register. Chromium
+ * registers the loaded extensions' workers independently, so ours may not be the
+ * first one to appear.
+ */
+const SERVICE_WORKER_TIMEOUT_MS = 15000;
+
+/**
+ * Returns true when the fetched manifest text belongs to this extension.
+ *
+ * The built manifest sets `"name": "__MSG_name__"` because the display name is
+ * localized, so matching on the human-readable name can never succeed.
+ * `homepage_url` is the only stable identifying field that survives the build.
+ */
+const isTrackerManifest = (manifestText: string): boolean => {
+    try {
+        const manifest = JSON.parse(manifestText);
+        return Boolean(manifest.homepage_url?.includes('extensions-update-tracker'));
+    } catch {
+        return false;
+    }
+};
+
+/**
+ * Finds the tracker's service worker among all loaded extensions.
+ *
+ * Throws rather than falling back to an arbitrary worker: the sample extension
+ * registers a worker too, so a silent fallback would run the whole suite against
+ * the wrong extension and still report success.
+ */
+const findTrackerServiceWorker = async (context: BrowserContext): Promise<Worker> => {
+    const deadline = Date.now() + SERVICE_WORKER_TIMEOUT_MS;
+
+    while (Date.now() < deadline) {
+        for (const serviceWorker of context.serviceWorkers()) {
+            const extensionId = serviceWorker.url().split('/')[2];
+            const page = await context.newPage();
+            try {
+                await page.goto(`chrome-extension://${extensionId}/manifest.json`);
+                const manifestText = await page.textContent('body');
+                if (manifestText && isTrackerManifest(manifestText)) {
+                    return serviceWorker;
+                }
+            } catch {
+                // A worker may still be starting up; retry on the next pass
+            } finally {
+                await page.close();
+            }
+        }
+
+        await new Promise((resolve) => {
+            setTimeout(resolve, 250);
+        });
+    }
+
+    throw new Error(
+        'Could not find the Extensions Update Tracker service worker. '
+        + 'Is dist/test/chrome built? Run `pnpm build:test` first.',
+    );
+};
+
 export const test = base.extend<{
     context: BrowserContext;
     extensionId: string;
+    serviceWorker: Worker;
 }>({
     // eslint-disable-next-line no-empty-pattern
     context: async ({ }, use) => {
@@ -30,36 +97,14 @@ export const test = base.extend<{
         await use(context);
         await context.close();
     },
-    extensionId: async ({ context }, use) => {
-        // For Manifest V3: get extension ID from service worker
-        // We need to find OUR extension's service worker, not the sample extension's
-        let serviceWorkers = context.serviceWorkers();
-        if (serviceWorkers.length === 0) {
-            await context.waitForEvent('serviceworker');
-            serviceWorkers = context.serviceWorkers();
-        }
-
-        // Find the Extensions Update Tracker service worker by checking the manifest
-        let ourServiceWorker = null;
-        for (const sw of serviceWorkers) {
-            const swExtensionId = sw.url().split('/')[2];
-            // Try to fetch the manifest to check the extension name
-            try {
-                const page = await context.newPage();
-                await page.goto(`chrome-extension://${swExtensionId}/manifest.json`);
-                const manifestText = await page.textContent('body');
-                if (manifestText?.includes('Extensions Update Tracker')) {
-                    ourServiceWorker = sw;
-                    await page.close();
-                    break;
-                }
-                await page.close();
-            } catch {
-                // Skip if can't read manifest
-            }
-        }
-
-        const urlParts = (ourServiceWorker || serviceWorkers[0]).url().split('/');
+    // For Manifest V3: our background logic lives in a service worker, and the
+    // sample extension registers one too, so it has to be identified explicitly.
+    serviceWorker: async ({ context }, use) => {
+        const ourServiceWorker = await findTrackerServiceWorker(context);
+        await use(ourServiceWorker);
+    },
+    extensionId: async ({ serviceWorker }, use) => {
+        const urlParts = serviceWorker.url().split('/');
         const [, , extensionId] = urlParts;
         await use(extensionId);
     },

@@ -30,8 +30,9 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
       - name: End-to-end tests
-        # The e2e suite loads the unpacked extension, which requires a headed
-        # Chromium; xvfb provides the virtual display on the Linux runner.
-        run: xvfb-run -a pnpm test:e2e
+        # Runs headless: the suite loads the unpacked extension into the full
+        # Chromium build, whose new headless mode supports extensions, so no
+        # virtual display is needed.
+        run: pnpm test:e2e
       - name: Build release bundle
         run: pnpm release

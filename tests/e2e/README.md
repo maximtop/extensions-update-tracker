@@ -11,7 +11,11 @@ pnpm exec playwright install chromium
 
 **Note:**
 - Tests automatically build the extension to `dist/test/chrome/` before running
-- Tests run in **headed mode** (visible browser windows) because Chrome extensions don't work reliably in headless mode
+- Tests run **headless** — no browser windows appear, and CI needs no virtual
+  display. This relies on `channel: 'chromium'` in `fixtures.ts`, which selects
+  the full Chromium build; its new headless mode supports extensions, unlike the
+  default headless-shell binary. Pass `--headed` to watch a run:
+  `pnpm test:e2e --headed`
 
 ## Running Tests
 

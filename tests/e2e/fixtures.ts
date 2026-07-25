@@ -79,14 +79,19 @@ export const test = base.extend<{
     extensionId: string;
     serviceWorker: Worker;
 }>({
-    // eslint-disable-next-line no-empty-pattern
-    context: async ({ }, use) => {
+    // `headless` is Playwright's own option, so `--headed` and the config still
+    // control it even though the context is launched by hand here.
+    context: async ({ headless }, use) => {
         const pathToExtension = path.join(__dirname, '../../dist/test/chrome');
         const sampleExtensionPath = getSampleExtensionPath();
 
         const context = await chromium.launchPersistentContext('', {
+            // `channel: 'chromium'` selects the full Chromium build, whose new
+            // headless mode supports extensions. The old headless mode did not,
+            // and the default headless-shell binary still does not — so this
+            // channel is what makes a headless run possible at all.
             channel: 'chromium',
-            headless: false, // Extensions don't work well in headless
+            headless,
             args: [
                 // Load both our extension and the sample extension
                 `--disable-extensions-except=${pathToExtension},${sampleExtensionPath}`,

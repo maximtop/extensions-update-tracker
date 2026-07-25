@@ -121,7 +121,7 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: End-to-end tests
-        run: xvfb-run -a pnpm test:e2e
+        run: pnpm test:e2e
 
       - name: Verify manifest version and write checksums
         working-directory: dist/release

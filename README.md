@@ -32,9 +32,6 @@ pnpm test
 
 # Lint
 pnpm lint
-
-# Regenerate the Chrome Web Store images from the built UI
-pnpm store-assets
 ```
 
 **Load extension:** Build the project, then load the `dist` folder as an unpacked extension in Chrome.
@@ -54,8 +51,8 @@ No data collection, no network requests — see [PRIVACY.md](PRIVACY.md).
 
 ## Store listing
 
-Listing images, copy and the Developer Dashboard checklist live in
-[store-assets/](store-assets/README.md).
+Listing copy, the dashboard state and the metrics baseline are documented in
+[docs/STORE_LISTING.md](docs/STORE_LISTING.md).
 
 ## License
 

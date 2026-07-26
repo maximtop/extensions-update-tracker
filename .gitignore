@@ -9,3 +9,6 @@ playwright-report/
 test-results/
 .playwright/
 .cursor/
+
+# Local copies of the images uploaded to the Chrome Web Store
+store-assets/

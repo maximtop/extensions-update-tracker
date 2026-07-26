@@ -32,6 +32,9 @@ pnpm test
 
 # Lint
 pnpm lint
+
+# Regenerate the Chrome Web Store images from the built UI
+pnpm store-assets
 ```
 
 **Load extension:** Build the project, then load the `dist` folder as an unpacked extension in Chrome.
@@ -44,6 +47,15 @@ Contributions are welcome! Please:
 2. Ensure `pnpm test` and `pnpm lint` pass
 
 **Issues & Feature Requests:** Use [GitHub Issues](https://github.com/maximtop/extensions-update-tracker/issues)
+
+## Privacy
+
+No data collection, no network requests — see [PRIVACY.md](PRIVACY.md).
+
+## Store listing
+
+Listing images, copy and the Developer Dashboard checklist live in
+[store-assets/](store-assets/README.md).
 
 ## License
 

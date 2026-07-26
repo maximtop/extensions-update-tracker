@@ -4,7 +4,7 @@
         "description": "Name of the extension"
     },
     "description": {
-        "message": "Track and manage your Chrome extension updates in one place.",
+        "message": "Get notified when your extensions update, with a full version history and an unread badge. All local — no account, no tracking.",
         "description": "Description of the extension"
     },
     "options_page_title": {

@@ -4,7 +4,7 @@
         "description": "Name of the extension"
     },
     "description": {
-        "message": "Chrome拡張機能の更新を一箇所で追跡・管理します。",
+        "message": "拡張機能が更新されたら通知。バージョン履歴と未読バッジ付き。すべてローカル保存、追跡なし。",
         "description": "Description of the extension"
     },
     "options_page_title": {

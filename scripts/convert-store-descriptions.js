@@ -41,8 +41,9 @@ function convertMarkdownToPlainText(markdown) {
     text = text.replace(/```[\s\S]*?```/g, '');
     text = text.replace(/`(.+?)`/g, '$1');
 
-    // Remove horizontal rules
+    // Remove horizontal rules and the `===` rules that separate language sections
     text = text.replace(/^---+$/gm, '');
+    text = text.replace(/^===+$/gm, '');
 
     // Clean up excessive blank lines (more than 2 consecutive)
     text = text.replace(/\n{3,}/g, '\n\n');

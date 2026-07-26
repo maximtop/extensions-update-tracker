@@ -4,7 +4,7 @@
         "description": "Name of the extension"
     },
     "description": {
-        "message": "Suivez et gérez les mises à jour de vos extensions Chrome en un seul endroit.",
+        "message": "Soyez averti quand vos extensions se mettent à jour, avec l’historique complet des versions. Tout en local, sans suivi.",
         "description": "Description of the extension"
     },
     "options_page_title": {

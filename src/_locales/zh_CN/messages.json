@@ -4,7 +4,7 @@
         "description": "Name of the extension"
     },
     "description": {
-        "message": "在一个地方跟踪和管理您的Chrome扩展更新。",
+        "message": "扩展更新时收到通知，附完整版本历史和未读徽章。全部本地存储，无跟踪。",
         "description": "Description of the extension"
     },
     "options_page_title": {

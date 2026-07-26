@@ -45,6 +45,15 @@ Contributions are welcome! Please:
 
 **Issues & Feature Requests:** Use [GitHub Issues](https://github.com/maximtop/extensions-update-tracker/issues)
 
+## Privacy
+
+No data collection, no network requests — see [PRIVACY.md](PRIVACY.md).
+
+## Store listing
+
+Listing copy, the dashboard state and the metrics baseline are documented in
+[docs/STORE_LISTING.md](docs/STORE_LISTING.md).
+
 ## License
 
 MIT © 2025 Maxim Topciu

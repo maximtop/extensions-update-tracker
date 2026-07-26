@@ -25,7 +25,6 @@
     "release": "cross-env BUILD_ENV=release tsx ./scripts/build/index.ts",
     "prerelease": "pnpm validate-translations",
     "start": "tsx ./scripts/build/index.ts --watch",
-    "store-assets": "pnpm release && tsx ./store-assets/scripts/generate.ts",
     "validate-translations": "node ./scripts/validate-translations.js",
     "convert-store-descriptions": "node ./scripts/convert-store-descriptions.js",
     "lint": "eslint . --ext .ts,.tsx,.js && tsc --noEmit",

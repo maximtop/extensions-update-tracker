@@ -9,6 +9,3 @@ playwright-report/
 test-results/
 .playwright/
 .cursor/
-
-# Generated Chrome Web Store images — `pnpm store-assets` rebuilds them
-store-assets/out/

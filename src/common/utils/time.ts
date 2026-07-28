@@ -52,6 +52,26 @@ export function formatDate(dateString: string): string {
 }
 
 /**
+ * Formats a date to a localized day, without the time of day. For places where
+ * only the date carries meaning, such as timeline axis labels.
+ *
+ * @param date - Date to format
+ * @returns Formatted date string (e.g., "Jan 15, 2024")
+ *
+ * @example
+ * ```typescript
+ * formatDay(new Date("2024-01-15T14:30:00.000Z")); // "Jan 15, 2024"
+ * ```
+ */
+export function formatDay(date: Date): string {
+    return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    });
+}
+
+/**
  * Formats a timestamp into a localized "time ago" string
  *
  * @param timestamp - Unix timestamp in milliseconds

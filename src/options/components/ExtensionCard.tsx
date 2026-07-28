@@ -7,6 +7,7 @@ import { t, tPlural } from '../../common/utils/i18n';
 import { useRootStore } from '../stores/root-store';
 
 import { UpdateItem } from './UpdateItem';
+import { UpdateTimeline } from './UpdateTimeline';
 
 interface ExtensionCardProps {
     extensionId: string;
@@ -193,6 +194,9 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
 
             {isExpanded && (
                 <div id={historyId}>
+                    {/* Built from the full history, so filtering to unread
+                        doesn't misrepresent the release cadence */}
+                    <UpdateTimeline updates={updates} />
                     <ol className="version-list">
                         {visibleUpdates.map((update) => (
                             <UpdateItem

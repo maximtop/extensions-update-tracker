@@ -406,5 +406,49 @@
     "options_extension_card_local_badge_title": {
         "message": "Chrome ウェブストア外からインストールされました",
         "description": "Tooltip explaining the LOCAL badge on an extension card"
+    },
+    "options_timeline_title": {
+        "message": "更新の頻度",
+        "description": "Heading of the update activity timeline in an extension card"
+    },
+    "options_timeline_average": {
+        "message": "更新間隔は平均 %count% 日 | 更新間隔は平均 %count% 日",
+        "description": "Average gap between updates shown next to the timeline heading. Plural forms separated by |; %count% is the number of days"
+    },
+    "options_timeline_first_update": {
+        "message": "最初に記録された更新",
+        "description": "Timeline detail for the earliest recorded update, which has no preceding gap"
+    },
+    "options_timeline_gap_from_version": {
+        "message": "v%previous% から %count% 日後 | v%previous% から %count% 日後",
+        "description": "Timeline detail naming the gap before an update, e.g. \"31 days after v1.4.1\". Plural forms separated by |; %count% is the number of days, %previous% the version it followed"
+    },
+    "options_timeline_gap": {
+        "message": "前回の更新から %count% 日後 | 前回の更新から %count% 日後",
+        "description": "Timeline detail naming the gap before an update when the previous version is unknown. Plural forms separated by |; %count% is the number of days"
+    },
+    "options_timeline_point_aria": {
+        "message": "バージョン %version%、%date%、%detail%",
+        "description": "Aria label of a point on the update timeline; %version% is the version, %date% when it landed, %detail% the gap before it"
+    },
+    "options_timeline_today": {
+        "message": "今日",
+        "description": "Right-hand label of the update timeline axis, marking the present moment"
+    },
+    "options_timeline_last_update": {
+        "message": "最終更新は%time_ago%",
+        "description": "Verdict line under the update timeline; %time_ago% is an already-formatted relative time such as \"9 days ago\""
+    },
+    "options_timeline_status_current": {
+        "message": "活発に更新中",
+        "description": "Verdict when an extension has been updated recently"
+    },
+    "options_timeline_status_slowing": {
+        "message": "更新が減少",
+        "description": "Verdict when an extension's updates have started to trail off"
+    },
+    "options_timeline_status_dormant": {
+        "message": "更新停止の可能性",
+        "description": "Verdict when an extension has gone a long time without an update"
     }
 }

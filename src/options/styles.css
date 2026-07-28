@@ -429,6 +429,216 @@ h2 {
     padding-inline: 8px;
 }
 
+/* Update activity timeline */
+
+/* Left margin lines the timeline up with the version rows it summarises */
+.update-timeline {
+    margin-left: 58px;
+    padding: 4px 12px 14px;
+}
+
+.timeline-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.timeline-title {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.timeline-average {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-align: right;
+}
+
+.timeline-track {
+    position: relative;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+}
+
+.timeline-segment {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 3px;
+}
+
+.timeline-point {
+    position: absolute;
+    top: 50%;
+    width: 11px;
+    height: 11px;
+    padding: 0;
+    transform: translate(-50%, -50%);
+    border: 2px solid var(--bg);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 160ms ease;
+}
+
+.timeline-point:hover,
+.timeline-point.active {
+    transform: translate(-50%, -50%) scale(1.35);
+}
+
+/* The open stretch from the newest update to now. Hatched rather than solid so
+   it never reads as another release interval. */
+.timeline-silence {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 3px;
+}
+
+/* Tick closing the axis at the present moment */
+.timeline-now {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: 2px;
+    height: 18px;
+    transform: translate(-50%, -50%);
+    border-radius: 1px;
+    background: var(--fg);
+}
+
+/* Gap length is a magnitude, so it gets one hue on a light-to-dark ramp rather
+   than four named colours. Adjacent steps stay distinguishable under every
+   common colour vision deficiency, which a green/amber pair does not. */
+.update-timeline {
+    --gap-1: oklch(0.84 0.06 262);
+    --gap-2: oklch(0.72 0.11 262);
+    --gap-3: oklch(0.6 0.17 262);
+    --gap-4: oklch(0.45 0.19 262);
+}
+
+.timeline-segment.level-1,
+.timeline-point.level-1 {
+    background: var(--gap-1);
+}
+
+.timeline-segment.level-2,
+.timeline-point.level-2 {
+    background: var(--gap-2);
+}
+
+.timeline-segment.level-3,
+.timeline-point.level-3 {
+    background: var(--gap-3);
+}
+
+.timeline-segment.level-4,
+.timeline-point.level-4 {
+    background: var(--gap-4);
+}
+
+.timeline-point.level-initial {
+    background: var(--muted);
+}
+
+/* Status of the silence — the one place a semantic colour survives, and it is
+   always paired with the verdict sentence below the axis */
+.timeline-silence.staleness-current {
+    background: repeating-linear-gradient(135deg,
+        var(--success) 0 3px, var(--bg) 3px 6px);
+}
+
+.timeline-silence.staleness-slowing {
+    background: repeating-linear-gradient(135deg,
+        var(--warning) 0 3px, var(--bg) 3px 6px);
+}
+
+.timeline-silence.staleness-dormant {
+    background: repeating-linear-gradient(135deg,
+        var(--danger) 0 3px, var(--bg) 3px 6px);
+}
+
+/* Holds the date range, and the details of whichever point is hovered,
+   focused, or pinned. One line either way, so the row never reflows. */
+.timeline-axis {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 20px;
+    margin-top: 9px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+.timeline-detail {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.timeline-detail-version {
+    color: var(--fg);
+    font-weight: 600;
+}
+
+/* The two lightest ramp steps don't clear contrast as 11px text, so the detail
+   line borrows the darker steps while the track keeps the lighter fills */
+.timeline-detail-gap.level-1,
+.timeline-detail-gap.level-2 {
+    color: var(--gap-3);
+}
+
+.timeline-detail-gap.level-3,
+.timeline-detail-gap.level-4 {
+    color: var(--gap-4);
+}
+
+/* The verdict: what the silence means, said in words */
+.timeline-verdict {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0 0;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--muted);
+}
+
+.timeline-verdict strong {
+    color: var(--fg);
+    font-weight: 600;
+}
+
+.timeline-verdict-dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border-radius: 50%;
+}
+
+.timeline-verdict.staleness-current .timeline-verdict-dot {
+    background: var(--success);
+}
+
+.timeline-verdict.staleness-slowing .timeline-verdict-dot {
+    background: var(--warning);
+}
+
+.timeline-verdict.staleness-dormant .timeline-verdict-dot {
+    background: var(--danger);
+}
+
 /* Empty, error, and loading states */
 .empty-state,
 .error-state,
@@ -865,6 +1075,12 @@ h2 {
 
     .version-list {
         padding-left: 0;
+    }
+
+    /* The inline padding stays: it is what keeps the points sitting at 0% and
+       100% from bleeding past the edge of the card */
+    .update-timeline {
+        margin-left: 0;
     }
 
     .version-row {

@@ -406,5 +406,49 @@
     "options_extension_card_local_badge_title": {
         "message": "Chrome 웹 스토어 외부에서 설치됨",
         "description": "Tooltip explaining the LOCAL badge on an extension card"
+    },
+    "options_timeline_title": {
+        "message": "업데이트 활동",
+        "description": "Heading of the update activity timeline in an extension card"
+    },
+    "options_timeline_average": {
+        "message": "업데이트 간격 평균 %count%일 | 업데이트 간격 평균 %count%일",
+        "description": "Average gap between updates shown next to the timeline heading. Plural forms separated by |; %count% is the number of days"
+    },
+    "options_timeline_first_update": {
+        "message": "처음 기록된 업데이트",
+        "description": "Timeline detail for the earliest recorded update, which has no preceding gap"
+    },
+    "options_timeline_gap_from_version": {
+        "message": "v%previous% 이후 %count%일 | v%previous% 이후 %count%일",
+        "description": "Timeline detail naming the gap before an update, e.g. \"31 days after v1.4.1\". Plural forms separated by |; %count% is the number of days, %previous% the version it followed"
+    },
+    "options_timeline_gap": {
+        "message": "이전 업데이트 이후 %count%일 | 이전 업데이트 이후 %count%일",
+        "description": "Timeline detail naming the gap before an update when the previous version is unknown. Plural forms separated by |; %count% is the number of days"
+    },
+    "options_timeline_point_aria": {
+        "message": "버전 %version%, %date%, %detail%",
+        "description": "Aria label of a point on the update timeline; %version% is the version, %date% when it landed, %detail% the gap before it"
+    },
+    "options_timeline_today": {
+        "message": "오늘",
+        "description": "Right-hand label of the update timeline axis, marking the present moment"
+    },
+    "options_timeline_last_update": {
+        "message": "마지막 업데이트 %time_ago%",
+        "description": "Verdict line under the update timeline; %time_ago% is an already-formatted relative time such as \"9 days ago\""
+    },
+    "options_timeline_status_current": {
+        "message": "활발히 관리 중",
+        "description": "Verdict when an extension has been updated recently"
+    },
+    "options_timeline_status_slowing": {
+        "message": "업데이트 감소",
+        "description": "Verdict when an extension's updates have started to trail off"
+    },
+    "options_timeline_status_dormant": {
+        "message": "방치된 것으로 보임",
+        "description": "Verdict when an extension has gone a long time without an update"
     }
 }

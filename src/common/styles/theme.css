@@ -15,6 +15,7 @@
     --border-strong: oklch(0.66 0.012 248);
     --accent: oklch(0.52 0.21 262);
     --success: oklch(0.6401 0.1751 146.74);
+    --warning: oklch(0.7168 0.1503 71.35);
     --danger: oklch(0.5915 0.202 21.24);
     --accent-soft: color-mix(in oklch, var(--accent) 12%, transparent);
     --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);

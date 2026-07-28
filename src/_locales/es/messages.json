@@ -406,5 +406,49 @@
     "options_extension_card_local_badge_title": {
         "message": "Instalada fuera de Chrome Web Store",
         "description": "Tooltip explaining the LOCAL badge on an extension card"
+    },
+    "options_timeline_title": {
+        "message": "Actividad de actualizaciones",
+        "description": "Heading of the update activity timeline in an extension card"
+    },
+    "options_timeline_average": {
+        "message": "media de %count% días entre actualizaciones | media de %count% día entre actualizaciones | media de %count% días entre actualizaciones",
+        "description": "Average gap between updates shown next to the timeline heading. Plural forms separated by |; %count% is the number of days"
+    },
+    "options_timeline_first_update": {
+        "message": "Primera actualización registrada",
+        "description": "Timeline detail for the earliest recorded update, which has no preceding gap"
+    },
+    "options_timeline_gap_from_version": {
+        "message": "%count% días después de v%previous% | %count% día después de v%previous% | %count% días después de v%previous%",
+        "description": "Timeline detail naming the gap before an update, e.g. \"31 days after v1.4.1\". Plural forms separated by |; %count% is the number of days, %previous% the version it followed"
+    },
+    "options_timeline_gap": {
+        "message": "%count% días después de la actualización anterior | %count% día después de la actualización anterior | %count% días después de la actualización anterior",
+        "description": "Timeline detail naming the gap before an update when the previous version is unknown. Plural forms separated by |; %count% is the number of days"
+    },
+    "options_timeline_point_aria": {
+        "message": "Versión %version%, %date%, %detail%",
+        "description": "Aria label of a point on the update timeline; %version% is the version, %date% when it landed, %detail% the gap before it"
+    },
+    "options_timeline_today": {
+        "message": "hoy",
+        "description": "Right-hand label of the update timeline axis, marking the present moment"
+    },
+    "options_timeline_last_update": {
+        "message": "Última actualización %time_ago%",
+        "description": "Verdict line under the update timeline; %time_ago% is an already-formatted relative time such as \"9 days ago\""
+    },
+    "options_timeline_status_current": {
+        "message": "mantenida activamente",
+        "description": "Verdict when an extension has been updated recently"
+    },
+    "options_timeline_status_slowing": {
+        "message": "perdiendo ritmo",
+        "description": "Verdict when an extension's updates have started to trail off"
+    },
+    "options_timeline_status_dormant": {
+        "message": "probablemente abandonada",
+        "description": "Verdict when an extension has gone a long time without an update"
     }
 }

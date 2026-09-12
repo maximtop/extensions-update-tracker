@@ -44,7 +44,7 @@ pnpm lint
 Contributions are welcome! Please:
 
 1. Write tests for new features
-2. Ensure `pnpm test` and `pnpm lint` pass
+2. Ensure `pnpm check` passes
 
 **Issues & Feature Requests:** Use [GitHub Issues](https://github.com/maximtop/extensions-update-tracker/issues)
 

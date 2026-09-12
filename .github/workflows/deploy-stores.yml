@@ -1,0 +1,129 @@
+name: Deploy stores
+
+# One selection and one immutable release. Validate every selected store before
+# starting any submission; each store then has its own independent result.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Store to deploy to
+        required: true
+        type: choice
+        default: all
+        options: [all, chrome, firefox, edge]
+      tag:
+        description: 'Published release tag (vX.Y.Z); blank = latest stable release'
+        required: false
+        type: string
+      mode:
+        description: 'validate: check only; submit: check all selected stores, then submit'
+        required: true
+        type: choice
+        default: validate
+        options: [validate, submit]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-stores
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Select one release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - name: Resolve the same tag for every store
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          ARGS=()
+          if [[ -n "$INPUT_TAG" ]]; then ARGS+=("$INPUT_TAG"); fi
+          TAG="$(gh release view "${ARGS[@]}" --repo "$GITHUB_REPOSITORY" \
+            --json tagName --jq .tagName)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+  validate-chrome:
+    name: Validate chrome
+    needs: release
+    if: inputs.target == 'all' || inputs.target == 'chrome'
+    uses: ./.github/workflows/deploy-chrome-store.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+      mode: validate
+    secrets: inherit
+
+  validate-edge:
+    name: Validate edge
+    needs: release
+    if: inputs.target == 'all' || inputs.target == 'edge'
+    uses: ./.github/workflows/deploy-edge-addons.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+      mode: validate
+    secrets: inherit
+
+  validate-firefox:
+    name: Validate firefox
+    needs: release
+    if: inputs.target == 'all' || inputs.target == 'firefox'
+    uses: ./.github/workflows/deploy-firefox-amo.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+      mode: validate
+    secrets: inherit
+
+  submit-chrome:
+    name: Submit chrome
+    needs: [release, validate-chrome, validate-edge, validate-firefox]
+    if: >-
+      ${{ always() && !cancelled() && inputs.mode == 'submit' &&
+        (inputs.target == 'all' || inputs.target == 'chrome') &&
+        needs.release.result == 'success' &&
+        (needs.validate-chrome.result == 'success' || needs.validate-chrome.result == 'skipped') &&
+        (needs.validate-edge.result == 'success' || needs.validate-edge.result == 'skipped') &&
+        (needs.validate-firefox.result == 'success' || needs.validate-firefox.result == 'skipped') }}
+    uses: ./.github/workflows/deploy-chrome-store.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+      mode: submit
+    secrets: inherit
+
+  submit-edge:
+    name: Submit edge
+    needs: [release, validate-chrome, validate-edge, validate-firefox]
+    if: >-
+      ${{ always() && !cancelled() && inputs.mode == 'submit' &&
+        (inputs.target == 'all' || inputs.target == 'edge') &&
+        needs.release.result == 'success' &&
+        (needs.validate-chrome.result == 'success' || needs.validate-chrome.result == 'skipped') &&
+        (needs.validate-edge.result == 'success' || needs.validate-edge.result == 'skipped') &&
+        (needs.validate-firefox.result == 'success' || needs.validate-firefox.result == 'skipped') }}
+    uses: ./.github/workflows/deploy-edge-addons.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+      mode: submit
+    secrets: inherit
+
+  submit-firefox:
+    name: Submit firefox
+    needs: [release, validate-chrome, validate-edge, validate-firefox]
+    if: >-
+      ${{ always() && !cancelled() && inputs.mode == 'submit' &&
+        (inputs.target == 'all' || inputs.target == 'firefox') &&
+        needs.release.result == 'success' &&
+        (needs.validate-chrome.result == 'success' || needs.validate-chrome.result == 'skipped') &&
+        (needs.validate-edge.result == 'success' || needs.validate-edge.result == 'skipped') &&
+        (needs.validate-firefox.result == 'success' || needs.validate-firefox.result == 'skipped') }}
+    uses: ./.github/workflows/deploy-firefox-amo.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+      mode: submit
+    secrets: inherit

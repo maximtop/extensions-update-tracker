@@ -7,7 +7,8 @@ creation, so creating a GitHub Release never changes a store listing by itself.
 ## Release contract
 
 A `vX.Y.Z` tag reachable from `master` must match `package.json`. The release
-workflow runs the repository's checks and release build, then publishes the
+workflow reuses CI and publishes its verified candidate after all checks and
+applicable native signing jobs succeed. It publishes the
 browser ZIPs, a source ZIP, and `SHA256SUMS.txt`. Running `release.yml` manually
 is a dry run and publishes nothing.
 
@@ -21,7 +22,14 @@ gh workflow run deploy-edge-addons.yml -f tag=vX.Y.Z -f mode=validate
 gh workflow run deploy-firefox-amo.yml -f tag=vX.Y.Z -f mode=validate
 ```
 
-The blank `tag` input selects the latest stable published release.
+The blank `tag` input selects the latest stable published release. Use the
+**Deploy stores** workflow to select `chrome`, `firefox`, `edge`, or `all`.
+It resolves one tag and validates every selected store before any submission:
+
+```sh
+gh workflow run deploy-stores.yml -f target=all -f tag=vX.Y.Z -f mode=validate
+gh workflow run deploy-stores.yml -f target=firefox -f tag=vX.Y.Z -f mode=submit
+```
 
 | Store | Modes | External effect |
 | --- | --- | --- |
@@ -38,6 +46,9 @@ job summary.
 
 These files are byte-identical in every repository:
 
+- `.github/actions/setup-toolchain/action.yml`
+- `.github/actions/package-extension/action.yml`
+- `.github/workflows/deploy-stores.yml`
 - `.github/workflows/deploy-chrome-store.yml`
 - `.github/workflows/deploy-edge-addons.yml`
 - `.github/workflows/deploy-firefox-amo.yml`
@@ -50,8 +61,8 @@ These files are byte-identical in every repository:
 
 Repository-specific values live in `scripts/deploy/constants.ts`: the release
 asset prefix, enabled stores, Firefox extension ID, required source files, and
-reviewer-notes path. The build directory, release title, and asset prefix for
-release creation stay in `.github/workflows/release.yml`. Other platform jobs,
+reviewer-notes path. Build and package inputs stay in `.github/workflows/ci.yml`; the release
+title stays in `.github/workflows/release.yml`. Other platform jobs,
 such as Kode Injector's native helper and Apple release, remain repository
 specific.
 

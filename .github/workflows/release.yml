@@ -1,15 +1,7 @@
 name: Release
 
-# One checked pipeline, with three entry points:
-# - Merging the PR created by Please release builds and verifies the selected
-#   version, creates its vX.Y.Z tag, and publishes the GitHub Release.
-# - Pushing a matching vX.Y.Z tag keeps the manual fallback available.
-# - Manual dispatch is a dry run that builds, verifies, and retains artifacts.
-# Store submissions are separate manual workflows (deploy-*.yml) that take a
-# published release; nothing is sent to a store from here.
-# GitHub Releases are created only here: a release created by hand for a new
-# tag makes the tag or release-PR run fail before anything is built.
-
+# CI produces the candidate once. Publish waits for every check and platform
+# artifact. Manual dispatch exercises the whole pipeline without publishing.
 on:
   push:
     tags:
@@ -25,19 +17,18 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release
   cancel-in-progress: false
 
 env:
+  DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
   # Repository specifics; the rest of this workflow is identical across the
   # extension repositories.
-  ASSET_PREFIX: extensions-update-tracker
   RELEASE_TITLE: Extensions Update Tracker
-  BUILD_DIR: dist/release
 
 jobs:
-  release:
-    name: Build artifacts and publish release
+  context:
+    name: Validate release request
     if: >-
       ${{
         github.event_name != 'pull_request' ||
@@ -47,12 +38,12 @@ jobs:
           startsWith(github.event.pull_request.head.ref, 'release-please--branches--master'))
       }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
     outputs:
       tag: ${{ steps.context.outputs.tag }}
+      version: ${{ steps.context.outputs.version }}
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     env:
       # Only an explicit manual run is a dry run. A merged release PR and a
       # pushed tag both publish after every check succeeds.
@@ -61,7 +52,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.merge_commit_sha || github.ref }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged && github.event.pull_request.merge_commit_sha || github.sha }}
           # Full history brings refs/remotes/origin/master and tags along, so
           # the ancestry and collision checks need no credentialed fetch.
           fetch-depth: 0
@@ -125,71 +116,41 @@ jobs:
 
           echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
           echo "version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
-          echo "prefix=$ASSET_PREFIX-$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
-      - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+  checks:
+    name: Checks
+    needs: context
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    name: Publish verified release
+    needs: [context, checks]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version-file: package.json
-          cache: pnpm
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run quality checks
-        run: pnpm check
-
-      - name: Build release archives
-        run: pnpm release
-
-      - name: Assemble release assets with checksums
-        env:
-          VERSION: ${{ steps.context.outputs.version }}
-          PREFIX: ${{ steps.context.outputs.prefix }}
-        run: |
-          set -euo pipefail
-          mkdir -p release-artifacts
-          COUNT=0
-          # One archive per browser target the build produced.
-          for ZIP in "$BUILD_DIR"/*.zip; do
-            [[ -f "$ZIP" ]] || continue
-            BROWSER="$(basename "$ZIP" .zip)"
-            MANIFEST="$BUILD_DIR/$BROWSER/manifest.json"
-            BUILT_VERSION="$(jq -er '.version' "$MANIFEST")"
-            if [[ "$BUILT_VERSION" != "$VERSION" ]]; then
-              echo "$MANIFEST version $BUILT_VERSION does not match $VERSION" >&2
-              exit 1
-            fi
-            cp "$ZIP" "release-artifacts/$PREFIX-$BROWSER.zip"
-            COUNT=$((COUNT + 1))
-          done
-          if [[ "$COUNT" -eq 0 ]]; then
-            echo "No browser archives found in $BUILD_DIR" >&2
-            exit 1
-          fi
-          git archive --format=zip -o "release-artifacts/$PREFIX-source.zip" HEAD
-          # The checksum file lists bare asset names, so it is generated
-          # and later checked inside the directory holding the assets.
-          (cd release-artifacts && sha256sum -- *.zip > SHA256SUMS.txt)
-          cat release-artifacts/SHA256SUMS.txt
-
-      - name: Upload workflow artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged && github.event.pull_request.merge_commit_sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Download verified browser and source archives
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
-          name: ${{ steps.context.outputs.prefix }}
-          path: release-artifacts/
-          if-no-files-found: error
-          retention-days: 30
-          # A re-run of the same tag is a new attempt of the same run.
-          overwrite: true
-
+          name: extension-archives
+          path: release-artifacts
+      - name: Verify downloaded checksums
+        working-directory: release-artifacts
+        run: sha256sum --check --strict SHA256SUMS.txt
       - name: Create tag for merged release PR
         if: env.DRY_RUN == 'false' && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ steps.context.outputs.tag }}
-          VERSION: ${{ steps.context.outputs.version }}
+          RELEASE_TAG: ${{ needs.context.outputs.tag }}
+          VERSION: ${{ needs.context.outputs.version }}
         run: |
           set -euo pipefail
           if git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"; then
@@ -213,8 +174,8 @@ jobs:
         if: env.DRY_RUN == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ steps.context.outputs.tag }}
-          VERSION: ${{ steps.context.outputs.version }}
+          RELEASE_TAG: ${{ needs.context.outputs.tag }}
+          VERSION: ${{ needs.context.outputs.version }}
         run: |
           set -euo pipefail
           # gh creates the release as a draft, uploads every asset, and
@@ -227,8 +188,7 @@ jobs:
             --title "$RELEASE_TITLE $VERSION" \
             --notes "$NOTES" \
             --generate-notes \
-            release-artifacts/*.zip \
-            release-artifacts/SHA256SUMS.txt
+            release-artifacts/*
 
       - name: Mark the release PR as tagged
         if: success() && github.event_name == 'pull_request'
@@ -238,6 +198,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
+          gh label create "autorelease: tagged" --repo "$GITHUB_REPOSITORY" --force
           gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
             --remove-label "autorelease: pending" \
             --add-label "autorelease: tagged"
@@ -246,7 +207,7 @@ jobs:
         if: always()
         env:
           PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
-          RELEASE_TAG: ${{ steps.context.outputs.tag }}
+          RELEASE_TAG: ${{ needs.context.outputs.tag }}
         run: |
           set -euo pipefail
           if [[ -f release-artifacts/SHA256SUMS.txt ]]; then

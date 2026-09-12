@@ -1,0 +1,70 @@
+name: Assemble extension release
+description: Check the actual browser ZIPs and retain one release candidate
+inputs:
+  build-dir:
+    required: true
+    description: Directory containing the browser ZIPs
+  asset-prefix:
+    required: true
+    description: Release asset name prefix
+  locale-dir:
+    required: true
+    description: Source locale catalog directory
+runs:
+  using: composite
+  steps:
+    - name: Verify and assemble browser archives
+      shell: bash
+      env:
+        BUILD_DIR: ${{ inputs.build-dir }}
+        ASSET_PREFIX: ${{ inputs.asset-prefix }}
+        LOCALE_DIR: ${{ inputs.locale-dir }}
+      run: |
+        set -euo pipefail
+        VERSION="$(jq -er '.version' package.json)"
+        mkdir -p release-artifacts
+        for BROWSER in chrome edge firefox; do
+          ZIP="$BUILD_DIR/$BROWSER.zip"
+          test -s "$ZIP"
+          unzip -tq "$ZIP"
+          MANIFEST="$(unzip -p "$ZIP" manifest.json)"
+          jq -e --arg version "$VERSION" \
+            '.manifest_version == 3 and .version == $version' <<< "$MANIFEST"
+          if [[ "$BROWSER" == firefox ]]; then
+            jq -e '(.background.scripts | length > 0) or
+              (.background.page | length > 0)' <<< "$MANIFEST"
+            jq -e '(.background | has("service_worker") | not) and
+              (.browser_specific_settings.gecko.id | length > 0)' <<< "$MANIFEST"
+          else
+            jq -e '(.background.service_worker | length > 0) and
+              (.background | has("scripts") | not)' <<< "$MANIFEST"
+          fi
+          # Check packaging integrity, not translation wording or source equality.
+          DEFAULT_LOCALE="$(jq -er '.default_locale' <<< "$MANIFEST")"
+          unzip -p "$ZIP" "_locales/$DEFAULT_LOCALE/messages.json" | jq -e 'length > 0' >/dev/null
+          for CATALOG in "$LOCALE_DIR"/*/messages.json; do
+            test -f "$CATALOG"
+            LOCALE="$(basename "$(dirname "$CATALOG")")"
+            # Chromium builds may retain nb or emit its supported alias no.
+            if [[ "$BROWSER" != firefox && "$LOCALE" == nb ]] &&
+              ! unzip -Z1 "$ZIP" | grep -Fx "_locales/nb/messages.json" >/dev/null; then
+              LOCALE=no
+            fi
+            unzip -p "$ZIP" "_locales/$LOCALE/messages.json" | jq -e 'length > 0' >/dev/null
+          done
+          while IFS= read -r FILE; do
+            unzip -p "$ZIP" "$FILE" >/dev/null
+          done < <(jq -r '[.background.service_worker // empty,
+            .background.scripts[]?, .background.page // empty, .icons[]?] | unique[]' <<< "$MANIFEST")
+          cp "$ZIP" "release-artifacts/$ASSET_PREFIX-$VERSION-$BROWSER.zip"
+        done
+        git archive --format=zip -o "release-artifacts/$ASSET_PREFIX-$VERSION-source.zip" HEAD
+        (cd release-artifacts && shasum -a 256 -- *.zip > SHA256SUMS.txt)
+    - name: Retain release candidate
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: extension-archives
+        path: release-artifacts/
+        if-no-files-found: error
+        retention-days: 14
+        overwrite: true

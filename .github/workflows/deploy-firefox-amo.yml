@@ -1,0 +1,142 @@
+name: Deploy Firefox Add-ons
+
+# Submits the Firefox archive and the matching source archive of a published
+# GitHub Release to addons.mozilla.org (AMO). Manual only: run it after the
+# release workflow has published the release. Mozilla reviews and signs the
+# version asynchronously and publishes it itself once approved; the `status`
+# mode reports the review state and retains the signed package.
+#
+# Identical across the extension repositories; repository specifics live in
+# scripts/deploy/constants.ts and the repository variables and secrets.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Published release tag to deploy (vX.Y.Z); blank = latest release'
+        required: false
+        type: string
+      mode:
+        description: 'submit: upload once with source and reviewer notes; status: only report review and signing state; validate: only resolve and verify the release'
+        required: false
+        type: choice
+        default: submit
+        options:
+          - submit
+          - status
+          - validate
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Submit or report status
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: firefox-amo-deploy
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GO_WEBEXT_VERSION: v0.4.2
+      DEPLOY_MODE: ${{ inputs.mode || 'submit' }}
+      FIREFOX_AMO_ID: ${{ vars.FIREFOX_AMO_ID }}
+      FIREFOX_CLIENT_ID: ${{ secrets.FIREFOX_CLIENT_ID }}
+      FIREFOX_CLIENT_SECRET: ${{ secrets.FIREFOX_CLIENT_SECRET }}
+    steps:
+      - name: Check out deployment helpers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The deployment code comes from the workflow's own commit, never
+          # from the release tag; the full history serves the ancestry check.
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - name: Install deployment dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Resolve and validate release
+        id: release
+        env:
+          STORE_TARGET: firefox
+          INPUT_TAG: ${{ inputs.tag }}
+        run: pnpm exec tsx scripts/deploy/cli.ts
+
+      - name: Check whether this version already exists
+        id: preflight
+        if: env.DEPLOY_MODE == 'submit'
+        env:
+          AMO_OPERATION: preflight
+          VERSION: ${{ steps.release.outputs.version }}
+        run: pnpm exec tsx scripts/deploy/firefox-cli.ts
+
+      - name: Set up Go
+        if: steps.preflight.outputs.submit == 'true'
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version: '1.26.x'
+          cache: false
+      - name: Install go-webext
+        if: steps.preflight.outputs.submit == 'true'
+        run: |
+          set -euo pipefail
+          go install "github.com/adguardteam/go-webext@$GO_WEBEXT_VERSION"
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Submit with matching source and reviewer notes
+        id: upload
+        if: steps.preflight.outputs.submit == 'true'
+        env:
+          ASSET: ${{ steps.release.outputs.asset }}
+          SOURCE: ${{ steps.release.outputs.source }}
+        run: |
+          set -euo pipefail
+          go-webext update firefox \
+            -f "store-upload/$ASSET" \
+            -s "store-upload/$SOURCE" \
+            -c listed \
+            -n "$(cat store-upload/approval-notes.txt)"
+          echo 'AMO accepted the submission with matching source. Review and signing continue asynchronously.' \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report review status and verify signed XPI when available
+        id: status
+        if: always() && steps.release.outcome == 'success' && env.DEPLOY_MODE != 'validate'
+        # An unavailable status endpoint must not invalidate an accepted submission.
+        # In explicit status mode failures remain visible as failed runs.
+        continue-on-error: ${{ steps.upload.outcome == 'success' }}
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: pnpm exec tsx scripts/deploy/firefox-cli.ts
+
+      - name: Retain verified signed package
+        if: always() && steps.status.outputs.signed == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: firefox-signed-${{ steps.release.outputs.version }}
+          path: store-upload/signed/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Report validation
+        if: env.DEPLOY_MODE == 'validate'
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          ASSET: ${{ steps.release.outputs.asset }}
+          SOURCE: ${{ steps.release.outputs.source }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Firefox Add-ons deployment (validate mode)"
+            echo
+            echo "- Release \`$RELEASE_TAG\` resolved; \`$ASSET\` and \`$SOURCE\` downloaded and verified"
+            echo "- Nothing was sent to the store"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,202 @@
+name: Release
+
+# One pipeline, two entry points:
+# - Pushing a tag vX.Y.Z that matches package.json runs the quality checks,
+#   builds the extension archives, verifies them, and publishes a GitHub
+#   Release with the store archives, the source archive, and SHA-256
+#   checksums.
+# - Manual dispatch runs the same pipeline as a dry run: it builds, verifies,
+#   and uploads workflow artifacts, but publishes nothing.
+# Store submissions are separate manual workflows (deploy-*.yml) that take a
+# published release; nothing is sent to a store from here.
+# GitHub Releases are created only here: a release created by hand for a new
+# tag makes the tag run fail before anything is built.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Repository specifics; the rest of this workflow is identical across the
+  # extension repositories.
+  ASSET_PREFIX: extensions-update-tracker
+  RELEASE_TITLE: Extensions Update Tracker
+  BUILD_DIR: dist/release
+
+jobs:
+  release:
+    name: Build artifacts and publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      # Every run that is not a tag push is a dry run.
+      DRY_RUN: ${{ github.event_name != 'push' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history brings refs/remotes/origin/master along, so the
+          # ancestry check below needs no credentialed fetch.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate version, tag, and release state
+        id: context
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          PACKAGE_VERSION="$(jq -er '.version' package.json)"
+          if [[ ! "$PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "package.json version is not semantic: $PACKAGE_VERSION" >&2
+            exit 1
+          fi
+
+          if [[ "$DRY_RUN" == "false" ]]; then
+            if [[ "$GITHUB_REF_NAME" != "v$PACKAGE_VERSION" ]]; then
+              echo "Tag $GITHUB_REF_NAME does not match package.json ($PACKAGE_VERSION)" >&2
+              exit 1
+            fi
+            if ! git merge-base --is-ancestor HEAD origin/master; then
+              echo "Tagged commit must be reachable from master" >&2
+              exit 1
+            fi
+            # gh exits non-zero when no release exists for the tag; that is
+            # the normal case. Any other failure must not pass as "absent".
+            RELEASE_STATE=""
+            if ! RELEASE_STATE="$(gh release view "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" --json isDraft \
+              --jq 'if .isDraft then "draft" else "published" end' \
+              2>"$RUNNER_TEMP/release-view.err")"; then
+              if ! grep -qF "release not found" "$RUNNER_TEMP/release-view.err"; then
+                cat "$RUNNER_TEMP/release-view.err" >&2
+                exit 1
+              fi
+            fi
+            if [[ "$RELEASE_STATE" == "draft" ]]; then
+              echo "A draft release for $GITHUB_REF_NAME exists" >&2
+              echo "Delete it with: gh release delete $GITHUB_REF_NAME --yes" >&2
+              exit 1
+            elif [[ "$RELEASE_STATE" == "published" ]]; then
+              echo "Release $GITHUB_REF_NAME is already published" >&2
+              echo "Deploy it with the deploy-*.yml workflows; to rebuild it," \
+                "delete it (gh release delete --yes) and re-run" >&2
+              exit 1
+            fi
+          fi
+
+          echo "version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "prefix=$ASSET_PREFIX-$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run quality checks
+        run: pnpm check
+
+      - name: Build release archives
+        run: pnpm release
+
+      - name: Assemble release assets with checksums
+        env:
+          VERSION: ${{ steps.context.outputs.version }}
+          PREFIX: ${{ steps.context.outputs.prefix }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-artifacts
+          COUNT=0
+          # One archive per browser target the build produced.
+          for ZIP in "$BUILD_DIR"/*.zip; do
+            [[ -f "$ZIP" ]] || continue
+            BROWSER="$(basename "$ZIP" .zip)"
+            MANIFEST="$BUILD_DIR/$BROWSER/manifest.json"
+            BUILT_VERSION="$(jq -er '.version' "$MANIFEST")"
+            if [[ "$BUILT_VERSION" != "$VERSION" ]]; then
+              echo "$MANIFEST version $BUILT_VERSION does not match $VERSION" >&2
+              exit 1
+            fi
+            cp "$ZIP" "release-artifacts/$PREFIX-$BROWSER.zip"
+            COUNT=$((COUNT + 1))
+          done
+          if [[ "$COUNT" -eq 0 ]]; then
+            echo "No browser archives found in $BUILD_DIR" >&2
+            exit 1
+          fi
+          git archive --format=zip -o "release-artifacts/$PREFIX-source.zip" HEAD
+          # The checksum file lists bare asset names, so it is generated
+          # and later checked inside the directory holding the assets.
+          (cd release-artifacts && sha256sum -- *.zip > SHA256SUMS.txt)
+          cat release-artifacts/SHA256SUMS.txt
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ steps.context.outputs.prefix }}
+          path: release-artifacts/
+          if-no-files-found: error
+          retention-days: 30
+          # A re-run of the same tag is a new attempt of the same run.
+          overwrite: true
+
+      - name: Publish GitHub Release
+        id: publish
+        if: env.DRY_RUN == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.context.outputs.version }}
+        run: |
+          set -euo pipefail
+          # gh creates the release as a draft, uploads every asset, and
+          # publishes it last; a failed upload deletes the draft again.
+          NOTES="Store-ready extension archives, the source archive, and SHA-256 checksums."
+          NOTES="$NOTES Store submissions are run separately with the deploy workflows."
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "$RELEASE_TITLE $VERSION" \
+            --notes "$NOTES" \
+            --generate-notes \
+            release-artifacts/*.zip \
+            release-artifacts/SHA256SUMS.txt
+
+      - name: Write release summary
+        if: always()
+        env:
+          PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
+        run: |
+          set -euo pipefail
+          if [[ -f release-artifacts/SHA256SUMS.txt ]]; then
+            {
+              if [[ "$DRY_RUN" == "true" ]]; then
+                echo "## Dry run: nothing was published"
+              elif [[ "$PUBLISH_OUTCOME" == "success" ]]; then
+                echo "## Release $GITHUB_REF_NAME"
+                echo
+                echo "Submit it to the stores with the deploy workflows (Actions tab or \`gh workflow run\`)."
+              else
+                echo "## Release $GITHUB_REF_NAME was not published"
+                echo "Publish step outcome: \`$PUBLISH_OUTCOME\`"
+              fi
+              echo '```'
+              cat release-artifacts/SHA256SUMS.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi

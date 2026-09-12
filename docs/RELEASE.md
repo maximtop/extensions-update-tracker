@@ -1,94 +1,59 @@
 # Releasing
 
-Chrome publishing is automated with GitHub Actions and AdGuard's
-[`go-webext`](https://github.com/adguardteam/go-webext) CLI. Nothing goes live
-automatically — a build is submitted to the store for review with **staged
-(deferred) publishing**, and the final "publish" click stays manual.
+Extensions Update Tracker follows the same three-store release and deployment
+contract as the other extensions. The cross-repository contract and extraction
+boundary are documented in
+[Shared store deployment](STORE_DEPLOYMENT.md).
 
-## How a release flows
+## Cut a release
 
-Everything is driven by publishing a GitHub Release — no manual `git tag`, no
-`package.json` bump.
+1. Bump `version` in `package.json` to a semantic `X.Y.Z`, merge the change to
+   `master`, and tag that exact commit as `vX.Y.Z`.
+2. Push the tag. `.github/workflows/release.yml` runs `pnpm check` and
+   `pnpm release`, verifies the built manifests, and publishes:
+   - `extensions-update-tracker-<version>-chrome.zip`
+   - `extensions-update-tracker-<version>-edge.zip`
+   - `extensions-update-tracker-<version>-firefox.zip`
+   - `extensions-update-tracker-<version>-source.zip`
+   - `SHA256SUMS.txt`
+3. Run the store workflows for the published release:
 
-1. On GitHub, go to **Releases → Draft a new release**.
-2. Under **Choose a tag**, type a new tag `vX.Y.Z` ("Create new tag on publish")
-   and set **Target: `master`**. The **tag is the source of truth** for the
-   version — CI stamps `X.Y.Z` into the manifest at build time, so `package.json`
-   never needs a manual bump (its `version` is only a local-dev marker).
-3. Write the notes and click **Publish release**. Publishing creates the tag and
-   triggers **`deploy-chrome-store.yml`**.
-4. The workflow checks out the tag, builds the Chrome bundle, runs the e2e suite,
-   attaches `chrome.zip` + `SHA256SUMS` to the Release, then uploads to the
-   Chrome Web Store and submits it for review with **staged** publishing.
-5. Check out the same tag, run `pnpm release`, and upload the resulting
-   `edge.zip` to Microsoft Edge Add-ons and `firefox.zip` plus a source archive
-   made from that tag to AMO. These first submissions are manual.
-6. After the Chrome store approves it (email), **publish the approved version manually**
-   in the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-   within ~30 days (an approved staged submission otherwise reverts to a draft).
+   ```sh
+   gh workflow run deploy-chrome-store.yml -f tag=vX.Y.Z
+   gh workflow run deploy-edge-addons.yml -f tag=vX.Y.Z
+   gh workflow run deploy-firefox-amo.yml -f tag=vX.Y.Z
+   ```
 
-To re-deploy an already-published Release (e.g. after fixing store config), run
-`deploy-chrome-store.yml` from the **Actions** tab via **Run workflow** and pass
-the release `tag`.
+Running `release.yml` manually is a dry run. Every store workflow is also
+manual and supports `mode=validate`, which checks the release without sending
+anything to a store. Chrome submission uses deferred publishing; the final
+publish action after approval remains in the Chrome Developer Dashboard.
 
-## One-time repository setup
+## Repository configuration
 
-The workflows need one repository **variable** and four **secrets**
-(Settings → Secrets and variables → Actions):
+The public store IDs are in `.env.example`; `1password.env.example` contains
+references to the shared credential items. GitHub Actions uses the variables
+and secrets listed in
+[Shared store deployment](STORE_DEPLOYMENT.md#github-configuration).
 
-| Name | Kind | Value |
-| --- | --- | --- |
-| `CHROME_APP_ID` | variable | `cdgepknigaiclfdmjckaknepgcighbnh` (this extension's store ID) |
-| `CHROME_CLIENT_ID` | secret | Google OAuth client ID |
-| `CHROME_CLIENT_SECRET` | secret | Google OAuth client secret |
-| `CHROME_REFRESH_TOKEN` | secret | OAuth refresh token |
-| `CHROME_PUBLISHER_ID` | secret | Chrome Web Store publisher ID |
-
-The four secrets are **per-Google-publisher-account**, not per-extension. If
-this extension lives under the same publisher account as another project that
-already has them (e.g. `kode-injector`), reuse the existing values verbatim —
-only `CHROME_APP_ID` is specific to this extension. For example, reusing an
-existing local `.env`:
-
-```bash
-set -a; source /path/to/other-project/.env; set +a
-REPO=maximtop/extensions-update-tracker
-gh secret   set CHROME_CLIENT_ID     --repo "$REPO" --body "$CHROME_CLIENT_ID"
-gh secret   set CHROME_CLIENT_SECRET --repo "$REPO" --body "$CHROME_CLIENT_SECRET"
-gh secret   set CHROME_REFRESH_TOKEN --repo "$REPO" --body "$CHROME_REFRESH_TOKEN"
-gh secret   set CHROME_PUBLISHER_ID  --repo "$REPO" --body "$CHROME_PUBLISHER_ID"
-gh variable set CHROME_APP_ID        --repo "$REPO" --body "cdgepknigaiclfdmjckaknepgcighbnh"
-```
-
-To mint fresh credentials instead: create a Web-application OAuth client
-(redirect URI `https://developers.google.com/oauthplayground`, scope
-`https://www.googleapis.com/auth/chromewebstore`, consent screen "In
-production"), then exchange an authorization code for a refresh token via the
-OAuth Playground.
-
-## Related workflows
-
-- **`ci.yml`** — lint, unit tests, e2e, and a release build on every push to
-  `master` and every pull request.
-- **`deploy-chrome-store.yml`** — on a published Release: build from the tag,
-  run e2e, attach the archive to the Release, then upload + staged-submit to the
-  Chrome Web Store.
+The old Chrome-only release-event workflow is no longer used. Release creation
+and store submission are separate, and all three stores consume the same
+immutable GitHub Release assets.
 
 ## Browser packages
 
 `pnpm release` writes `dist/release/chrome.zip`, `dist/release/edge.zip`, and
-`dist/release/firefox.zip`. Chrome and Edge use the same service-worker
-manifest shape. Firefox uses an event-page background script, the permanent ID
+`dist/release/firefox.zip`. Chrome and Edge use a service worker. Firefox uses
+an event-page background script, the permanent ID
 `extensions-update-tracker@maximtop.dev`, a Firefox 140 minimum, and declares
-that no data is collected or transmitted. All packages contain the same 10
+that no data is collected or transmitted. All packages contain the same ten
 locale catalogs.
 
-Firefox does not let extensions enable or disable ordinary extensions through
-`management.setEnabled`, so its package omits the optional auto-disable setting.
-Firefox notifications also omit Chromium-only buttons and notification flags.
-The update history, unread badge, notification, search, sorting and mute flows
-remain available.
+Firefox omits the optional auto-disable setting because it cannot enable or
+disable ordinary extensions through `management.setEnabled`. Its notifications
+also omit Chromium-only buttons and flags. The update history, unread badge,
+notification, search, sorting, and mute flows remain available.
 
-Use the source archive from the exact same tag as the Firefox package. Reviewer
-instructions and listing fields live in `docs/FIREFOX_REVIEW.md` and
-`docs/FIREFOX_LISTING.md`; Edge fields live in `docs/EDGE_LISTING.md`.
+Reviewer instructions and Firefox listing fields live in
+`docs/FIREFOX_REVIEW.md` and `docs/FIREFOX_LISTING.md`; Edge listing fields live
+in `docs/EDGE_LISTING.md`.

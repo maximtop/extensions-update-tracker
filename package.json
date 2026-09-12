@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "version": "1.3.1",
-  "packageManager": "pnpm@10.33.4",
+  "packageManager": "pnpm@11.18.0",
   "author": {
     "name": "Maxim Topciu",
     "email": "me@maximtop.dev"
@@ -27,20 +27,14 @@
     "start": "tsx ./scripts/build/index.ts --watch",
     "validate-translations": "node ./scripts/validate-translations.js",
     "convert-store-descriptions": "node ./scripts/convert-store-descriptions.js",
-    "lint": "eslint . --ext .ts,.tsx,.js && tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx,.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "pnpm build:test && playwright test",
     "test:e2e:ui": "pnpm build:test && playwright test --ui",
     "test:e2e:debug": "pnpm build:test && playwright test --debug",
-    "check": "pnpm validate-translations && pnpm lint && pnpm test"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "css-loader>@rspack/core": "2"
-      }
-    }
+    "check": "pnpm validate-translations && pnpm lint && pnpm typecheck && pnpm test",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@adguard/translate": "^2.0.8",

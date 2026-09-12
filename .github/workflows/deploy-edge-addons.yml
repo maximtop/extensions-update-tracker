@@ -11,6 +11,14 @@ name: Deploy Edge Add-ons
 # scripts/deploy/constants.ts and the repository variables and secrets.
 
 on:
+  workflow_call:
+    inputs:
+      tag:
+        required: false
+        type: string
+      mode:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       tag:

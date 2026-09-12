@@ -10,6 +10,14 @@ name: Deploy Firefox Add-ons
 # scripts/deploy/constants.ts and the repository variables and secrets.
 
 on:
+  workflow_call:
+    inputs:
+      tag:
+        required: false
+        type: string
+      mode:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       tag:
@@ -124,7 +132,7 @@ jobs:
           name: firefox-signed-${{ steps.release.outputs.version }}
           path: store-upload/signed/
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 14
 
       - name: Report validation
         if: env.DEPLOY_MODE == 'validate'

@@ -1,0 +1,167 @@
+name: Deploy Edge Add-ons
+
+# Submits the Edge archive of a published GitHub Release to Microsoft Edge
+# Add-ons. Manual only: run it after the release workflow has published the
+# release. Microsoft certifies the submission asynchronously and publishes a
+# certified update itself; there is no deferred publishing on Edge, so the
+# manual gates are running this workflow and the `upload` mode. The first
+# publication of a product happens in Partner Center, not here.
+#
+# Identical across the extension repositories; repository specifics live in
+# scripts/deploy/constants.ts and the repository variables and secrets.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Published release tag to deploy (vX.Y.Z); blank = latest release'
+        required: false
+        type: string
+      mode:
+        description: 'submit: upload and request certification; upload: fill the draft only; validate: only resolve and verify the release'
+        required: false
+        type: choice
+        default: submit
+        options:
+          - submit
+          - upload
+          - validate
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Upload and submit for certification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: edge-addons-deploy
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GO_WEBEXT_VERSION: v0.4.2
+      DEPLOY_MODE: ${{ inputs.mode || 'submit' }}
+      EDGE_API_VERSION: v1.1
+      EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
+      EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+    steps:
+      - name: Check out deployment helpers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The deployment code comes from the workflow's own commit, never
+          # from the release tag; the full history serves the ancestry check.
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - name: Install deployment dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Resolve and validate release
+        id: release
+        env:
+          STORE_TARGET: edge
+          INPUT_TAG: ${{ inputs.tag }}
+        run: pnpm exec tsx scripts/deploy/cli.ts
+
+      - name: Set up Go
+        if: env.DEPLOY_MODE != 'validate'
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version: '1.26.x'
+          cache: false
+      - name: Install go-webext
+        id: install
+        if: env.DEPLOY_MODE != 'validate'
+        run: |
+          set -euo pipefail
+          go install "github.com/adguardteam/go-webext@$GO_WEBEXT_VERSION"
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Upload the package to the draft submission
+        id: upload
+        if: env.DEPLOY_MODE != 'validate'
+        env:
+          ASSET: ${{ steps.release.outputs.asset }}
+        run: |
+          set -euo pipefail
+          # go-webext polls Partner Center and exits non-zero unless package
+          # processing reaches Succeeded within its one-minute wait, so a
+          # rejected or still-processing package never reaches the submit step.
+          go-webext update edge -a "$EDGE_PRODUCT_ID" -f "store-upload/$ASSET" 2>&1 \
+            | tee "$RUNNER_TEMP/upload-output.txt"
+
+      - name: Submit the draft for certification
+        id: submit
+        if: env.DEPLOY_MODE == 'submit'
+        run: |
+          set -euo pipefail
+          PUBLISH_OUTPUT="$RUNNER_TEMP/publish-output.txt"
+          go-webext publish edge -a "$EDGE_PRODUCT_ID" 2>&1 | tee "$PUBLISH_OUTPUT"
+          # go-webext v0.4.2 reads the publish operation once and prints the
+          # response as an unlabeled Go struct, e.g. "&{... InProgress ...}",
+          # so match the status as a whitespace-delimited word. A zero exit
+          # with InProgress means the request was accepted and continues
+          # asynchronously; it is not a certification verdict.
+          if grep -Eq '(^|[[:space:]])Succeeded([[:space:]]|$)' "$PUBLISH_OUTPUT"; then
+            STATUS="Succeeded"
+          elif grep -Eq '(^|[[:space:]])InProgress([[:space:]]|$)' "$PUBLISH_OUTPUT"; then
+            STATUS="InProgress"
+            echo "::notice::The Edge submission was accepted and is still processing."
+          else
+            STATUS="Accepted (immediate status not recognized)"
+            echo "::warning::The Edge submission was accepted, but its immediate" \
+              "operation status was not recognized."
+          fi
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+
+      - name: Report deployment
+        if: env.DEPLOY_MODE != 'validate'
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          VERSION: ${{ steps.release.outputs.version }}
+          SUBMISSION_STATUS: ${{ steps.submit.outputs.status }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Microsoft Edge Add-ons deployment"
+            echo
+            echo "- Release: \`$RELEASE_TAG\` (version $VERSION)"
+            echo "- Package processing in Partner Center reached \`Succeeded\`"
+            if [[ "$DEPLOY_MODE" == "submit" ]]; then
+              echo "- Submission request status: \`$SUBMISSION_STATUS\`"
+              echo "- Certification continues asynchronously (up to seven business days);" \
+                "Microsoft publishes a certified update automatically"
+            else
+              echo "- Upload only: finish the draft (privacy, listings, certification notes)" \
+                "and click Publish in Partner Center"
+            fi
+            echo "- [Open the product in Partner Center](https://partner.microsoft.com/en-us/dashboard/microsoftedge/$EDGE_PRODUCT_ID/packages/dashboard)"
+            echo
+            echo '```'
+            head -c 8000 "$RUNNER_TEMP/upload-output.txt"
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report validation
+        if: env.DEPLOY_MODE == 'validate'
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          ASSET: ${{ steps.release.outputs.asset }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Microsoft Edge Add-ons deployment (validate mode)"
+            echo
+            echo "- Release \`$RELEASE_TAG\` resolved; \`$ASSET\` downloaded and verified"
+            echo "- Nothing was sent to the store"
+          } >> "$GITHUB_STEP_SUMMARY"

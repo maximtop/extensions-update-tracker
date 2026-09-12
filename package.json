@@ -32,7 +32,8 @@
     "test:watch": "vitest",
     "test:e2e": "pnpm build:test && playwright test",
     "test:e2e:ui": "pnpm build:test && playwright test --ui",
-    "test:e2e:debug": "pnpm build:test && playwright test --debug"
+    "test:e2e:debug": "pnpm build:test && playwright test --debug",
+    "check": "pnpm validate-translations && pnpm lint && pnpm test"
   },
   "pnpm": {
     "peerDependencyRules": {
@@ -83,6 +84,11 @@
     "tsx": "^4.19.3",
     "typescript": "^5.6.3",
     "vitest": "^3.0.7",
-    "yazl": "^3.3.1"
+    "yazl": "^3.3.1",
+    "@types/adm-zip": "0.5.8",
+    "adm-zip": "0.6.0"
+  },
+  "engines": {
+    "node": ">=24 <25"
   }
 }

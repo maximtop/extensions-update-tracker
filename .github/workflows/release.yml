@@ -1,21 +1,24 @@
 name: Release
 
-# One pipeline, two entry points:
-# - Pushing a tag vX.Y.Z that matches package.json runs the quality checks,
-#   builds the extension archives, verifies them, and publishes a GitHub
-#   Release with the store archives, the source archive, and SHA-256
-#   checksums.
-# - Manual dispatch runs the same pipeline as a dry run: it builds, verifies,
-#   and uploads workflow artifacts, but publishes nothing.
+# One checked pipeline, with three entry points:
+# - Merging the PR created by Please release builds and verifies the selected
+#   version, creates its vX.Y.Z tag, and publishes the GitHub Release.
+# - Pushing a matching vX.Y.Z tag keeps the manual fallback available.
+# - Manual dispatch is a dry run that builds, verifies, and retains artifacts.
 # Store submissions are separate manual workflows (deploy-*.yml) that take a
 # published release; nothing is sent to a store from here.
 # GitHub Releases are created only here: a release created by hand for a new
-# tag makes the tag run fail before anything is built.
+# tag makes the tag or release-PR run fail before anything is built.
 
 on:
   push:
     tags:
       - 'v*.*.*'
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
   workflow_dispatch:
 
 permissions:
@@ -35,19 +38,32 @@ env:
 jobs:
   release:
     name: Build artifacts and publish release
+    if: >-
+      ${{
+        github.event_name != 'pull_request' ||
+        (github.event.pull_request.merged == true &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          contains(github.event.pull_request.labels.*.name, 'autorelease: pending') &&
+          startsWith(github.event.pull_request.head.ref, 'release-please--branches--master'))
+      }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      tag: ${{ steps.context.outputs.tag }}
     permissions:
       contents: write
+      pull-requests: write
     env:
-      # Every run that is not a tag push is a dry run.
-      DRY_RUN: ${{ github.event_name != 'push' }}
+      # Only an explicit manual run is a dry run. A merged release PR and a
+      # pushed tag both publish after every check succeeds.
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Full history brings refs/remotes/origin/master along, so the
-          # ancestry check below needs no credentialed fetch.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.merge_commit_sha || github.ref }}
+          # Full history brings refs/remotes/origin/master and tags along, so
+          # the ancestry and collision checks need no credentialed fetch.
           fetch-depth: 0
           persist-credentials: false
 
@@ -63,19 +79,30 @@ jobs:
             exit 1
           fi
 
+          RELEASE_TAG="v$PACKAGE_VERSION"
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            RELEASE_TAG="$GITHUB_REF_NAME"
+          fi
+
           if [[ "$DRY_RUN" == "false" ]]; then
-            if [[ "$GITHUB_REF_NAME" != "v$PACKAGE_VERSION" ]]; then
-              echo "Tag $GITHUB_REF_NAME does not match package.json ($PACKAGE_VERSION)" >&2
+            if [[ "$RELEASE_TAG" != "v$PACKAGE_VERSION" ]]; then
+              echo "Tag $RELEASE_TAG does not match package.json ($PACKAGE_VERSION)" >&2
               exit 1
             fi
             if ! git merge-base --is-ancestor HEAD origin/master; then
-              echo "Tagged commit must be reachable from master" >&2
+              echo "Release commit must be reachable from master" >&2
+              exit 1
+            fi
+            if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]] \
+              && git show-ref --verify --quiet "refs/tags/$RELEASE_TAG" \
+              && [[ "$(git rev-parse "$RELEASE_TAG^{commit}")" != "$(git rev-parse HEAD)" ]]; then
+              echo "Tag $RELEASE_TAG already points to another commit" >&2
               exit 1
             fi
             # gh exits non-zero when no release exists for the tag; that is
             # the normal case. Any other failure must not pass as "absent".
             RELEASE_STATE=""
-            if ! RELEASE_STATE="$(gh release view "$GITHUB_REF_NAME" \
+            if ! RELEASE_STATE="$(gh release view "$RELEASE_TAG" \
               --repo "$GITHUB_REPOSITORY" --json isDraft \
               --jq 'if .isDraft then "draft" else "published" end' \
               2>"$RUNNER_TEMP/release-view.err")"; then
@@ -85,17 +112,18 @@ jobs:
               fi
             fi
             if [[ "$RELEASE_STATE" == "draft" ]]; then
-              echo "A draft release for $GITHUB_REF_NAME exists" >&2
-              echo "Delete it with: gh release delete $GITHUB_REF_NAME --yes" >&2
+              echo "A draft release for $RELEASE_TAG exists" >&2
+              echo "Delete it with: gh release delete $RELEASE_TAG --yes" >&2
               exit 1
             elif [[ "$RELEASE_STATE" == "published" ]]; then
-              echo "Release $GITHUB_REF_NAME is already published" >&2
+              echo "Release $RELEASE_TAG is already published" >&2
               echo "Deploy it with the deploy-*.yml workflows; to rebuild it," \
                 "delete it (gh release delete --yes) and re-run" >&2
               exit 1
             fi
           fi
 
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
           echo "version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
           echo "prefix=$ASSET_PREFIX-$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
 
@@ -156,11 +184,36 @@ jobs:
           # A re-run of the same tag is a new attempt of the same run.
           overwrite: true
 
+      - name: Create tag for merged release PR
+        if: env.DRY_RUN == 'false' && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.context.outputs.tag }}
+          VERSION: ${{ steps.context.outputs.version }}
+        run: |
+          set -euo pipefail
+          if git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"; then
+            echo "Tag $RELEASE_TAG already points to this commit"
+            exit 0
+          fi
+          COMMIT="$(git rev-parse HEAD)"
+          TAG_OBJECT="$(gh api --method POST \
+            "repos/$GITHUB_REPOSITORY/git/tags" \
+            -f tag="$RELEASE_TAG" \
+            -f message="$RELEASE_TITLE $VERSION" \
+            -f object="$COMMIT" \
+            -f type=commit \
+            --jq .sha)"
+          gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f ref="refs/tags/$RELEASE_TAG" \
+            -f sha="$TAG_OBJECT" > /dev/null
+
       - name: Publish GitHub Release
         id: publish
         if: env.DRY_RUN == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.context.outputs.tag }}
           VERSION: ${{ steps.context.outputs.version }}
         run: |
           set -euo pipefail
@@ -168,7 +221,7 @@ jobs:
           # publishes it last; a failed upload deletes the draft again.
           NOTES="Store-ready extension archives, the source archive, and SHA-256 checksums."
           NOTES="$NOTES Store submissions are run separately with the deploy workflows."
-          gh release create "$GITHUB_REF_NAME" \
+          gh release create "$RELEASE_TAG" \
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "$RELEASE_TITLE $VERSION" \
@@ -177,10 +230,23 @@ jobs:
             release-artifacts/*.zip \
             release-artifacts/SHA256SUMS.txt
 
+      - name: Mark the release PR as tagged
+        if: success() && github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --remove-label "autorelease: pending" \
+            --add-label "autorelease: tagged"
+
       - name: Write release summary
         if: always()
         env:
           PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
+          RELEASE_TAG: ${{ steps.context.outputs.tag }}
         run: |
           set -euo pipefail
           if [[ -f release-artifacts/SHA256SUMS.txt ]]; then
@@ -188,11 +254,11 @@ jobs:
               if [[ "$DRY_RUN" == "true" ]]; then
                 echo "## Dry run: nothing was published"
               elif [[ "$PUBLISH_OUTCOME" == "success" ]]; then
-                echo "## Release $GITHUB_REF_NAME"
+                echo "## Release $RELEASE_TAG"
                 echo
                 echo "Submit it to the stores with the deploy workflows (Actions tab or \`gh workflow run\`)."
               else
-                echo "## Release $GITHUB_REF_NAME was not published"
+                echo "## Release $RELEASE_TAG was not published"
                 echo "Publish step outcome: \`$PUBLISH_OUTCOME\`"
               fi
               echo '```'

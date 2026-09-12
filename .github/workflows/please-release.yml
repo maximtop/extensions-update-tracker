@@ -110,8 +110,9 @@ jobs:
         run: |
           set -euo pipefail
           PRS="$(gh pr list --repo "$GITHUB_REPOSITORY" --state open \
-            --base master --head release-please--branches--master \
-            --json number,headRefName,url)"
+            --base master --label "autorelease: pending" --limit 100 \
+            --json number,headRefName,url \
+            --jq 'map(select(.headRefName | startswith("release-please--branches--master")))')"
           test "$(jq length <<< "$PRS")" = 1
           BRANCH="$(jq -er '.[0].headRefName' <<< "$PRS")"
           gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH"

@@ -1,6 +1,6 @@
-# Releasing to the Chrome Web Store
+# Releasing
 
-Publishing is automated with GitHub Actions and AdGuard's
+Chrome publishing is automated with GitHub Actions and AdGuard's
 [`go-webext`](https://github.com/adguardteam/go-webext) CLI. Nothing goes live
 automatically — a build is submitted to the store for review with **staged
 (deferred) publishing**, and the final "publish" click stays manual.
@@ -20,7 +20,10 @@ Everything is driven by publishing a GitHub Release — no manual `git tag`, no
 4. The workflow checks out the tag, builds the Chrome bundle, runs the e2e suite,
    attaches `chrome.zip` + `SHA256SUMS` to the Release, then uploads to the
    Chrome Web Store and submits it for review with **staged** publishing.
-5. After the store approves it (email), **publish the approved version manually**
+5. Check out the same tag, run `pnpm release`, and upload the resulting
+   `edge.zip` to Microsoft Edge Add-ons and `firefox.zip` plus a source archive
+   made from that tag to AMO. These first submissions are manual.
+6. After the Chrome store approves it (email), **publish the approved version manually**
    in the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
    within ~30 days (an approved staged submission otherwise reverts to a draft).
 
@@ -70,3 +73,22 @@ OAuth Playground.
 - **`deploy-chrome-store.yml`** — on a published Release: build from the tag,
   run e2e, attach the archive to the Release, then upload + staged-submit to the
   Chrome Web Store.
+
+## Browser packages
+
+`pnpm release` writes `dist/release/chrome.zip`, `dist/release/edge.zip`, and
+`dist/release/firefox.zip`. Chrome and Edge use the same service-worker
+manifest shape. Firefox uses an event-page background script, the permanent ID
+`extensions-update-tracker@maximtop.dev`, a Firefox 140 minimum, and declares
+that no data is collected or transmitted. All packages contain the same 10
+locale catalogs.
+
+Firefox does not let extensions enable or disable ordinary extensions through
+`management.setEnabled`, so its package omits the optional auto-disable setting.
+Firefox notifications also omit Chromium-only buttons and notification flags.
+The update history, unread badge, notification, search, sorting and mute flows
+remain available.
+
+Use the source archive from the exact same tag as the Firefox package. Reviewer
+instructions and listing fields live in `docs/FIREFOX_REVIEW.md` and
+`docs/FIREFOX_LISTING.md`; Edge fields live in `docs/EDGE_LISTING.md`.

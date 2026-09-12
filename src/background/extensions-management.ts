@@ -1,5 +1,6 @@
 import { Management } from 'webextension-polyfill';
 
+import { SUPPORTS_EXTENSION_STATE_CHANGES } from '../common/browser-target';
 import { Logger } from '../common/utils/logger';
 
 import { BadgeService } from './badge-service';
@@ -7,6 +8,7 @@ import { ExtensionsUpdateStorage } from './extensions-update-storage';
 import { ManagementAdapter } from './management-adapter';
 import { NotificationService } from './notification-service';
 import { notificationStateStorage } from './notification-state-storage';
+import { settingsStorage } from './settings-storage';
 
 /**
  * Manages extension lifecycle events and coordinates responses to extension updates.
@@ -129,7 +131,8 @@ export class ExtensionsManagement {
                         `Reconciliation triggering notification for ${extName}: `
                         + `${previousVersion} -> ${currentVersion}`,
                     );
-                    await this.notificationService.showUpdateNotification(ext, previousVersion);
+                    const notificationInfo = await this.disableUpdatedExtension(ext, previousVersion);
+                    await this.notificationService.showUpdateNotification(notificationInfo, previousVersion);
                 } else {
                     Logger.info(
                         `Reconciliation found new extension ${extName}, not showing notification`,
@@ -186,7 +189,8 @@ export class ExtensionsManagement {
         // Show notification if this is an update (not first install)
         if (previousVersion && previousVersion !== currentVersion) {
             Logger.info(`Triggering notification for update: ${extName} ${previousVersion} -> ${currentVersion}`);
-            await this.notificationService.showUpdateNotification(info, previousVersion);
+            const notificationInfo = await this.disableUpdatedExtension(info, previousVersion);
+            await this.notificationService.showUpdateNotification(notificationInfo, previousVersion);
         } else if (!previousVersion) {
             Logger.info(`First install detected for ${extName}, not showing update notification`);
         } else {
@@ -196,6 +200,40 @@ export class ExtensionsManagement {
         // Update badge
         this.badgeService.refresh();
     };
+
+    /**
+     * Applies the opt-in Chromium protection after an actual version change.
+     *
+     * @param info Updated extension information supplied by the browser.
+     * @param previousVersion Version recorded before the update.
+     * @returns Information reflecting the disabled state when the action succeeds.
+     */
+    private async disableUpdatedExtension(
+        info: Management.ExtensionInfo,
+        previousVersion: string | undefined,
+    ): Promise<Management.ExtensionInfo> {
+        if (
+            !previousVersion
+            || !SUPPORTS_EXTENSION_STATE_CHANGES
+            || !settingsStorage.get().security.autoDisableOnUpdate
+            || info.enabled === false
+            || this.management.setEnabled === undefined
+        ) {
+            return info;
+        }
+
+        try {
+            await this.management.setEnabled(info.id, false);
+            Logger.info(`Auto-disabled updated extension: ${info.name} (${info.id})`);
+            return {
+                ...info,
+                enabled: false,
+            };
+        } catch (error) {
+            Logger.error(`Failed to auto-disable updated extension: ${info.id}`, error);
+            return info;
+        }
+    }
 
     /**
      * Handler for when an extension is uninstalled.

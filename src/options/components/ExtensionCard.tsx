@@ -115,12 +115,12 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
                 </button>
 
                 <div className="group-actions">
-                    {extensionInfo.installType === 'normal' && (
+                    {extensionInfo.installType === 'normal' && extensionInfo.homepageUrl && (
                         <button
                             type="button"
                             className="icon-btn"
                             onClick={() => {
-                                window.open(`https://chrome.google.com/webstore/detail/${extensionId}`, '_blank');
+                                window.open(extensionInfo.homepageUrl, '_blank', 'noopener,noreferrer');
                             }}
                             title={t('options_update_item_view_web_store')}
                             aria-label={t('options_update_item_view_web_store')}

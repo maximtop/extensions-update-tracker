@@ -1,12 +1,15 @@
 import React from 'react';
 import browser from 'webextension-polyfill';
 
+import { CURRENT_BROWSER } from '../../common/browser-target';
 import { t } from '../../common/utils/i18n';
 
 const GITHUB_URL = 'https://github.com/maximtop/extensions-update-tracker';
 const ISSUES_URL = `${GITHUB_URL}/issues`;
 const LICENSE_URL = `${GITHUB_URL}/blob/master/LICENSE`;
-const WEB_STORE_URL = 'https://chromewebstore.google.com/detail/cdgepknigaiclfdmjckaknepgcighbnh';
+const WEB_STORE_URL = CURRENT_BROWSER === 'chrome'
+    ? 'https://chromewebstore.google.com/detail/cdgepknigaiclfdmjckaknepgcighbnh'
+    : undefined;
 
 const AUTHOR_NAME = 'Maxim Topciu';
 
@@ -64,11 +67,13 @@ export function AboutContent(): React.JSX.Element {
                         title={t('options_about_report_issue')}
                         description={t('options_about_report_issue_desc')}
                     />
-                    <LinkRow
-                        href={WEB_STORE_URL}
-                        title={t('options_about_rate')}
-                        description={t('options_about_rate_desc')}
-                    />
+                    {WEB_STORE_URL !== undefined && (
+                        <LinkRow
+                            href={WEB_STORE_URL}
+                            title={t('options_about_rate')}
+                            description={t('options_about_rate_desc')}
+                        />
+                    )}
                 </div>
             </section>
 

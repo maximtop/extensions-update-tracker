@@ -14,6 +14,7 @@ import {
     BrowserConfig,
 } from './constants';
 import { getEnvConf } from './helpers';
+import { buildManifest } from './manifest';
 
 const config = getEnvConf(BUILD_ENV);
 
@@ -60,12 +61,15 @@ const transformLocaleMessages = (content: Buffer): string | Buffer => {
  * Stamps the copied manifest with the version from package.json, so the two can
  * never drift apart in a published build.
  */
-const transformManifest = (content: Buffer): string => {
+const transformManifest = (content: Buffer, browserConfig: BrowserConfig): string => {
     const packageJsonPath = path.resolve(currentDirPath, '../../package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     const manifestJson = JSON.parse(content.toString());
-    manifestJson.version = packageJson.version;
-    return JSON.stringify(manifestJson, null, 2);
+    return JSON.stringify(
+        buildManifest(manifestJson, browserConfig.browser, packageJson.version),
+        null,
+        2,
+    );
 };
 
 export const genCommonConfig = (browserConfig: BrowserConfig): Configuration => ({
@@ -147,6 +151,9 @@ export const genCommonConfig = (browserConfig: BrowserConfig): Configuration => 
         ],
     },
     plugins: [
+        new rspack.DefinePlugin({
+            __TARGET_BROWSER__: JSON.stringify(browserConfig.browser),
+        }),
         new rspack.CopyRspackPlugin({
             patterns: [
                 {
@@ -164,7 +171,7 @@ export const genCommonConfig = (browserConfig: BrowserConfig): Configuration => 
                 {
                     from: path.resolve(currentDirPath, '../../src/manifest.json'),
                     to: 'manifest.json',
-                    transform: transformManifest,
+                    transform: (content) => transformManifest(content, browserConfig),
                 },
             ],
         }),

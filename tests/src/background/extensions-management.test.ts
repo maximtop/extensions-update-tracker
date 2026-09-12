@@ -10,6 +10,7 @@ import { ExtensionsManagement } from '../../../src/background/extensions-managem
 import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
 import { ManagementAdapter } from '../../../src/background/management-adapter';
 import { NotificationService } from '../../../src/background/notification-service';
+import { settingsStorage } from '../../../src/background/settings-storage';
 
 import type { StorageAdapter } from '../../../src/background/storage-adapter';
 
@@ -985,6 +986,82 @@ describe('management', () => {
             expect(persisted['tracked-ext']).toBeDefined();
             expect(persisted['tracked-ext'].currentVersion).toBe('1.0.0');
         });
+    });
+
+    it('auto-disables an updated extension before showing its notification', async () => {
+        const onInstalledListenerMock = vi.fn();
+        const setEnabled = vi.fn().mockResolvedValue(undefined);
+        const management: ManagementAdapter = {
+            onInstalled: {
+                addListener: onInstalledListenerMock,
+            },
+            onUninstalled: {
+                addListener: vi.fn(),
+            },
+            onDisabled: {
+                addListener: vi.fn(),
+            },
+            getAll: vi.fn().mockResolvedValue([{
+                id: 'updated-ext',
+                name: 'Updated Extension',
+                version: '1.0.0',
+                enabled: true,
+            }]),
+            get: vi.fn(),
+            setEnabled,
+        };
+        const storageAdapter = new InMemoryStorageAdapter({
+            [ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY]: {
+                'updated-ext': {
+                    currentVersion: '1.0.0',
+                    updateHistory: [],
+                },
+            },
+        });
+        const storageService = new ExtensionsUpdateStorage(storageAdapter);
+        await storageService.init();
+        const mockNotificationService = createMockNotificationService();
+        const mockBadgeService = createMockBadgeService();
+        const settingsSpy = vi.spyOn(settingsStorage, 'get').mockReturnValue({
+            notifications: {
+                enabled: true,
+                autoCloseTimeout: 10,
+                soundEnabled: true,
+            },
+            extensionPreferences: {
+                mutedExtensions: {},
+            },
+            security: {
+                autoDisableOnUpdate: true,
+            },
+        });
+
+        const extensionsManagement = new ExtensionsManagement(
+            management,
+            storageService,
+            mockNotificationService,
+            mockBadgeService,
+        );
+        await extensionsManagement.init();
+
+        const handler = onInstalledListenerMock.mock.calls[0][0];
+        await handler({
+            id: 'updated-ext',
+            name: 'Updated Extension',
+            version: '2.0.0',
+            enabled: true,
+        });
+
+        expect(setEnabled).toHaveBeenCalledWith('updated-ext', false);
+        expect(mockNotificationService.showUpdateNotification).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'updated-ext',
+                version: '2.0.0',
+                enabled: false,
+            }),
+            '1.0.0',
+        );
+        settingsSpy.mockRestore();
     });
 
     describe('onDisabled', () => {

@@ -20,9 +20,14 @@ full checks, builds the archives, creates `vX.Y.Z`, and publishes the GitHub
 Release. Nothing is sent to a browser store. Use `-f mode=validate` to check a
 version without creating a branch or PR.
 
-`Please release` explicitly dispatches CI on its release branch, including
-when using the built-in `GITHUB_TOKEN`. No additional token is required.
-Wait for the required `check` before merging. The release workflow reuses
+With the built-in `GITHUB_TOKEN`, GitHub asks a maintainer to select
+**Approve workflows to run** on the release PR. Then wait for its required
+`check` before merging. An optional `RELEASE_PLEASE_TOKEN` (GitHub App token or
+PAT) lets GitHub start PR CI without that approval; no extra token is required
+for the default flow. A separate manual CI run does not replace approval of
+the PR workflow. See [GitHub workflow triggers](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow).
+
+The release workflow reuses
 the same CI workflow and publishes its verified artifacts without rebuilding.
 For Kode Injector, publication also waits for the signed native helpers.
 

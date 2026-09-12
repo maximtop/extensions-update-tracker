@@ -23,7 +23,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
   issues: write
   pull-requests: write
 
@@ -102,8 +101,8 @@ jobs:
           include-component-in-tag: false
           skip-github-release: true
 
-      - name: Run CI on the release PR
-        id: ci
+      - name: Find the release PR
+        id: pr
         if: inputs.mode == 'prepare'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -114,8 +113,6 @@ jobs:
             --json number,headRefName,url \
             --jq 'map(select(.headRefName | startswith("release-please--branches--master")))')"
           test "$(jq length <<< "$PRS")" = 1
-          BRANCH="$(jq -er '.[0].headRefName' <<< "$PRS")"
-          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH"
           echo "pr-url=$(jq -er '.[0].url' <<< "$PRS")" >> "$GITHUB_OUTPUT"
 
       - name: Write summary
@@ -123,7 +120,7 @@ jobs:
         env:
           MODE: ${{ inputs.mode }}
           VERSION: ${{ steps.version.outputs.version }}
-          PR_URL: ${{ steps.ci.outputs.pr-url }}
+          PR_URL: ${{ steps.pr.outputs.pr-url }}
         run: |
           set -euo pipefail
           if [[ "$MODE" == "validate" ]]; then
@@ -131,6 +128,9 @@ jobs:
             echo "No branch, pull request, tag, or release was created." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "## Release PR prepared for v$VERSION" >> "$GITHUB_STEP_SUMMARY"
-            echo "CI started for $PR_URL. Merge after its required check succeeds." \
+            echo "Release PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+            echo "If GitHub requests it, select **Approve workflows to run** on the PR." \
+              >> "$GITHUB_STEP_SUMMARY"
+            echo "Wait for its required **check**, then merge to create the release." \
               >> "$GITHUB_STEP_SUMMARY"
           fi

@@ -1,0 +1,118 @@
+name: Please release
+
+# Opens or updates a release PR for an explicitly requested stable version.
+# Merging that PR is the release approval: release.yml then runs all checks,
+# creates the vX.Y.Z tag, and publishes the GitHub Release with its artifacts.
+# Store submissions remain separate manual workflows.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Exact stable version to prepare (X.Y.Z, without v)'
+        required: true
+        type: string
+      mode:
+        description: 'prepare: create or update the release PR; validate: check the version only'
+        required: false
+        type: choice
+        default: prepare
+        options:
+          - prepare
+          - validate
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: please-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare requested version
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out master
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate requested version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          SEMVER='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+          if [[ ! "$REQUESTED_VERSION" =~ $SEMVER ]]; then
+            echo "Version must be a stable X.Y.Z value without a v prefix" >&2
+            exit 1
+          fi
+
+          CURRENT_VERSION="$(jq -er '.version' package.json)"
+          if [[ ! "$CURRENT_VERSION" =~ $SEMVER ]]; then
+            echo "package.json version is not a stable X.Y.Z value: $CURRENT_VERSION" >&2
+            exit 1
+          fi
+
+          IFS=. read -r CURRENT_MAJOR CURRENT_MINOR CURRENT_PATCH <<< "$CURRENT_VERSION"
+          IFS=. read -r NEXT_MAJOR NEXT_MINOR NEXT_PATCH <<< "$REQUESTED_VERSION"
+          if (( NEXT_MAJOR < CURRENT_MAJOR \
+            || (NEXT_MAJOR == CURRENT_MAJOR && NEXT_MINOR < CURRENT_MINOR) \
+            || (NEXT_MAJOR == CURRENT_MAJOR && NEXT_MINOR == CURRENT_MINOR \
+              && NEXT_PATCH <= CURRENT_PATCH) )); then
+            echo "Requested version $REQUESTED_VERSION must be newer than $CURRENT_VERSION" >&2
+            exit 1
+          fi
+
+          RELEASE_TAG="v$REQUESTED_VERSION"
+          if git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"; then
+            echo "Tag $RELEASE_TAG already exists" >&2
+            exit 1
+          fi
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            > /dev/null 2>"$RUNNER_TEMP/release-view.err"; then
+            echo "GitHub Release $RELEASE_TAG already exists" >&2
+            exit 1
+          elif ! grep -qF "release not found" "$RUNNER_TEMP/release-view.err"; then
+            cat "$RUNNER_TEMP/release-view.err" >&2
+            exit 1
+          fi
+
+          echo "version=$REQUESTED_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Validated $CURRENT_VERSION -> $REQUESTED_VERSION"
+
+      - name: Create or update the release PR
+        id: release
+        if: inputs.mode == 'prepare'
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          release-type: node
+          target-branch: master
+          release-as: ${{ steps.version.outputs.version }}
+          include-component-in-tag: false
+          skip-github-release: true
+
+      - name: Write summary
+        if: always() && steps.version.outcome == 'success'
+        env:
+          MODE: ${{ inputs.mode }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ "$MODE" == "validate" ]]; then
+            echo "## Version v$VERSION is available" >> "$GITHUB_STEP_SUMMARY"
+            echo "No branch, pull request, tag, or release was created." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Release PR prepared for v$VERSION" >> "$GITHUB_STEP_SUMMARY"
+            echo "Merge the release PR to run the checked GitHub Release pipeline." \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi

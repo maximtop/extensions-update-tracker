@@ -7,6 +7,29 @@ boundary are documented in
 
 ## Cut a release
 
+Use the manual `Please release` workflow for the normal path:
+
+```sh
+gh workflow run please-release.yml -f version=X.Y.Z
+```
+
+The requested version must be a stable `X.Y.Z` newer than `package.json`.
+Release Please creates or updates a release PR that changes `package.json` and
+`CHANGELOG.md`. Merging that PR is the release approval: `release.yml` runs the
+full checks, builds the archives, creates `vX.Y.Z`, and publishes the GitHub
+Release. Nothing is sent to a browser store. Use `-f mode=validate` to check a
+version without creating a branch or PR.
+
+The workflow uses the built-in `GITHUB_TOKEN` unless an optional
+`RELEASE_PLEASE_TOKEN` is configured. The built-in token requires the repository
+setting that allows Actions to create pull requests. It does not start ordinary
+PR workflows for the PR it creates, so `release.yml` deliberately repeats the
+full quality and artifact checks after merge and creates no tag or release if
+they fail. A fine-grained token can be used when CI on the release PR itself is
+also wanted.
+
+The manual version-and-tag fallback remains available:
+
 1. Bump `version` in `package.json` to a semantic `X.Y.Z`, merge the change to
    `master`, and tag that exact commit as `vX.Y.Z`.
 2. Push the tag. `.github/workflows/release.yml` runs `pnpm check` and

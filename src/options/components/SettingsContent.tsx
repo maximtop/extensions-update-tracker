@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 
+import { SUPPORTS_EXTENSION_STATE_CHANGES } from '../../common/browser-target';
 import { t } from '../../common/utils/i18n';
 import { useRootStore } from '../stores/root-store';
 
@@ -94,21 +95,22 @@ export const SettingsContent: React.FC = observer(() => {
                 </div>
             </section>
 
-            {/* Security Settings */}
-            <section className="settings-section">
-                <h2>{t('options_settings_section_security')}</h2>
+            {SUPPORTS_EXTENSION_STATE_CHANGES && (
+                <section className="settings-section">
+                    <h2>{t('options_settings_section_security')}</h2>
 
-                <div className="switch-list">
-                    <SwitchRow
-                        id="autoDisableOnUpdate"
-                        title={t('options_settings_auto_disable_on_update')}
-                        description={t('options_settings_auto_disable_on_update_desc')}
-                        checked={settings.security.autoDisableOnUpdate}
-                        disabled={false}
-                        onToggle={() => settingsStore.toggleAutoDisableOnUpdate()}
-                    />
-                </div>
-            </section>
+                    <div className="switch-list">
+                        <SwitchRow
+                            id="autoDisableOnUpdate"
+                            title={t('options_settings_auto_disable_on_update')}
+                            description={t('options_settings_auto_disable_on_update_desc')}
+                            checked={settings.security.autoDisableOnUpdate}
+                            disabled={false}
+                            onToggle={() => settingsStore.toggleAutoDisableOnUpdate()}
+                        />
+                    </div>
+                </section>
+            )}
 
             {/* Reset Section */}
             <section className="settings-section">

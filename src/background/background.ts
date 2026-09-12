@@ -38,6 +38,7 @@ const syncInit = () => {
 };
 
 const asyncInit = async () => {
+    await settingsStorage.load();
     await extensionsUpdateStorage.init();
     await extensionsManagement.init();
 };

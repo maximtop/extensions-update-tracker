@@ -40,8 +40,8 @@ const getPackagePaths = (rspackConfig: Configuration, browser: Browser): Package
     };
 };
 
-const bundleChrome = async (options: CommanderOptions) => {
-    const rspackConfig = getRspackConfig(Browser.Chrome);
+const bundleBrowser = async (browser: Browser, options: CommanderOptions) => {
+    const rspackConfig = getRspackConfig(browser);
 
     // Watch mode rebuilds continuously, so packaging only makes sense for
     // one-shot builds — this mirrors the old !isWatchMode guard on the zip plugin.
@@ -50,7 +50,7 @@ const bundleChrome = async (options: CommanderOptions) => {
         return;
     }
 
-    const { sourceDir, zipPath } = getPackagePaths(rspackConfig, Browser.Chrome);
+    const { sourceDir, zipPath } = getPackagePaths(rspackConfig, browser);
 
     // Discard any archive left by an earlier run *before* building, so a failed
     // build cannot leave a stale, still-publishable zip behind. `output.clean`
@@ -63,19 +63,21 @@ const bundleChrome = async (options: CommanderOptions) => {
 };
 
 const devPlan = [
-    bundleChrome,
+    (options: CommanderOptions) => bundleBrowser(Browser.Chrome, options),
 ];
 
 const betaPlan = [
-    bundleChrome,
+    (options: CommanderOptions) => bundleBrowser(Browser.Chrome, options),
 ];
 
 const releasePlan = [
-    bundleChrome,
+    (options: CommanderOptions) => bundleBrowser(Browser.Chrome, options),
+    (options: CommanderOptions) => bundleBrowser(Browser.Edge, options),
+    (options: CommanderOptions) => bundleBrowser(Browser.Firefox, options),
 ];
 
 const testPlan = [
-    bundleChrome,
+    (options: CommanderOptions) => bundleBrowser(Browser.Chrome, options),
 ];
 
 const runBuild = async (
@@ -120,9 +122,9 @@ const main = async (options: CommanderOptions) => {
     }
 };
 
-const chrome = async (options: CommanderOptions) => {
+const buildSelectedBrowser = async (browser: Browser, options: CommanderOptions) => {
     try {
-        await bundleChrome(options);
+        await bundleBrowser(browser, options);
     } catch (e) {
         console.error(e);
         process.exit(1);
@@ -141,7 +143,21 @@ program
     .command('chrome')
     .description('Builds extension for chrome browser')
     .action(async () => {
-        await chrome(program.opts());
+        await buildSelectedBrowser(Browser.Chrome, program.opts());
+    });
+
+program
+    .command('edge')
+    .description('Builds extension for Edge')
+    .action(async () => {
+        await buildSelectedBrowser(Browser.Edge, program.opts());
+    });
+
+program
+    .command('firefox')
+    .description('Builds extension for Firefox')
+    .action(async () => {
+        await buildSelectedBrowser(Browser.Firefox, program.opts());
     });
 
 program

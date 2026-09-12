@@ -4,6 +4,8 @@
 
 **[Install from Chrome Web Store](https://chromewebstore.google.com/detail/cdgepknigaiclfdmjckaknepgcighbnh)**
 
+Firefox and Microsoft Edge packages are available from release 1.3.1.
+
 A browser extension that tracks when your installed extensions are updated.
 
 ## Features
@@ -34,7 +36,8 @@ pnpm test
 pnpm lint
 ```
 
-**Load extension:** Build the project, then load the `dist` folder as an unpacked extension in Chrome.
+**Load extension:** Build the project, then load the corresponding directory under
+`dist/` as an unpacked or temporary extension.
 
 ## Contributing
 

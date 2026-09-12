@@ -9,6 +9,12 @@ export const getRspackConfig = (browser: Browser): Configuration => {
         case Browser.Chrome: {
             return genCommonConfig(getBrowserConf(browser));
         }
+        case Browser.Edge: {
+            return genCommonConfig(getBrowserConf(browser));
+        }
+        case Browser.Firefox: {
+            return genCommonConfig(getBrowserConf(browser));
+        }
         default: {
             throw new Error(`Unknown browser: "${browser}"`);
         }

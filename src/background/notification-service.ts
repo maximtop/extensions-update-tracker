@@ -4,6 +4,7 @@
 
 import browser from 'webextension-polyfill';
 
+import { IS_FIREFOX } from '../common/browser-target';
 import { NotificationCloseReason } from '../common/types/notification-types';
 import { t } from '../common/utils/i18n';
 import { Logger } from '../common/utils/logger';
@@ -67,7 +68,7 @@ export class NotificationService {
     private init() {
         // Set up notification click handlers
         browser.notifications.onClicked.addListener(this.handleNotificationClick);
-        browser.notifications.onButtonClicked.addListener(this.handleButtonClick);
+        browser.notifications.onButtonClicked?.addListener(this.handleButtonClick);
         browser.notifications.onClosed.addListener(this.handleNotificationClosed);
         // onShowSettings is available in Firefox but not all browsers
         browser.notifications.onShowSettings?.addListener(this.handleShowSettings);
@@ -149,11 +150,13 @@ export class NotificationService {
             iconUrl,
             title,
             message,
-            buttons,
-            priority: 2, // High priority for important extension updates
-            requireInteraction: true, // Persistent notification requiring user interaction
-            silent: !settings.notifications.soundEnabled,
         };
+        if (!IS_FIREFOX) {
+            options.buttons = buttons;
+            options.priority = 2;
+            options.requireInteraction = true;
+            options.silent = !settings.notifications.soundEnabled;
+        }
 
         try {
             await browser.notifications.create(notificationId, options);
@@ -471,11 +474,13 @@ export class NotificationService {
             iconUrl: browser.runtime.getURL('assets/icons/icon-128.png'),
             title,
             message,
-            buttons,
-            priority: 2,
-            requireInteraction: true, // Keep it visible until user interacts
-            silent: !settings.notifications.soundEnabled,
         };
+        if (!IS_FIREFOX) {
+            options.buttons = buttons;
+            options.priority = 2;
+            options.requireInteraction = true;
+            options.silent = !settings.notifications.soundEnabled;
+        }
 
         try {
             await browser.notifications.create(notificationId, options);

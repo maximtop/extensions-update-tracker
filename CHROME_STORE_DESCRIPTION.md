@@ -25,7 +25,7 @@ Every update is stored with the version it replaced and the moment it was detect
 
 #### Who it is for
 
-Anyone who would rather have a record than a surprise. Extensions change hands, change behaviour and change permissions, and by default all of it happens in the background without a trace. A Chrome extension update history turns "this extension started acting strangely last week" into a date and a version number you can check.
+Anyone who would rather have a record than a surprise. Extensions change hands, change behaviour and change permissions, and by default all of it happens in the background without a trace. An extension update history turns "this extension started acting strangely last week" into a date and a version number you can check.
 
 #### Permissions, in plain words
 

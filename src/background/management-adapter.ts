@@ -16,6 +16,7 @@ export interface ManagementAdapter {
     };
     getAll: () => Promise<Management.ExtensionInfo[]>;
     get: (id: string) => Promise<Management.ExtensionInfo>;
+    setEnabled?: (id: string, enabled: boolean) => Promise<void>;
 }
 
 /**
@@ -57,4 +58,8 @@ export const managementAdapter: ManagementAdapter = {
      * Gets information about a specific extension by ID.
      */
     get: (id: string) => browser.management.get(id),
+    /**
+     * Changes an extension's enabled state on Chromium browsers.
+     */
+    setEnabled: (id, enabled) => browser.management.setEnabled(id, enabled),
 };

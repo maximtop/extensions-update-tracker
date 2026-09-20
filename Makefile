@@ -1,34 +1,51 @@
-.PHONY: init dev beta release build start lint test chrome
+# Local builds never upload, submit, or publish. See DEVELOPMENT.md for outputs.
+.DEFAULT_GOAL := build
+override BROWSERS := chrome edge firefox
+override BROWSER_GOALS := $(filter $(BROWSERS),$(MAKECMDGOALS))
+override BUILD_GOALS := $(filter build dev start release package beta,$(MAKECMDGOALS))
+override COMMAND_GOALS := install setup init build dev start release package lint typecheck test check validate beta
+override UNKNOWN_GOALS := $(filter-out $(COMMAND_GOALS) $(BROWSERS),$(MAKECMDGOALS))
+ifneq ($(UNKNOWN_GOALS),)
+  $(error Unknown command or unsupported browser: $(UNKNOWN_GOALS). Supported browsers: $(BROWSERS))
+endif
+ifneq ($(word 2,$(BROWSER_GOALS)),)
+  $(error Choose at most one browser: $(BROWSERS))
+endif
+ifneq ($(BROWSER_GOALS),)
+  ifneq ($(words $(BUILD_GOALS)),1)
+    $(error A browser requires exactly one build command: build, dev, start, release or package)
+  endif
+endif
+override BROWSER_TARGET := $(firstword $(BROWSER_GOALS))
 
-# Optional browser argument: `make dev chrome`, `make beta chrome`, `make release chrome`.
-# Only chrome is supported for now; without an argument all browsers are built.
-BROWSER := $(filter chrome,$(MAKECMDGOALS))
+.PHONY: $(COMMAND_GOALS) $(BROWSERS)
 
-init:
+install setup init:
 	pnpm install
 
-dev:
-	pnpm build $(BROWSER)
-
-beta:
-	pnpm beta $(BROWSER)
-
-release:
-	pnpm release $(BROWSER)
-
-# Kept as an alias for the dev build
-build:
-	pnpm build $(BROWSER)
+build dev:
+	pnpm build $(BROWSER_TARGET)
 
 start:
-	pnpm start
+	pnpm start $(BROWSER_TARGET)
+
+release package:
+	pnpm release $(BROWSER_TARGET)
 
 lint:
 	pnpm lint
 
-test:
-	pnpm test && pnpm test:e2e
+typecheck:
+	pnpm typecheck
 
-# Browser names are consumed as arguments by the env targets above
-chrome:
+test:
+	pnpm test
+
+check validate:
+	pnpm check
+
+$(BROWSERS):
 	@:
+
+beta:
+	pnpm beta $(BROWSER_TARGET)

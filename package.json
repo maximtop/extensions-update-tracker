@@ -18,13 +18,13 @@
   },
   "homepage": "https://github.com/maximtop/extensions-update-tracker#readme",
   "scripts": {
-    "build": "tsx ./scripts/build/index.ts",
+    "build": "cross-env BUILD_ENV=dev tsx ./scripts/build/index.ts",
     "build:test": "cross-env BUILD_ENV=test tsx ./scripts/build/index.ts",
     "beta": "cross-env BUILD_ENV=beta tsx ./scripts/build/index.ts",
     "prebeta": "pnpm validate-translations",
     "release": "cross-env BUILD_ENV=release tsx ./scripts/build/index.ts",
     "prerelease": "pnpm validate-translations",
-    "start": "tsx ./scripts/build/index.ts --watch",
+    "start": "pnpm build --watch",
     "validate-translations": "node ./scripts/validate-translations.js",
     "convert-store-descriptions": "node ./scripts/convert-store-descriptions.js",
     "lint": "eslint . --ext .ts,.tsx,.js",
@@ -34,7 +34,9 @@
     "test:e2e:ui": "pnpm build:test && playwright test --ui",
     "test:e2e:debug": "pnpm build:test && playwright test --debug",
     "check": "pnpm validate-translations && pnpm lint && pnpm typecheck && pnpm test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev": "pnpm build",
+    "package": "pnpm release"
   },
   "dependencies": {
     "@adguard/translate": "^2.0.8",

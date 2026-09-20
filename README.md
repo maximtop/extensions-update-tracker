@@ -2,9 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**[Install from Chrome Web Store](https://chromewebstore.google.com/detail/cdgepknigaiclfdmjckaknepgcighbnh)**
-
-Firefox and Microsoft Edge packages are available from release 1.3.1.
+Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/cdgepknigaiclfdmjckaknepgcighbnh),
+[Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/extensions-update-tracker/),
+or [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/mcblolcgepoahkfedfkjohdgnpgbfnpf).
 
 A browser extension that tracks when your installed extensions are updated.
 

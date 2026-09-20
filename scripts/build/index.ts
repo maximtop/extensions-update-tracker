@@ -132,6 +132,7 @@ const buildSelectedBrowser = async (browser: Browser, options: CommanderOptions)
 };
 
 program
+    .allowExcessArguments(false)
     .option('--watch', 'Builds in watch mode', false)
     .option(
         '--no-cache',
@@ -141,6 +142,7 @@ program
 
 program
     .command('chrome')
+    .allowExcessArguments(false)
     .description('Builds extension for chrome browser')
     .action(async () => {
         await buildSelectedBrowser(Browser.Chrome, program.opts());
@@ -148,6 +150,7 @@ program
 
 program
     .command('edge')
+    .allowExcessArguments(false)
     .description('Builds extension for Edge')
     .action(async () => {
         await buildSelectedBrowser(Browser.Edge, program.opts());
@@ -155,6 +158,7 @@ program
 
 program
     .command('firefox')
+    .allowExcessArguments(false)
     .description('Builds extension for Firefox')
     .action(async () => {
         await buildSelectedBrowser(Browser.Firefox, program.opts());

@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React, { useState, useEffect } from 'react';
 
-import { UpdateRef } from '../../common/messaging/message-types';
 import { t, tPlural } from '../../common/utils/i18n';
 import { useFilteredAndSortedExtensions } from '../hooks/useFilteredAndSortedExtensions';
 import { useRootStore } from '../stores/root-store';
@@ -19,6 +18,8 @@ import { LoadingState } from './states/LoadingState';
 import { StatsBar } from './StatsBar';
 import { TabNavigation } from './TabNavigation';
 import { Toast } from './Toast';
+
+import type { UpdateRef } from '../../common/messaging/message-types';
 
 /**
  * Main app component - orchestrates the options page layout

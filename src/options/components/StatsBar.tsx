@@ -11,6 +11,11 @@ interface StatsBarProps {
 /**
  * Activity summary rail: unread count as the leading value, total history as
  * supporting metadata, and the bulk mark-as-read action in the same zone.
+ *
+ * @param root0
+ * @param root0.totalUpdateCount
+ * @param root0.unreadUpdateCount
+ * @param root0.onMarkAllAsRead
  */
 export function StatsBar({
     totalUpdateCount,

@@ -16,8 +16,11 @@ const DEFAULT_SORT_ORDER: SortOrder = SORT_ORDER_RECENT;
  *
  * @returns The stored sort order or default
  */
+
 /**
  * Type guard to check if a value is a valid SortOrder
+ *
+ * @param value
  */
 function isSortOrder(value: unknown): value is SortOrder {
     return value === SORT_ORDER_ALPHABETICAL || value === SORT_ORDER_RECENT;

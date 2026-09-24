@@ -4,11 +4,11 @@
 
 import browser from 'webextension-polyfill';
 
-import { MessageDispatcherService } from '../common/messaging/message-handler';
 import { MessageType } from '../common/messaging/message-types';
 import { Logger } from '../common/utils/logger';
 
-import { ExtensionsUpdateStorage } from './extensions-update-storage';
+import type { ExtensionsUpdateStorage } from './extensions-update-storage';
+import type { MessageDispatcherService } from '../common/messaging/message-handler';
 
 /**
  * Service responsible for managing the extension's badge counter.
@@ -20,10 +20,14 @@ export class BadgeService {
 
     private static readonly BADGE_TEXT_COLOR = '#FFFFFF'; // White text
 
-    /** Maximum number to display before showing overflow indicator */
+    /**
+     * Maximum number to display before showing overflow indicator
+     */
     private static readonly MAX_BADGE_COUNT = 99;
 
-    /** Suffix to indicate count exceeds maximum (universally understood across all locales) */
+    /**
+     * Suffix to indicate count exceeds maximum (universally understood across all locales)
+     */
     private static readonly OVERFLOW_SUFFIX = '+';
 
     constructor(

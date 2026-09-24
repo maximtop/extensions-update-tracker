@@ -1,9 +1,9 @@
 import { type Configuration, rspack, type Stats } from '@rspack/core';
 
-type Options = {
-    watch: boolean,
-    cache: boolean,
-};
+interface Options {
+    watch: boolean;
+    cache: boolean;
+}
 
 type RunCallback = (err: Error | null, stats: Stats | undefined) => void;
 

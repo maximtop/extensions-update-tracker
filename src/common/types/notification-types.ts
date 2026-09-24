@@ -39,35 +39,58 @@ export interface NotificationMetadata {
  * Reason why a notification was closed
  */
 export enum NotificationCloseReason {
-    /** User explicitly dismissed the notification */
+    /**
+     * User explicitly dismissed the notification
+     */
     User = 'user',
-    /** Notification was auto-closed after timeout period */
+
+    /**
+     * Notification was auto-closed after timeout period
+     */
     Timeout = 'timeout',
-    /** Notification was closed programmatically (e.g., button click, navigation) */
-    Programmatic = 'programmatic'
+
+    /**
+     * Notification was closed programmatically (e.g., button click, navigation)
+     */
+    Programmatic = 'programmatic',
 }
 
 /**
  * State of a notification interaction
  */
 export interface NotificationInteractionState {
-    /** Extension ID the notification is for */
+    /**
+     * Extension ID the notification is for
+     */
     extensionId: string;
-    /** Extension version at time of notification */
+
+    /**
+     * Extension version at time of notification
+     */
     version: string;
-    /** Timestamp when notification was shown */
+
+    /**
+     * Timestamp when notification was shown
+     */
     shownAt: number;
-    /** Timestamp when notification was closed */
+
+    /**
+     * Timestamp when notification was closed
+     */
     closedAt?: number;
-    /** Reason the notification was closed */
+
+    /**
+     * Reason the notification was closed
+     */
     closeReason?: NotificationCloseReason;
-    /** Whether user explicitly dismissed the notification */
+
+    /**
+     * Whether user explicitly dismissed the notification
+     */
     dismissedByUser: boolean;
 }
 
 /**
  * Storage structure for notification states
  */
-export interface NotificationStatesStorage {
-    [extensionId: string]: NotificationInteractionState;
-}
+export type NotificationStatesStorage = Record<string, NotificationInteractionState>;

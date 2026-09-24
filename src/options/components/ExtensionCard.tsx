@@ -2,11 +2,12 @@ import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 
 import { FallbackIcon } from '../../common/components/FallbackIcon';
-import { ExtensionUpdate } from '../../common/update-storage';
 import { t, tPlural } from '../../common/utils/i18n';
 import { useRootStore } from '../stores/root-store';
 
 import { UpdateItem } from './UpdateItem';
+
+import type { ExtensionUpdate } from '../../common/update-storage';
 
 interface ExtensionCardProps {
     extensionId: string;

@@ -21,6 +21,11 @@ interface LinkRowProps {
 
 /**
  * A single external link row, visually matching the settings switch-list rows
+ *
+ * @param root0
+ * @param root0.href
+ * @param root0.title
+ * @param root0.description
  */
 function LinkRow({ href, title, description }: LinkRowProps): React.JSX.Element {
     return (

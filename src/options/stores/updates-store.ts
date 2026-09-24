@@ -1,10 +1,11 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { MessageSender } from '../../common/messaging/message-sender';
-import { UpdateRef } from '../../common/messaging/message-types';
-import { ExtensionInfo, ExtensionUpdate } from '../../common/update-storage';
 import { getErrorMessage } from '../../common/utils/error';
 import { Logger } from '../../common/utils/logger';
+
+import type { UpdateRef } from '../../common/messaging/message-types';
+import type { ExtensionInfo, ExtensionUpdate } from '../../common/update-storage';
 
 interface ExtensionVersionInfo {
     version: string;
@@ -32,6 +33,8 @@ export class UpdatesStore {
 
     /**
      * Load all updates from background page via messaging
+     *
+     * @param showLoadingState
      */
     async loadUpdates(showLoadingState = true) {
         if (showLoadingState) {
@@ -94,6 +97,8 @@ export class UpdatesStore {
 
     /**
      * Load extension info for multiple extensions
+     *
+     * @param extensionIds
      */
     private async loadExtensionInfo(extensionIds: string[]) {
         if (extensionIds.length === 0) {
@@ -123,6 +128,8 @@ export class UpdatesStore {
 
     /**
      * Get extension info for a specific extension
+     *
+     * @param extensionId
      */
     getExtensionInfo(extensionId: string): ExtensionInfo | null {
         return this.extensionInfoMap.get(extensionId) ?? null;
@@ -137,6 +144,8 @@ export class UpdatesStore {
 
     /**
      * Get updates for a specific extension
+     *
+     * @param extensionId
      */
     getUpdatesForExtension(extensionId: string): ExtensionUpdate[] {
         return this.updates.get(extensionId) || [];
@@ -194,6 +203,9 @@ export class UpdatesStore {
 
     /**
      * Mark a single update as read via background page messaging
+     *
+     * @param extensionId
+     * @param version
      */
     async markUpdateAsRead(extensionId: string, version: string) {
         try {
@@ -206,6 +218,8 @@ export class UpdatesStore {
 
     /**
      * Restore a set of updates to unread (undo of mark-all-as-read)
+     *
+     * @param items
      */
     async markUpdatesAsUnread(items: UpdateRef[]) {
         if (items.length === 0) {

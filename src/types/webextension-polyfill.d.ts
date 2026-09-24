@@ -23,7 +23,7 @@ declare module 'webextension-polyfill' {
          */
         interface Static {
             onButtonClicked?: browser.Events.Event<
-            (notificationId: string, buttonIndex: number) => void
+                (notificationId: string, buttonIndex: number) => void
             >;
             onShowSettings?: browser.Events.Event<() => void>;
         }

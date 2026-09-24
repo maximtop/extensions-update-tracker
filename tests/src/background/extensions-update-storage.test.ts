@@ -7,6 +7,8 @@ import {
     afterEach,
 } from 'vitest';
 
+import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
+
 // Mock webextension-polyfill to prevent "This script should only be loaded in a browser extension" error
 vi.mock('webextension-polyfill', () => ({
     default: {
@@ -16,8 +18,6 @@ vi.mock('webextension-polyfill', () => ({
         },
     },
 }));
-
-import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
 
 describe('ExtensionsUpdateStorage', () => {
     beforeEach(() => {

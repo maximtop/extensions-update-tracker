@@ -43,8 +43,8 @@ const useLocale = (dir: string, uiLanguage: string) => {
 beforeAll(() => {
     // Replace the key-echoing stub from tests/setup.ts with one serving
     // the real locale files, so the full translate pipeline is exercised
-    browser.i18n.getMessage = ((key: string): string => activeMessages[key]?.message ?? '') as never;
-    browser.i18n.getUILanguage = ((): string => activeUiLanguage) as never;
+    browser.i18n.getMessage = ((key: string): string => activeMessages[key]?.message ?? '');
+    browser.i18n.getUILanguage = ((): string => activeUiLanguage);
 });
 
 const minutesAgo = (m: number) => Date.now() - m * 60 * 1000;

@@ -49,6 +49,7 @@ export type TranslationParams = Record<string, string | number>;
  *
  * @param key The message key in messages.json
  * @param params Optional named values for `%placeholder%` markers
+ *
  * @returns The translated message
  */
 export function t(key: string, params?: TranslationParams): string {
@@ -62,6 +63,7 @@ export function t(key: string, params?: TranslationParams): string {
  * @param key The message key in messages.json
  * @param count The number selecting the plural form
  * @param params Optional named values for additional `%placeholder%` markers
+ *
  * @returns The translated message in the correct plural form
  */
 export function tPlural(key: string, count: number, params?: TranslationParams): string {
@@ -70,6 +72,7 @@ export function tPlural(key: string, count: number, params?: TranslationParams):
 
 /**
  * Get the current UI language
+ *
  * @returns The current language code (e.g., 'en', 'zh_CN', 'es')
  */
 export function getUILanguage(): string {

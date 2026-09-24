@@ -81,6 +81,9 @@ export class NotificationService {
 
     /**
      * Shows a notification for an extension update
+     *
+     * @param extensionInfo
+     * @param previousVersion
      */
     async showUpdateNotification(
         extensionInfo: Management.ExtensionInfo,
@@ -198,6 +201,9 @@ export class NotificationService {
 
     /**
      * Schedule auto-close for a notification
+     *
+     * @param notificationId
+     * @param timeoutSeconds
      */
     private scheduleAutoClose(notificationId: string, timeoutSeconds: number): void {
         // Clear any existing timeout for this notification
@@ -220,6 +226,8 @@ export class NotificationService {
 
     /**
      * Generates a consistent notification ID for an extension
+     *
+     * @param extensionId
      */
     private generateNotificationId(extensionId: string): string {
         return `${NotificationService.NOTIFICATION_ID_PREFIX}${extensionId}`;
@@ -227,6 +235,8 @@ export class NotificationService {
 
     /**
      * Handles notification body click (opens updates page)
+     *
+     * @param notificationId
      */
     private handleNotificationClick = async (notificationId: string): Promise<void> => {
         try {
@@ -259,6 +269,9 @@ export class NotificationService {
     /**
      * Handles notification button clicks
      * Delegates to button handler for action execution
+     *
+     * @param notificationId
+     * @param buttonIndex
      */
     private handleButtonClick = async (
         notificationId: string,
@@ -295,6 +308,9 @@ export class NotificationService {
     /**
      * Handles notification closed event
      * This is called by the browser when a notification is closed
+     *
+     * @param notificationId
+     * @param byUser
      */
     private handleNotificationClosed = async (
         notificationId: string,
@@ -313,6 +329,9 @@ export class NotificationService {
 
     /**
      * Records that a notification was closed with a specific reason
+     *
+     * @param notificationId
+     * @param closeReason
      */
     private async recordNotificationClosed(
         notificationId: string,
@@ -347,6 +366,8 @@ export class NotificationService {
     /**
      * Handles notification state changes from other devices
      * Automatically clears notifications that were dismissed on another device
+     *
+     * @param states
      */
     private handleRemoteStateChange = async (
         states: NotificationStatesStorage,
@@ -369,6 +390,8 @@ export class NotificationService {
     /**
      * Handles extension installation event
      * Shows welcome notification for first-time installations
+     *
+     * @param details
      */
     private handleExtensionInstalled = (details: browser.Runtime.OnInstalledDetailsType): void => {
         if (details.reason === 'install') {
@@ -391,7 +414,9 @@ export class NotificationService {
 
     /**
      * Checks if there's an active notification for a specific extension
+     *
      * @param extensionId - The extension ID to check
+     *
      * @returns true if there's an active notification for this extension
      */
     async hasActiveNotification(extensionId: string): Promise<boolean> {
@@ -407,6 +432,8 @@ export class NotificationService {
 
     /**
      * Clears a notification for a specific extension
+     *
+     * @param extensionId
      */
     async clearNotification(extensionId: string): Promise<void> {
         const notificationId = this.generateNotificationId(extensionId);

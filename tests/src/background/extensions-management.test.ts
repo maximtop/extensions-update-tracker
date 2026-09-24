@@ -5,13 +5,13 @@ import {
     vi,
 } from 'vitest';
 
-import { BadgeService } from '../../../src/background/badge-service';
 import { ExtensionsManagement } from '../../../src/background/extensions-management';
 import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
-import { ManagementAdapter } from '../../../src/background/management-adapter';
-import { NotificationService } from '../../../src/background/notification-service';
 import { settingsStorage } from '../../../src/background/settings-storage';
 
+import type { BadgeService } from '../../../src/background/badge-service';
+import type { ManagementAdapter } from '../../../src/background/management-adapter';
+import type { NotificationService } from '../../../src/background/notification-service';
 import type { StorageAdapter } from '../../../src/background/storage-adapter';
 
 // Mock webextension-polyfill before importing modules that use it
@@ -187,10 +187,10 @@ describe('management', () => {
         const initialData = {
             'existing-ext': {
                 currentVersion: '2.0.0',
-                updateHistory: [] as Array<{
+                updateHistory: [] as {
                     version: string;
                     detectedTimestampMs: number;
-                }>,
+                }[],
             },
         };
 
@@ -1084,7 +1084,9 @@ describe('management', () => {
                     addListener: onDisabledListenerMock,
                 },
                 getAll: vi.fn().mockResolvedValue([
-                    { id: 'disabled-ext', name: 'Disabled Extension', version: '2.0.0', enabled: false },
+                    {
+                        id: 'disabled-ext', name: 'Disabled Extension', version: '2.0.0', enabled: false,
+                    },
                 ]),
                 get: vi.fn(),
             };

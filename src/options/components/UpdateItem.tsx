@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { ExtensionUpdate } from '../../common/update-storage';
 import { t } from '../../common/utils/i18n';
 import { formatDate, formatTimeAgo } from '../../common/utils/time';
 import { useRootStore } from '../stores/root-store';
+
+import type { ExtensionUpdate } from '../../common/update-storage';
 
 interface UpdateItemProps {
     update: ExtensionUpdate;

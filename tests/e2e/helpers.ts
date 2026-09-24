@@ -14,8 +14,10 @@ export function getSampleExtensionPath(): string {
 /**
  * Wait for updates to be detected
  * The extension tracks itself and any other installed extensions
+ *
+ * @param timeoutMs
  */
-export async function waitForUpdatesToBeTracked(timeoutMs: number = 3000): Promise<void> {
+export async function waitForUpdatesToBeTracked(timeoutMs = 3000): Promise<void> {
     // Wait for the background service worker to detect extensions
     await new Promise((resolve) => {
         setTimeout(resolve, timeoutMs);

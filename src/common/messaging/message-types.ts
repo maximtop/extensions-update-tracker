@@ -74,7 +74,7 @@ export enum MessageType {
      * Request to set the last checked timestamp
      * Used by popup to update when updates were last checked
      */
-    SetLastCheckedTimestamp = 'SetLastCheckedTimestamp'
+    SetLastCheckedTimestamp = 'SetLastCheckedTimestamp',
 
 }
 
@@ -188,8 +188,7 @@ export interface SetLastCheckedTimestampMessage extends BaseMessage {
 /**
  * Union type of all possible messages
  */
-export type Message =
-    | UpdatesPageOpenedMessage
+export type Message = | UpdatesPageOpenedMessage
     | MarkAllAsReadMessage
     | GetUpdatesMessage
     | GetExtensionsInfoMessage

@@ -35,7 +35,9 @@ export class PopupUpdatesStore {
 
     updateCount = 0;
 
-    /** Most recent unread updates, newest first, capped at MAX_VISIBLE_UNREAD */
+    /**
+     * Most recent unread updates, newest first, capped at MAX_VISIBLE_UNREAD
+     */
     recentUnread: UnreadUpdate[] = [];
 
     lastChecked: number | null = null;
@@ -54,6 +56,8 @@ export class PopupUpdatesStore {
 
     /**
      * Load update counts and metadata from background page
+     *
+     * @param showLoadingState
      */
     async loadUpdateCounts(showLoadingState = true) {
         if (showLoadingState) {

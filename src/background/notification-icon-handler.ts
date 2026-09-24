@@ -13,6 +13,9 @@ export class NotificationIconHandler {
      * Gets the icon URL for an extension
      * Service workers can't access chrome:// URLs or Canvas API,
      * so we use the extension's own icon for all notifications
+     *
+     * @param extensionId
+     * @param isEnabled
      */
     async getExtensionIconUrl(extensionId: string, isEnabled: boolean): Promise<string> {
         // Use our extension's icon for all notifications

@@ -2,11 +2,12 @@ import React from 'react';
 
 import { t } from '../../common/utils/i18n';
 import {
-    OptionsTab,
     TAB_ABOUT,
     TAB_GENERAL,
     TAB_SETTINGS,
 } from '../types/tab-types';
+
+import type { OptionsTab } from '../types/tab-types';
 
 interface TabNavigationProps {
     activeTab: OptionsTab;
@@ -15,6 +16,10 @@ interface TabNavigationProps {
 
 /**
  * Tab navigation component for switching between Updates and Settings views
+ *
+ * @param root0
+ * @param root0.activeTab
+ * @param root0.onTabChange
  */
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps): React.JSX.Element {
     return (

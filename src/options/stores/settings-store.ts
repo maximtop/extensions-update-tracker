@@ -7,13 +7,15 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import { MessageSender } from '../../common/messaging/message-sender';
 import { MessageType } from '../../common/messaging/message-types';
-import { UserSettings, DEFAULT_SETTINGS } from '../../common/types/settings-types';
+import { DEFAULT_SETTINGS } from '../../common/types/settings-types';
 import {
-    OptionsTab,
     DEFAULT_TAB,
     TAB_ABOUT,
     TAB_SETTINGS,
 } from '../types/tab-types';
+
+import type { UserSettings } from '../../common/types/settings-types';
+import type { OptionsTab } from '../types/tab-types';
 
 /**
  * URL hash for each non-default tab, so the active tab survives page
@@ -124,6 +126,8 @@ export class SettingsStore {
 
     /**
      * Mute/unmute notifications for a specific extension
+     *
+     * @param extensionId
      */
     async toggleExtensionMuted(extensionId: string) {
         const isMuted = this.settings.extensionPreferences.mutedExtensions[extensionId] || false;
@@ -138,6 +142,8 @@ export class SettingsStore {
 
     /**
      * Check if extension notifications are muted
+     *
+     * @param extensionId
      */
     isExtensionMuted(extensionId: string): boolean {
         const DEFAULT_MUTED_STATUS = false;
@@ -164,6 +170,8 @@ export class SettingsStore {
      * Set active tab and mirror it into the URL hash, so a reload restores
      * the tab and tabs can be linked to directly. replaceState avoids piling
      * up history entries and the scroll jump of assigning location.hash.
+     *
+     * @param tab
      */
     setActiveTab(tab: OptionsTab) {
         this.activeTab = tab;
@@ -173,6 +181,8 @@ export class SettingsStore {
 
     /**
      * Update settings (internal helper)
+     *
+     * @param partial
      */
     private async updateSettings(partial: Partial<UserSettings>) {
         try {

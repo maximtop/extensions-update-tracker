@@ -26,6 +26,8 @@ const SERVICE_WORKER_TIMEOUT_MS = 15000;
  * The built manifest sets `"name": "__MSG_name__"` because the display name is
  * localized, so matching on the human-readable name can never succeed.
  * `homepage_url` is the only stable identifying field that survives the build.
+ *
+ * @param manifestText
  */
 const isTrackerManifest = (manifestText: string): boolean => {
     try {
@@ -42,6 +44,8 @@ const isTrackerManifest = (manifestText: string): boolean => {
  * Throws rather than falling back to an arbitrary worker: the sample extension
  * registers a worker too, so a silent fallback would run the whole suite against
  * the wrong extension and still report success.
+ *
+ * @param context
  */
 const findTrackerServiceWorker = async (context: BrowserContext): Promise<Worker> => {
     const deadline = Date.now() + SERVICE_WORKER_TIMEOUT_MS;
@@ -115,4 +119,4 @@ export const test = base.extend<{
     },
 });
 
-export const expect = test.expect;
+export const { expect } = test;

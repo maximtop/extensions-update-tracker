@@ -46,10 +46,12 @@ export class NotificationStateStorage {
 
     private static readonly VALID_EXTENSION_ID_LENGTH = 32; // Chrome extension IDs are always 32 characters
 
-    private changeListeners: Array<(changes: NotificationStatesStorage) => void> = [];
+    private changeListeners: ((changes: NotificationStatesStorage) => void)[] = [];
 
     /**
      * Gets the notification state for a specific extension
+     *
+     * @param extensionId
      */
     async getState(extensionId: string): Promise<NotificationInteractionState | null> {
         const states = await storageService.get(NOTIFICATION_STATES_KEY);
@@ -65,6 +67,8 @@ export class NotificationStateStorage {
 
     /**
      * Saves a notification state
+     *
+     * @param state
      */
     async saveState(state: NotificationInteractionState): Promise<void> {
         let states = await this.getAllStates();
@@ -78,6 +82,9 @@ export class NotificationStateStorage {
 
     /**
      * Checks if a notification was dismissed by the user for a specific version
+     *
+     * @param extensionId
+     * @param version
      */
     async wasDismissedByUser(extensionId: string, version: string): Promise<boolean> {
         const state = await this.getState(extensionId);
@@ -92,6 +99,8 @@ export class NotificationStateStorage {
 
     /**
      * Clears the dismissed state for an extension (e.g., when showing notification for new version)
+     *
+     * @param extensionId
      */
     async clearState(extensionId: string): Promise<void> {
         const states = await this.getAllStates();
@@ -108,6 +117,8 @@ export class NotificationStateStorage {
 
     /**
      * Removes expired notification states and invalid keys
+     *
+     * @param inputStates
      */
     private async cleanupExpiredStates(
         inputStates: NotificationStatesStorage,
@@ -141,6 +152,8 @@ export class NotificationStateStorage {
     /**
      * Cleans up orphaned notification states for uninstalled extensions
      * Also removes states with invalid extension IDs (keys that are not exactly 32 characters)
+     *
+     * @param installedExtensionIds
      */
     async cleanupOrphanedStates(installedExtensionIds: Set<string>): Promise<void> {
         const allStates = await this.getAllStates();
@@ -180,6 +193,8 @@ export class NotificationStateStorage {
 
     /**
      * Adds a listener for notification state changes
+     *
+     * @param listener
      */
     addChangeListener(listener: (changes: NotificationStatesStorage) => void): void {
         this.changeListeners.push(listener);
@@ -187,6 +202,8 @@ export class NotificationStateStorage {
 
     /**
      * Removes a change listener
+     *
+     * @param listener
      */
     removeChangeListener(listener: (changes: NotificationStatesStorage) => void): void {
         const index = this.changeListeners.indexOf(listener);
@@ -198,7 +215,7 @@ export class NotificationStateStorage {
     /**
      * Gets the list of change listeners (for testing purposes)
      */
-    getChangeListeners(): Array<(changes: NotificationStatesStorage) => void> {
+    getChangeListeners(): ((changes: NotificationStatesStorage) => void)[] {
         return this.changeListeners;
     }
 }

@@ -11,6 +11,12 @@ import {
 } from 'vitest';
 import browser from 'webextension-polyfill';
 
+import { NotificationStateStorage } from '../../../src/background/notification-state-storage';
+import {
+    NotificationCloseReason,
+    type NotificationInteractionState,
+} from '../../../src/common/types/notification-types';
+
 // Mock browser.storage.local
 vi.mock('webextension-polyfill', () => ({
     default: {
@@ -26,12 +32,6 @@ vi.mock('webextension-polyfill', () => ({
         },
     },
 }));
-
-import { NotificationStateStorage } from '../../../src/background/notification-state-storage';
-import {
-    NotificationCloseReason,
-    type NotificationInteractionState,
-} from '../../../src/common/types/notification-types';
 
 describe('NotificationStateStorage', () => {
     let storage: NotificationStateStorage;

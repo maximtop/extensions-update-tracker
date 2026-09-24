@@ -1,10 +1,13 @@
 import {
-    Browser,
-    BuildTargetEnv,
     ENV_CONF,
     type EnvConfig,
     type BrowserConfig,
     BROWSERS_CONF,
+} from './constants';
+
+import type {
+    Browser,
+    BuildTargetEnv,
 } from './constants';
 
 export const getBrowserConf = (browser: Browser): BrowserConfig => {

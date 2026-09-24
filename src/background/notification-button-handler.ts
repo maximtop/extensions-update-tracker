@@ -29,6 +29,9 @@ export class NotificationButtonHandler {
 
     /**
      * Determines which buttons to show based on extension state
+     *
+     * @param extensionState
+     * @param buttonIconUrl
      */
     getButtonConfiguration(
         extensionState: ExtensionState,
@@ -101,6 +104,9 @@ export class NotificationButtonHandler {
     /**
      * Handles button click and executes the appropriate action
      * Returns the close reason for state tracking
+     *
+     * @param extensionState
+     * @param buttonIndex
      */
     async handleButtonClick(
         extensionState: ExtensionState,
@@ -122,6 +128,8 @@ export class NotificationButtonHandler {
 
     /**
      * Handles welcome notification button clicks
+     *
+     * @param buttonIndex
      */
     private async handleWelcomeButtonClick(buttonIndex: number): Promise<NotificationCloseReason> {
         if (buttonIndex === 0) {
@@ -138,6 +146,9 @@ export class NotificationButtonHandler {
 
     /**
      * Handles disabled extension button clicks
+     *
+     * @param extensionState
+     * @param buttonIndex
      */
     private async handleDisabledExtensionButtonClick(
         extensionState: ExtensionState,
@@ -166,6 +177,9 @@ export class NotificationButtonHandler {
 
     /**
      * Handles enabled extension button clicks
+     *
+     * @param extensionState
+     * @param buttonIndex
      */
     private async handleEnabledExtensionButtonClick(
         extensionState: ExtensionState,

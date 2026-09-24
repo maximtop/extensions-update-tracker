@@ -2,8 +2,7 @@ import * as v from 'valibot';
 
 import { Logger } from '../common/utils/logger';
 
-import { StorageAdapter } from './storage-adapter';
-
+import type { StorageAdapter } from './storage-adapter';
 import type { Management } from 'webextension-polyfill';
 
 /**
@@ -243,6 +242,7 @@ export class ExtensionsUpdateStorage {
      * MAX_HISTORY_ENTRIES.
      *
      * @param info - Complete extension information from the browser's management API
+     *
      * @returns Promise that resolves when the save operation completes
      *
      * @example
@@ -274,6 +274,7 @@ export class ExtensionsUpdateStorage {
      * Trims history to MAX_HISTORY_ENTRIES and updates both persistent storage and cache.
      *
      * @param info - Complete extension information from the browser's management API
+     *
      * @private
      */
     private async performSave(info: Management.ExtensionInfo) {
@@ -373,6 +374,7 @@ export class ExtensionsUpdateStorage {
      * is queued to ensure thread-safe sequential execution.
      *
      * @param extensionId - Unique identifier of the extension to remove
+     *
      * @returns Promise that resolves when the removal completes
      *
      * @example
@@ -400,6 +402,7 @@ export class ExtensionsUpdateStorage {
      * if the extension has no stored data.
      *
      * @param extensionId - Unique identifier of the extension to remove
+     *
      * @private
      */
     private async performRemove(extensionId: string): Promise<void> {
@@ -439,6 +442,7 @@ export class ExtensionsUpdateStorage {
      *
      * @param extensionId - Unique identifier of the extension
      * @param version - Specific version to mark as read (optional, defaults to latest)
+     *
      * @returns Promise that resolves when the mark operation completes
      *
      * @example
@@ -470,6 +474,7 @@ export class ExtensionsUpdateStorage {
      *
      * @param extensionId - Unique identifier of the extension
      * @param version - Specific version to mark as read (optional, defaults to latest)
+     *
      * @private
      */
     private async performMarkAsRead(extensionId: string, version?: string): Promise<void> {
@@ -617,6 +622,7 @@ export class ExtensionsUpdateStorage {
      * is queued to ensure thread-safe sequential execution.
      *
      * @param items - References to the updates to restore, as extensionId/version pairs
+     *
      * @returns Promise that resolves when the operation completes
      */
     async markUpdatesAsUnread(items: { extensionId: string; version: string }[]): Promise<void> {
@@ -637,6 +643,7 @@ export class ExtensionsUpdateStorage {
      * update entry. Only writes to storage if any changes were actually made.
      *
      * @param items - References to the updates to restore, as extensionId/version pairs
+     *
      * @private
      */
     private async performMarkUpdatesAsUnread(items: { extensionId: string; version: string }[]): Promise<void> {

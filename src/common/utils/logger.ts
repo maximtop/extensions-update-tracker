@@ -25,7 +25,7 @@ export const enum LogLevelNumeric {
     Warn,
     Info,
     Debug,
-    Verbose
+    Verbose,
 }
 
 /**
@@ -39,23 +39,27 @@ export enum LogLevel {
      * For errors.
      */
     Error = 'error',
+
     /**
      * For not critical errors.
      */
     Warn = 'warn',
+
     /**
      * For important information.
      * Use for general operational messages.
      */
     Info = 'info',
+
     /**
      * For debugging purposes, e.g. Inside conditions, loops or some edge cases.
      */
     Debug = 'debug',
+
     /**
      * For ultra-detailed, step-by-step traces (like stack traces or flow tracking).
      */
-    Verbose = 'verbose'
+    Verbose = 'verbose',
 }
 
 /**
@@ -77,7 +81,7 @@ const levelMapStringToNum: Record<string, LogLevelNumeric> = Object.entries(leve
     .reduce((acc, [key, value]) => {
         // Here, key is originally a string since Object.entries() returns [string, string][].
         // We need to cast the key to LogLevelNumeric correctly without causing type mismatches.
-        const numericKey = Number(key) as LogLevelNumeric;
+        const numericKey = Number(key);
         if (!Number.isNaN(numericKey)) {
             acc[value] = numericKey;
         }
@@ -93,7 +97,7 @@ export enum LogMethod {
     Warn = 'warn',
     Info = 'info',
     Debug = 'debug',
-    Trace = 'trace'
+    Trace = 'trace',
 }
 
 /**
@@ -111,26 +115,32 @@ export interface Writer {
      * Error method.
      */
     error: WriterMethod;
+
     /**
      * Warn method.
      */
     warn: WriterMethod;
+
     /**
      * Info method.
      */
     info: WriterMethod;
+
     /**
      * Debug method.
      */
     debug: WriterMethod;
+
     /**
      * Trace method.
      */
     trace: WriterMethod;
+
     /**
      * Group collapsed method.
      */
     groupCollapsed?: WriterMethod;
+
     /**
      * Group end method.
      */

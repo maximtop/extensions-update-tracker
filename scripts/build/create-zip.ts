@@ -8,6 +8,9 @@ import { ZipFile } from 'yazl';
  *
  * The result is sorted so that the archive layout does not depend on the order
  * the filesystem happens to enumerate entries in.
+ *
+ * @param dir
+ * @param base
  */
 const collectFiles = (dir: string, base: string): string[] => {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -30,6 +33,9 @@ const collectFiles = (dir: string, base: string): string[] => {
  *
  * Files land at the archive root rather than inside a wrapper directory, which
  * is the layout the Chrome Web Store expects from an extension package.
+ *
+ * @param sourceDir
+ * @param zipPath
  */
 export const createZip = async (sourceDir: string, zipPath: string): Promise<void> => {
     const zipFile = new ZipFile();

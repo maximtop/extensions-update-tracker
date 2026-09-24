@@ -1,17 +1,21 @@
 import { Browser } from './constants';
 
-/** Permanent Firefox extension identifier used by AMO. */
+/**
+ * Permanent Firefox extension identifier used by AMO.
+ */
 export const FIREFOX_GECKO_ID = 'extensions-update-tracker@maximtop.dev';
 
-/** Oldest Firefox release supported by the AMO package. */
+/**
+ * Oldest Firefox release supported by the AMO package.
+ */
 export const FIREFOX_STRICT_MIN_VERSION = '140.0';
 
 type ExtensionManifest = Record<string, unknown> & {
     background?: {
-        service_worker?: string,
-        [key: string]: unknown,
-    },
-    incognito?: string,
+        service_worker?: string;
+        [key: string]: unknown;
+    };
+    incognito?: string;
 };
 
 /**
@@ -20,6 +24,7 @@ type ExtensionManifest = Record<string, unknown> & {
  * @param sourceManifest Parsed source manifest.
  * @param browser Browser package being built.
  * @param version Package version to stamp into the manifest.
+ *
  * @returns A browser-specific manifest object.
  */
 export const buildManifest = (

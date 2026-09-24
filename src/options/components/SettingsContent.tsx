@@ -19,6 +19,14 @@ interface SwitchRowProps {
 /**
  * A single settings switch row: whole row is the control, per the design's
  * switch-list pattern (row click, pointer, and keyboard all toggle).
+ *
+ * @param root0
+ * @param root0.id
+ * @param root0.title
+ * @param root0.description
+ * @param root0.checked
+ * @param root0.disabled
+ * @param root0.onToggle
  */
 function SwitchRow({
     id,

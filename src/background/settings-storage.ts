@@ -5,10 +5,12 @@
 
 import * as v from 'valibot';
 
-import { UserSettings, DEFAULT_SETTINGS } from '../common/types/settings-types';
+import { DEFAULT_SETTINGS } from '../common/types/settings-types';
 import { Logger } from '../common/utils/logger';
 
 import { StorageKey, storageService } from './storage-service';
+
+import type { UserSettings } from '../common/types/settings-types';
 
 /**
  * Valibot schema for NotificationSettings
@@ -54,7 +56,7 @@ const SETTINGS_KEY = new StorageKey<UserSettings>(
 export class SettingsStorage {
     private settings: UserSettings = DEFAULT_SETTINGS;
 
-    private changeListeners: Array<(settings: UserSettings) => void> = [];
+    private changeListeners: ((settings: UserSettings) => void)[] = [];
 
     constructor() {
         this.init();
@@ -79,6 +81,8 @@ export class SettingsStorage {
     /**
      * Save settings to storage
      * Uses StorageService which handles errors internally
+     *
+     * @param settings
      */
     async save(settings: UserSettings): Promise<void> {
         await storageService.set(SETTINGS_KEY, settings);
@@ -88,6 +92,8 @@ export class SettingsStorage {
 
     /**
      * Update specific settings without replacing all
+     *
+     * @param partial
      */
     async update(partial: Partial<UserSettings>): Promise<void> {
         const updated = {
@@ -126,6 +132,8 @@ export class SettingsStorage {
 
     /**
      * Check if notifications are enabled for a specific extension
+     *
+     * @param extensionId
      */
     areNotificationsEnabledForExtension(extensionId: string): boolean {
         if (!this.settings.notifications.enabled) {
@@ -137,6 +145,9 @@ export class SettingsStorage {
 
     /**
      * Mute/unmute notifications for a specific extension
+     *
+     * @param extensionId
+     * @param muted
      */
     async setExtensionMuted(extensionId: string, muted: boolean): Promise<void> {
         const mutedExtensions = {
@@ -165,6 +176,8 @@ export class SettingsStorage {
 
     /**
      * Add a listener for settings changes
+     *
+     * @param listener
      */
     addChangeListener(listener: (settings: UserSettings) => void): void {
         this.changeListeners.push(listener);
@@ -172,6 +185,8 @@ export class SettingsStorage {
 
     /**
      * Remove a settings change listener
+     *
+     * @param listener
      */
     removeChangeListener(listener: (settings: UserSettings) => void): void {
         const index = this.changeListeners.indexOf(listener);

@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 
-import { UpdatesStore } from '../stores/updates-store';
-import { SORT_ORDER_ALPHABETICAL, SortOrder } from '../utils/storage-utils';
+import { SORT_ORDER_ALPHABETICAL } from '../utils/storage-utils';
+
+import type { UpdatesStore } from '../stores/updates-store';
+import type { SortOrder } from '../utils/storage-utils';
 
 interface UseFilteredAndSortedExtensionsProps {
     updatesStore: UpdatesStore;
@@ -13,6 +15,12 @@ interface UseFilteredAndSortedExtensionsProps {
 /**
  * Custom hook to filter and sort extension IDs based on search query,
  * update status, and sort preference
+ *
+ * @param root0
+ * @param root0.updatesStore
+ * @param root0.showUnreadOnly
+ * @param root0.searchQuery
+ * @param root0.sortOrder
  */
 export function useFilteredAndSortedExtensions({
     updatesStore,

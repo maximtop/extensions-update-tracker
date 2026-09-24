@@ -74,7 +74,7 @@ describe('SettingsStorage', () => {
                 },
             };
 
-            (browser.storage.local.get as any).mockResolvedValueOnce({
+            (browser.storage.local.get).mockResolvedValueOnce({
                 'user-settings': storedSettings,
             });
 
@@ -90,7 +90,7 @@ describe('SettingsStorage', () => {
                 },
             };
 
-            (browser.storage.local.get as any).mockResolvedValueOnce({
+            (browser.storage.local.get).mockResolvedValueOnce({
                 'user-settings': partialSettings,
             });
 

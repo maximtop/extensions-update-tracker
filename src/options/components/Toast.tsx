@@ -12,6 +12,12 @@ interface ToastProps {
 /**
  * Transient confirmation toast with a single action (e.g. Undo).
  * Announced politely to screen readers and dismissed automatically.
+ *
+ * @param root0
+ * @param root0.message
+ * @param root0.actionLabel
+ * @param root0.onAction
+ * @param root0.onDismiss
  */
 export function Toast({
     message,

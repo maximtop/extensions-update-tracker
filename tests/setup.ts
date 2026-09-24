@@ -37,7 +37,9 @@ vi.mock('webextension-polyfill', () => {
             onDisabled: { addListener: (..._args: unknown[]): void => {} },
             getAll: async (): Promise<unknown[]> => [],
             get: async (): Promise<{ id: string; name: string; enabled: boolean; version: string }> => {
-                return { id: '', name: '', enabled: true, version: '' };
+                return {
+                    id: '', name: '', enabled: true, version: '',
+                };
             },
             setEnabled: async (): Promise<void> => {},
             uninstall: async (): Promise<void> => {},

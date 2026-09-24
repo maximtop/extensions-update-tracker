@@ -5,9 +5,9 @@
 /**
  * Error with a message.
  */
-type ErrorWithMessage = {
+interface ErrorWithMessage {
     message: string;
-};
+}
 
 /**
  * Checks if error has message.

@@ -6,6 +6,9 @@ interface ErrorStateProps {
 
 /**
  * Error state component displayed when there's an error loading updates
+ *
+ * @param root0
+ * @param root0.error
  */
 export function ErrorState({ error }: ErrorStateProps): JSX.Element {
     return (

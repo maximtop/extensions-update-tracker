@@ -6,6 +6,14 @@ import {
     beforeEach,
 } from 'vitest';
 
+import { BadgeService } from '../../../src/background/badge-service';
+import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
+import { RpcHandlers } from '../../../src/background/message-handlers';
+import { MessageDispatcherService } from '../../../src/common/messaging/message-handler';
+import { MessageType } from '../../../src/common/messaging/message-types';
+
+import type { StorageAdapter } from '../../../src/background/storage-adapter';
+
 // Mock webextension-polyfill before any imports
 vi.mock('webextension-polyfill', () => ({
     default: {
@@ -21,13 +29,6 @@ vi.mock('webextension-polyfill', () => ({
         },
     },
 }));
-
-import { MessageDispatcherService } from '../../../src/common/messaging/message-handler';
-import { MessageType } from '../../../src/common/messaging/message-types';
-import { BadgeService } from '../../../src/background/badge-service';
-import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
-import { RpcHandlers } from '../../../src/background/message-handlers';
-import { StorageAdapter } from '../../../src/background/storage-adapter';
 
 class InMemoryStorageAdapter implements StorageAdapter {
     private data: Record<string, any> = {};

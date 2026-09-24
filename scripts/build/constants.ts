@@ -9,7 +9,7 @@ export enum BuildTargetEnv {
     Dev = 'dev',
     Beta = 'beta',
     Release = 'release',
-    Test = 'test'
+    Test = 'test',
 }
 
 const isValidBuildEnv = (buildEnv: any): buildEnv is BuildTargetEnv => {
@@ -22,10 +22,10 @@ if (!isValidBuildEnv(BUILD_ENV)) {
     throw new Error(`Invalid BUILD_ENV: ${BUILD_ENV}`);
 }
 
-export type EnvConfig = {
+export interface EnvConfig {
     outputPath: string;
     mode: 'development' | 'production';
-};
+}
 
 export const ENV_CONF: Record<BuildTargetEnv, EnvConfig> = {
     [BuildTargetEnv.Dev]: {
@@ -49,16 +49,16 @@ export const ENV_CONF: Record<BuildTargetEnv, EnvConfig> = {
 export const enum Browser {
     Chrome = 'chrome',
     Edge = 'edge',
-    Firefox = 'firefox'
+    Firefox = 'firefox',
 }
 
 export const BUILD_PATH = path.resolve(__dirname, '../../dist');
 
-export type BrowserConfig = {
+export interface BrowserConfig {
     browser: Browser;
     devtools: boolean;
     buildDir: string;
-};
+}
 
 export const BROWSERS_CONF: Record<Browser, BrowserConfig> = {
     [Browser.Chrome]: {

@@ -1,13 +1,14 @@
-import { MessageDispatcherService } from '../common/messaging/message-handler';
 import { MessageType } from '../common/messaging/message-types';
 import { getErrorMessage } from '../common/utils/error';
 import { Logger } from '../common/utils/logger';
 
-import { BadgeService } from './badge-service';
-import { ExtensionsUpdateStorage } from './extensions-update-storage';
-import { ManagementAdapter } from './management-adapter';
-import { SettingsStorage } from './settings-storage';
 import { storage } from './storage';
+
+import type { BadgeService } from './badge-service';
+import type { ExtensionsUpdateStorage } from './extensions-update-storage';
+import type { ManagementAdapter } from './management-adapter';
+import type { SettingsStorage } from './settings-storage';
+import type { MessageDispatcherService } from '../common/messaging/message-handler';
 
 const LAST_CHECKED_KEY = 'last-checked-timestamp';
 

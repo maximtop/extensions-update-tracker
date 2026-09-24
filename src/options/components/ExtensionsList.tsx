@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { ExtensionUpdate } from '../../common/update-storage';
 import { t } from '../../common/utils/i18n';
 
 import { ExtensionCard } from './ExtensionCard';
+
+import type { ExtensionUpdate } from '../../common/update-storage';
 
 interface ExtensionsListProps {
     extensionIds: string[];
@@ -15,6 +16,13 @@ interface ExtensionsListProps {
 
 /**
  * Extension update ledger: one group per extension, separated by rules
+ *
+ * @param root0
+ * @param root0.extensionIds
+ * @param root0.showUnreadOnly
+ * @param root0.searchQuery
+ * @param root0.onClearSearch
+ * @param root0.getUpdatesForExtension
  */
 export function ExtensionsList({
     extensionIds,

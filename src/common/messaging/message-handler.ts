@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 import { Logger } from '../utils/logger';
 
-import { Message, MessageType } from './message-types';
+import type { Message, MessageType } from './message-types';
 
 /**
  * Callback type for message handlers
@@ -20,6 +20,7 @@ export class MessageDispatcherService {
 
     /**
      * Registers a handler for a specific message type
+     *
      * @param messageType The type of message to handle
      * @param handler The handler function
      */

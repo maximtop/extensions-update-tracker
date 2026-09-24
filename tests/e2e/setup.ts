@@ -12,6 +12,8 @@ export function getExtensionPath(): string {
 /**
  * Get extension ID from chrome://extensions page
  * Works with Manifest V3 service workers
+ *
+ * @param context
  */
 export async function getExtensionId(context: BrowserContext): Promise<string> {
     const extensionsPage = await context.newPage();
@@ -43,6 +45,8 @@ export async function getExtensionId(context: BrowserContext): Promise<string> {
 
 /**
  * Get extension URLs
+ *
+ * @param extensionId
  */
 export function getExtensionUrls(extensionId: string) {
     return {
@@ -54,6 +58,8 @@ export function getExtensionUrls(extensionId: string) {
 
 /**
  * Setup console monitoring for a page
+ *
+ * @param page
  */
 export function setupConsoleErrorDetection(page: Page) {
     const errors: string[] = [];
@@ -76,6 +82,8 @@ export function setupConsoleErrorDetection(page: Page) {
 
 /**
  * Setup console message collection (all types)
+ *
+ * @param page
  */
 export function setupConsoleMonitoring(page: Page) {
     const messages: string[] = [];

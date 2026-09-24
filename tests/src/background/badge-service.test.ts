@@ -121,9 +121,9 @@ describe('BadgeService', () => {
             vi.clearAllMocks();
 
             // Re-setup the mock implementations after clearing
-            (browser.action.setBadgeText as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeBackgroundColor as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeTextColor as any).mockResolvedValue(undefined);
+            (browser.action.setBadgeText).mockResolvedValue(undefined);
+            (browser.action.setBadgeBackgroundColor).mockResolvedValue(undefined);
+            (browser.action.setBadgeTextColor).mockResolvedValue(undefined);
 
             // Create new badge service with updated storage
             badgeService = new BadgeService(newStorage, messageHandler);
@@ -160,9 +160,9 @@ describe('BadgeService', () => {
             await newStorage.init();
 
             vi.clearAllMocks();
-            (browser.action.setBadgeText as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeBackgroundColor as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeTextColor as any).mockResolvedValue(undefined);
+            (browser.action.setBadgeText).mockResolvedValue(undefined);
+            (browser.action.setBadgeBackgroundColor).mockResolvedValue(undefined);
+            (browser.action.setBadgeTextColor).mockResolvedValue(undefined);
 
             badgeService = new BadgeService(newStorage, messageHandler);
 
@@ -196,9 +196,9 @@ describe('BadgeService', () => {
             vi.clearAllMocks();
 
             // Re-setup the mock implementations after clearing
-            (browser.action.setBadgeText as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeBackgroundColor as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeTextColor as any).mockResolvedValue(undefined);
+            (browser.action.setBadgeText).mockResolvedValue(undefined);
+            (browser.action.setBadgeBackgroundColor).mockResolvedValue(undefined);
+            (browser.action.setBadgeTextColor).mockResolvedValue(undefined);
 
             badgeService = new BadgeService(newStorage, messageHandler);
 
@@ -214,7 +214,7 @@ describe('BadgeService', () => {
 
         it('should handle errors gracefully', async () => {
             const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            (browser.action.setBadgeText as any).mockRejectedValueOnce(new Error('Failed'));
+            (browser.action.setBadgeText).mockRejectedValueOnce(new Error('Failed'));
 
             await badgeService.updateBadge();
 
@@ -238,7 +238,7 @@ describe('BadgeService', () => {
 
         it('should handle clear errors', async () => {
             const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            (browser.action.setBadgeText as any).mockRejectedValueOnce(new Error('Failed'));
+            (browser.action.setBadgeText).mockRejectedValueOnce(new Error('Failed'));
 
             await badgeService.clearBadge();
 

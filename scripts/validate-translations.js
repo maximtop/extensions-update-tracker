@@ -228,9 +228,9 @@ function validateTranslations() {
         log('   Please fix the issues above before building a release.\n', colors.red);
         return false;
     }
-        log('✅ All translations are complete and valid!', colors.bold + colors.green);
-        log(`   ${locales.length} locales with ${referenceKeys.length} keys each\n`, colors.green);
-        return true;
+    log('✅ All translations are complete and valid!', colors.bold + colors.green);
+    log(`   ${locales.length} locales with ${referenceKeys.length} keys each\n`, colors.green);
+    return true;
 }
 
 // Run validation

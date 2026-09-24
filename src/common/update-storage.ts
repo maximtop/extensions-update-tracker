@@ -22,7 +22,7 @@ export interface ExtensionInfo {
     name: string;
     version: string;
     enabled?: boolean;
-    icons?: Array<{ size: number; url: string }>;
+    icons?: { size: number; url: string }[];
     description?: string;
     homepageUrl?: string;
     installType?: 'development' | 'normal' | 'sideload' | 'other';
@@ -33,20 +33,39 @@ export interface ExtensionInfo {
  * Tracks when a version was detected and stores metadata about the update.
  */
 export interface ExtensionVersionInfo {
-    /** The version string (e.g., "1.2.3") */
+    /**
+     * The version string (e.g., "1.2.3")
+     */
     version: string;
-    /** Timestamp in milliseconds when this version was first detected */
+
+    /**
+     * Timestamp in milliseconds when this version was first detected
+     */
     detectedTimestampMs: number;
-    /** Whether the user has acknowledged/viewed this update */
+
+    /**
+     * Whether the user has acknowledged/viewed this update
+     */
     isRead?: boolean;
-    /** The version that was installed before this update */
+
+    /**
+     * The version that was installed before this update
+     */
     previousVersion?: string;
-    /** Snapshot of extension metadata captured at detection time */
+
+    /**
+     * Snapshot of extension metadata captured at detection time
+     */
     infoSnapshot?: {
-        /** Extension name at the time of detection */
+        /**
+         * Extension name at the time of detection
+         */
         name: string;
-        /** Extension icons with their sizes and URLs */
-        icons?: Array<{ size: number; url: string }>;
+
+        /**
+         * Extension icons with their sizes and URLs
+         */
+        icons?: { size: number; url: string }[];
     };
 }
 

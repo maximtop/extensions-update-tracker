@@ -6,11 +6,19 @@
  * Global notification settings
  */
 export interface NotificationSettings {
-    /** Enable/disable all notifications globally */
+    /**
+     * Enable/disable all notifications globally
+     */
     enabled: boolean;
-    /** Auto-close notifications after timeout (in seconds, 0 = never) */
+
+    /**
+     * Auto-close notifications after timeout (in seconds, 0 = never)
+     */
     autoCloseTimeout: number;
-    /** Enable notification sound */
+
+    /**
+     * Enable notification sound
+     */
     soundEnabled: boolean;
 }
 
@@ -18,7 +26,9 @@ export interface NotificationSettings {
  * Per-extension notification preferences
  */
 export interface ExtensionNotificationPreferences {
-    /** Map of extension ID to muted status */
+    /**
+     * Map of extension ID to muted status
+     */
     mutedExtensions: Record<string, boolean>;
 }
 
@@ -26,7 +36,9 @@ export interface ExtensionNotificationPreferences {
  * Security and automation settings
  */
 export interface SecuritySettings {
-    /** Auto-disable extensions on update (security feature) */
+    /**
+     * Auto-disable extensions on update (security feature)
+     */
     autoDisableOnUpdate: boolean;
 }
 

@@ -1,7 +1,9 @@
 import React from 'react';
 
 import { t } from '../../common/utils/i18n';
-import { SORT_ORDER_ALPHABETICAL, SORT_ORDER_RECENT, SortOrder } from '../utils/storage-utils';
+import { SORT_ORDER_ALPHABETICAL, SORT_ORDER_RECENT } from '../utils/storage-utils';
+
+import type { SortOrder } from '../utils/storage-utils';
 
 interface ExtensionsControlsProps {
     searchQuery: string;
@@ -14,6 +16,14 @@ interface ExtensionsControlsProps {
 
 /**
  * Control rail for the update ledger: search, All/Unread filter, and sort.
+ *
+ * @param root0
+ * @param root0.searchQuery
+ * @param root0.onSearchQueryChange
+ * @param root0.showUnreadOnly
+ * @param root0.onToggleUnreadOnly
+ * @param root0.sortOrder
+ * @param root0.onSortOrderChange
  */
 export function ExtensionsControls({
     searchQuery,

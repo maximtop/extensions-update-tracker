@@ -9,16 +9,19 @@ import { Browser, BUILD_ENV, BuildTargetEnv } from './constants';
 import { createZip } from './create-zip';
 import { getRspackConfig } from './rspack-config';
 
-type CommanderOptions = {
-    [key: string]: any,
-};
+type CommanderOptions = Record<string, any>;
 
-type PackagePaths = {
-    /** Directory the bundler emits into. */
-    sourceDir: string,
-    /** Archive to write, sitting alongside the source directory. */
-    zipPath: string,
-};
+interface PackagePaths {
+    /**
+     * Directory the bundler emits into.
+     */
+    sourceDir: string;
+
+    /**
+     * Archive to write, sitting alongside the source directory.
+     */
+    zipPath: string;
+}
 
 /**
  * Derives the packaging paths from the config that produced the build.
@@ -27,6 +30,9 @@ type PackagePaths = {
  * archive from ever drifting away from what was actually emitted. This mirrors how
  * the old ZipWebpackPlugin resolved `path: '../'` against
  * `compilation.options.output.path`.
+ *
+ * @param rspackConfig
+ * @param browser
  */
 const getPackagePaths = (rspackConfig: Configuration, browser: Browser): PackagePaths => {
     const outputPath = rspackConfig.output?.path;

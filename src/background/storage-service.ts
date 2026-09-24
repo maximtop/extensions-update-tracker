@@ -42,6 +42,7 @@ export interface IStorageService {
      * Errors are logged internally
      *
      * @param key - Storage key configuration
+     *
      * @returns The data (or default value on error)
      */
     get<T>(key: StorageKey<T>): Promise<T>;
@@ -72,6 +73,8 @@ class StorageService implements IStorageService {
     /**
      * Reads data from storage with optional schema validation
      * Automatically fixes corrupted/outdated data by merging with defaults when validation fails
+     *
+     * @param storageKey
      */
     async get<T>(storageKey: StorageKey<T>): Promise<T> {
         try {
@@ -156,6 +159,7 @@ class StorageService implements IStorageService {
      *
      * @param target - The default/base object
      * @param source - The stored/user object to merge in
+     *
      * @returns Merged object with source values taking precedence
      */
     private deepMerge<T>(target: T, source: any): T {
@@ -194,6 +198,8 @@ class StorageService implements IStorageService {
 
     /**
      * Clones the default value to prevent mutations
+     *
+     * @param defaultValue
      */
     private cloneDefaultValue<T>(defaultValue: T): T {
         // For primitive types, return as-is
@@ -212,6 +218,9 @@ class StorageService implements IStorageService {
 
     /**
      * Writes data to storage
+     *
+     * @param storageKey
+     * @param value
      */
     async set<T>(storageKey: StorageKey<T>, value: T): Promise<void> {
         try {
@@ -223,6 +232,8 @@ class StorageService implements IStorageService {
 
     /**
      * Removes a key from storage
+     *
+     * @param storageKey
      */
     async remove<T>(storageKey: StorageKey<T>): Promise<void> {
         try {

@@ -11,10 +11,11 @@ import {
     BUILD_PATH,
     BuildTargetEnv,
     BUILD_ENV,
-    BrowserConfig,
 } from './constants';
 import { getEnvConf } from './helpers';
 import { buildManifest } from './manifest';
+
+import type { BrowserConfig } from './constants';
 
 const config = getEnvConf(BUILD_ENV);
 
@@ -44,6 +45,8 @@ const NAME_SUFFIXES: Partial<Record<BuildTargetEnv, string>> = {
 
 /**
  * Appends the build-specific name suffix to a copied locale messages.json file
+ *
+ * @param content
  */
 const transformLocaleMessages = (content: Buffer): string | Buffer => {
     const suffix = NAME_SUFFIXES[BUILD_ENV];
@@ -60,6 +63,9 @@ const transformLocaleMessages = (content: Buffer): string | Buffer => {
 /**
  * Stamps the copied manifest with the version from package.json, so the two can
  * never drift apart in a published build.
+ *
+ * @param content
+ * @param browserConfig
  */
 const transformManifest = (content: Buffer, browserConfig: BrowserConfig): string => {
     const packageJsonPath = path.resolve(currentDirPath, '../../package.json');

@@ -8,6 +8,7 @@ import { createHash, createHmac, randomUUID } from 'node:crypto';
 
 import AdmZip from 'adm-zip';
 
+import { Store } from './constants';
 import { verifyManifest } from './release';
 
 /**
@@ -233,7 +234,7 @@ export const verifySignedXpi = (bytes: Buffer, hash: string, version: string): v
     if (!/^sha256:[a-f0-9]{64}$/.test(hash) || digest !== hash) {
         throw new Error('Signed XPI hash does not match AMO');
     }
-    verifyManifest(bytes, version, 'firefox');
+    verifyManifest(bytes, version, Store.Firefox);
     const zip = new AdmZip(bytes);
     const signed = zip.getEntries()
         .some((entry) => /^META-INF\/(?:mozilla\.rsa|cose\.sig)$/i.test(entry.entryName));

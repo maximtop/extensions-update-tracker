@@ -7,7 +7,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { appendFileSync, readFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 import AdmZip from 'adm-zip';
@@ -20,15 +20,32 @@ import {
 } from 'vitest';
 
 import {
+    AMO_APPROVAL_NOTES_FILENAME,
+    AMO_APPROVAL_NOTES_OWN_LIMIT,
     AMO_REVIEW_NOTES_PATH,
     GECKO_ID,
     RELEASE_ASSET_PREFIX,
     SOURCE_REQUIRED_FILES,
+    Store,
     STORE_TARGETS,
+    STORE_UPLOAD_DIRECTORY,
 } from '../../scripts/deploy/constants';
-import { prepare } from '../../scripts/deploy/prepare';
+import { DeployMode, prepare } from '../../scripts/deploy/prepare';
+import { amoNotesLength } from '../../scripts/deploy/release';
+
+const notesLimit = vi.hoisted(() => ({ override: undefined as number | undefined }));
 
 vi.mock('node:child_process', () => ({ execFileSync: vi.fn() }));
+vi.mock('../../scripts/deploy/constants', async (original) => {
+    const actual = await original<typeof import('../../scripts/deploy/constants')>();
+    return {
+        ...actual,
+        // Lets a test shrink the limit below the generated notes; `undefined` keeps the real one.
+        get AMO_APPROVAL_NOTES_OWN_LIMIT(): number {
+            return notesLimit.override ?? actual.AMO_APPROVAL_NOTES_OWN_LIMIT;
+        },
+    };
+});
 vi.mock('node:fs', async (original) => ({
     ...await original<Record<string, unknown>>(),
     appendFileSync: vi.fn(),
@@ -89,11 +106,12 @@ const firefoxPackage = pack({
         background: { scripts: ['background.js'] },
     }),
 });
-const sourcePackage = pack({
+const sourceFiles = {
     ...Object.fromEntries(SOURCE_REQUIRED_FILES.map((file) => [file, 'fixture'])),
     'package.json': JSON.stringify({ version: '1.2.3' }),
-    [AMO_REVIEW_NOTES_PATH]: 'Reviewer instructions',
-});
+};
+const REVIEW_INSTRUCTIONS = 'Reviewer instructions';
+const sourcePackage = pack({ ...sourceFiles, [AMO_REVIEW_NOTES_PATH]: REVIEW_INSTRUCTIONS });
 const assetName = (kind: string): string => `${RELEASE_ASSET_PREFIX}-1.2.3-${kind}.zip`;
 const downloadArguments = (): string[] | undefined => vi.mocked(execFileSync).mock.calls
     .find(([file, args]) => file === 'gh' && args?.[1] === 'download')?.[1] as string[] | undefined;
@@ -102,6 +120,7 @@ let release = { tagName: 'v1.2.3', isDraft: false, isPrerelease: false };
 
 beforeEach(() => {
     vi.resetAllMocks();
+    notesLimit.override = undefined;
     release = { tagName: 'v1.2.3', isDraft: false, isPrerelease: false };
     assets = {
         [assetName('chrome')]: chromiumPackage,
@@ -210,8 +229,8 @@ describe.each(STORE_TARGETS)('release preparation protocol for %s', (target) => 
     });
     it('refuses a package built for another store even when its checksum matches', () => {
         const store: string = target;
-        assets[assetName(target)] = store === 'firefox' ? chromiumPackage : firefoxPackage;
-        const reason = store === 'firefox' ? 'Gecko' : 'service worker';
+        assets[assetName(target)] = store === Store.Firefox ? chromiumPackage : firefoxPackage;
+        const reason = store === Store.Firefox ? 'Gecko' : 'service worker';
         expect(() => {
             prepare(envFor(target));
         }).toThrow(reason);
@@ -220,6 +239,42 @@ describe.each(STORE_TARGETS)('release preparation protocol for %s', (target) => 
     it('verifies the release in validate mode without a store-specific step', () => {
         prepare(envFor(target, 'validate'));
         expect(downloadArguments()).toContain(assetName(target));
+        expect(appendFileSync).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('Firefox approval notes', () => {
+    const NOTES_TARGET = path.join(STORE_UPLOAD_DIRECTORY, AMO_APPROVAL_NOTES_FILENAME);
+    const writtenNotes = (): string | undefined => vi.mocked(writeFileSync).mock.calls
+        .find(([file]) => String(file) === NOTES_TARGET)?.[1] as string | undefined;
+
+    it('send a short note that links the reviewer instructions pinned to the release tag', () => {
+        prepare(envFor(Store.Firefox, DeployMode.Submit));
+        const notes = writtenNotes() ?? '';
+        expect(notes).toContain(`https://github.com/fixture/repository/blob/v1.2.3/${AMO_REVIEW_NOTES_PATH}`);
+        expect(notes).toContain('no remote code');
+        expect(notes).not.toContain(REVIEW_INSTRUCTIONS);
+        expect(amoNotesLength(notes)).toBeLessThanOrEqual(AMO_APPROVAL_NOTES_OWN_LIMIT);
+    });
+    it('stay empty for a release source without reviewer instructions', () => {
+        assets[assetName('source')] = pack(sourceFiles);
+        prepare(envFor(Store.Firefox, DeployMode.Submit));
+        expect(writtenNotes()).toBe('');
+    });
+    it.each([DeployMode.Validate, DeployMode.Submit])(
+        'fail %s mode before writing notes that exceed the limit',
+        (mode) => {
+            notesLimit.override = 10;
+            expect(() => {
+                prepare(envFor(Store.Firefox, mode));
+            }).toThrow('the limit is 10');
+            expect(writeFileSync).not.toHaveBeenCalled();
+            expect(appendFileSync).not.toHaveBeenCalled();
+        },
+    );
+    it('do not block status mode, which never sends them', () => {
+        notesLimit.override = 10;
+        prepare(envFor(Store.Firefox, DeployMode.Status));
         expect(appendFileSync).toHaveBeenCalledTimes(1);
     });
 });

@@ -11,14 +11,17 @@ import AdmZip from 'adm-zip';
 import { describe, expect, it } from 'vitest';
 
 import {
+    AMO_APPROVAL_NOTES_OWN_LIMIT,
     AMO_REVIEW_NOTES_PATH,
     GECKO_ID,
     RELEASE_TAG_PATTERN,
     SOURCE_REQUIRED_FILES,
 } from '../../scripts/deploy/constants';
 import {
+    amoNotesLength,
     releaseVersion,
     requireConfiguration,
+    verifyAmoNotes,
     verifyChecksum,
     verifyManifest,
     verifySource,
@@ -166,5 +169,18 @@ describe('published release contract', () => {
         expect(() => {
             verifySource(pack(incomplete), '1.2.3', false);
         }).toThrow('missing');
+    });
+    it('counts approval notes trimmed, in code points', () => {
+        expect(amoNotesLength('\n  abc  \n')).toBe(3);
+        expect(amoNotesLength('🦊é')).toBe(2);
+    });
+    it('rejects approval notes over our limit, naming their length', () => {
+        const atLimit = `${'🦊'.repeat(AMO_APPROVAL_NOTES_OWN_LIMIT)}\n`;
+        expect(() => {
+            verifyAmoNotes(atLimit);
+        }).not.toThrow();
+        expect(() => {
+            verifyAmoNotes('a'.repeat(AMO_APPROVAL_NOTES_OWN_LIMIT + 1));
+        }).toThrow(`${AMO_APPROVAL_NOTES_OWN_LIMIT + 1} characters; the limit is ${AMO_APPROVAL_NOTES_OWN_LIMIT}`);
     });
 });

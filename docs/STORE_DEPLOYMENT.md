@@ -35,7 +35,7 @@ gh workflow run deploy-stores.yml -f target=firefox -f tag=vX.Y.Z -f mode=submit
 | --- | --- | --- |
 | Chrome | `validate`, `submit` | `submit` uploads and requests review with deferred publishing. |
 | Edge | `validate`, `upload`, `submit` | `upload` fills the draft; `submit` also requests certification. |
-| Firefox | `validate`, `status`, `submit` | `status` reads review state; `submit` uploads package, source, and reviewer notes. |
+| Firefox | `validate`, `status`, `submit` | `status` reads review state; `submit` uploads package, source, and short reviewer notes that link the full instructions. |
 
 Chrome still needs the final publish action after approval. Edge publishes a
 certified submission, and Firefox publishes a reviewed and signed listed
@@ -60,8 +60,8 @@ These files are byte-identical in every repository:
 - the matching files under `tests/deploy`
 
 Repository-specific values live in `scripts/deploy/constants.ts`: the release
-asset prefix, enabled stores, Firefox extension ID, required source files, and
-reviewer-notes path. Build and package inputs stay in `.github/workflows/ci.yml`; the release
+asset prefix, enabled stores, Firefox extension ID, required source files,
+reviewer-notes path and summary. Build and package inputs stay in `.github/workflows/ci.yml`; the release
 title stays in `.github/workflows/release.yml`. Other platform jobs,
 such as Kode Injector's native helper and Apple release, remain repository
 specific.

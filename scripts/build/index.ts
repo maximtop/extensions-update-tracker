@@ -85,7 +85,6 @@ const runBuild = async (
     options: CommanderOptions,
 ) => {
     for (const task of tasks) {
-        // eslint-disable-next-line no-await-in-loop
         await task(options);
     }
 };

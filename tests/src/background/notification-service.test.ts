@@ -103,10 +103,7 @@ vi.mock('../../../src/background/notification-state-storage', () => ({
     },
 }));
 
-// Import modules after mocks are set up
-// eslint-disable-next-line import/first, import/order
 import { settingsStorage } from '../../../src/background/settings-storage';
-// eslint-disable-next-line import/first, import/order
 import { notificationStateStorage } from '../../../src/background/notification-state-storage';
 
 describe('NotificationService', () => {

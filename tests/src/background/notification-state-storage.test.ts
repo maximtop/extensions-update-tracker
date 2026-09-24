@@ -27,10 +27,7 @@ vi.mock('webextension-polyfill', () => ({
     },
 }));
 
-// Import after mocks are set up
-// eslint-disable-next-line import/first
 import { NotificationStateStorage } from '../../../src/background/notification-state-storage';
-// eslint-disable-next-line import/first, import/order
 import {
     NotificationCloseReason,
     type NotificationInteractionState,

@@ -115,5 +115,4 @@ export const test = base.extend<{
     },
 });
 
-// eslint-disable-next-line prefer-destructuring
 export const expect = test.expect;

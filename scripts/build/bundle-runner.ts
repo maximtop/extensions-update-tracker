@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { type Configuration, rspack, type Stats } from '@rspack/core';
 
 type Options = {

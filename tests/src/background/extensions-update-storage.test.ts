@@ -17,8 +17,6 @@ vi.mock('webextension-polyfill', () => ({
     },
 }));
 
-// Import after mocks are set up
-// eslint-disable-next-line import/first
 import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
 
 describe('ExtensionsUpdateStorage', () => {

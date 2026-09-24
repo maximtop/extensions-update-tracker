@@ -22,18 +22,11 @@ vi.mock('webextension-polyfill', () => ({
     },
 }));
 
-// Import modules after mocks are set up
-// eslint-disable-next-line import/first, import/order
 import { MessageDispatcherService } from '../../../src/common/messaging/message-handler';
-// eslint-disable-next-line import/first, import/order
 import { MessageType } from '../../../src/common/messaging/message-types';
-// eslint-disable-next-line import/first, import/order
 import { BadgeService } from '../../../src/background/badge-service';
-// eslint-disable-next-line import/first, import/order
 import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
-// eslint-disable-next-line import/first, import/order
 import { RpcHandlers } from '../../../src/background/message-handlers';
-// eslint-disable-next-line import/first, import/order
 import { StorageAdapter } from '../../../src/background/storage-adapter';
 
 class InMemoryStorageAdapter implements StorageAdapter {

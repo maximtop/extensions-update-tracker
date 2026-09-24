@@ -55,7 +55,6 @@ Logger.currentLevel = LogLevel.Error;
 
 // Suppress console output during tests while keeping it spy-able for assertions
 // Tests that spy on console.* will still capture calls, but nothing will print.
-/* eslint-disable no-console */
 console.error = vi.fn();
 console.warn = vi.fn();
 console.info = vi.fn();
@@ -63,4 +62,3 @@ console.debug = vi.fn();
 console.trace = vi.fn();
 console.groupCollapsed = vi.fn();
 console.groupEnd = vi.fn();
-/* eslint-enable no-console */

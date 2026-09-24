@@ -1,7 +1,6 @@
 /**
  * @file Minimal read-only AMO client for duplicate prevention and signed artifact verification.
- * Shared deployment contract for extension repositories; repository specifics live in
- * ./constants.
+ * Repository specifics live in ./constants.
  */
 
 import { createHash, createHmac, randomUUID } from 'node:crypto';

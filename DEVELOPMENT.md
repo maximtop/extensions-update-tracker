@@ -1,6 +1,6 @@
 # Development
 
-## Shared developer commands
+## Developer commands
 
 | Make | pnpm | Meaning |
 | --- | --- | --- |

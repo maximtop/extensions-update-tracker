@@ -2,7 +2,6 @@
 
 /**
  * @file Verify Firefox preflight and status orchestration with simulated AMO responses.
- * Shared contract for extension repositories that deploy to Firefox.
  */
 
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';

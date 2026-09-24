@@ -1,6 +1,6 @@
 /**
  * @file Validation of published store assets, independent of GitHub and store credentials.
- * Identical in every extension repository; repository specifics live in ./constants.
+ * Repository specifics live in ./constants.
  */
 
 import { createHash } from 'node:crypto';

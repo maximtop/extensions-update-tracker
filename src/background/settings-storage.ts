@@ -8,7 +8,8 @@ import * as v from 'valibot';
 import { DEFAULT_SETTINGS } from '../common/types/settings-types';
 import { Logger } from '../common/utils/logger';
 
-import { StorageKey, storageService } from './storage-service';
+import { StorageKey } from './storage-key';
+import { storageService } from './storage-service';
 
 import type { UserSettings } from '../common/types/settings-types';
 
@@ -59,7 +60,7 @@ export class SettingsStorage {
     private changeListeners: ((settings: UserSettings) => void)[] = [];
 
     constructor() {
-        this.init();
+        void this.init();
     }
 
     /**

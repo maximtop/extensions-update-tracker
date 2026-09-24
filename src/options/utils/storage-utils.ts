@@ -32,7 +32,7 @@ export function getSortOrderFromStorage(): SortOrder {
         if (isSortOrder(stored)) {
             return stored;
         }
-    } catch (error) {
+    } catch {
         // Ignore localStorage errors (e.g., when disabled in browser settings)
     }
     return DEFAULT_SORT_ORDER;
@@ -46,7 +46,7 @@ export function getSortOrderFromStorage(): SortOrder {
 export function saveSortOrderToStorage(sortOrder: SortOrder): void {
     try {
         localStorage.setItem(SORT_ORDER_STORAGE_KEY, sortOrder);
-    } catch (error) {
+    } catch {
         // Ignore localStorage errors (e.g., when disabled or quota exceeded)
     }
 }

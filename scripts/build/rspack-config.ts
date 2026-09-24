@@ -16,7 +16,7 @@ export const getRspackConfig = (browser: Browser): Configuration => {
             return genCommonConfig(getBrowserConf(browser));
         }
         default: {
-            throw new Error(`Unknown browser: "${browser}"`);
+            throw new Error(`Unknown browser: "${String(browser)}"`);
         }
     }
 };

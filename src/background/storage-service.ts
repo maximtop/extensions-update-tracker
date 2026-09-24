@@ -8,29 +8,7 @@ import browser from 'webextension-polyfill';
 
 import { Logger } from '../common/utils/logger';
 
-/**
- * Storage key configuration with valibot schema for validation
- *
- * @example
- * import * as v from 'valibot';
- *
- * const STATES_KEY = new StorageKey(
- *     'notification_states',
- *     {},
- *     v.record(v.string(), v.object({
- *         extensionId: v.string(),
- *         version: v.string(),
- *         // ... more fields
- *     }))
- * );
- */
-export class StorageKey<T> {
-    constructor(
-        public readonly key: string,
-        public readonly defaultValue: T,
-        public readonly schema?: v.BaseSchema<T, T, v.BaseIssue<unknown>>,
-    ) {}
-}
+import type { StorageKey } from './storage-key';
 
 /**
  * Storage service interface with schema validation
@@ -79,7 +57,7 @@ class StorageService implements IStorageService {
     async get<T>(storageKey: StorageKey<T>): Promise<T> {
         try {
             const result = await browser.storage.local.get(storageKey.key);
-            const rawData = result[storageKey.key];
+            const rawData: unknown = result[storageKey.key];
 
             // Return default if key doesn't exist
             // Clone the default value to prevent mutations
@@ -89,7 +67,7 @@ class StorageService implements IStorageService {
 
             // If no schema provided, return data as-is
             if (!storageKey.schema) {
-                return rawData;
+                return rawData as T;
             }
 
             // Validate with valibot schema
@@ -162,7 +140,7 @@ class StorageService implements IStorageService {
      *
      * @returns Merged object with source values taking precedence
      */
-    private deepMerge<T>(target: T, source: any): T {
+    private deepMerge<T>(target: T, source: unknown): T {
         // Handle non-object cases
         if (!target || typeof target !== 'object' || Array.isArray(target)) {
             return target;
@@ -171,9 +149,9 @@ class StorageService implements IStorageService {
             return target;
         }
 
-        const result: any = { ...target };
+        const result = { ...target } as Record<string, unknown>;
 
-        for (const [key, sourceValue] of Object.entries(source)) {
+        for (const [key, sourceValue] of Object.entries(source as Record<string, unknown>)) {
             const targetValue = result[key];
 
             // If both are objects (and not arrays), recurse
@@ -213,7 +191,7 @@ class StorageService implements IStorageService {
         }
 
         // Fallback to JSON clone for objects/arrays
-        return JSON.parse(JSON.stringify(defaultValue));
+        return JSON.parse(JSON.stringify(defaultValue)) as T;
     }
 
     /**

@@ -77,12 +77,12 @@ export interface NotificationInteractionState {
     /**
      * Timestamp when notification was closed
      */
-    closedAt?: number;
+    closedAt?: number | undefined;
 
     /**
      * Reason the notification was closed
      */
-    closeReason?: NotificationCloseReason;
+    closeReason?: NotificationCloseReason | undefined;
 
     /**
      * Whether user explicitly dismissed the notification

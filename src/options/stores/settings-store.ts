@@ -47,7 +47,7 @@ export class SettingsStore {
 
     constructor() {
         makeAutoObservable(this);
-        this.loadSettings();
+        void this.loadSettings();
         // Follow in-page hash navigation (e.g. a link to options.html#settings
         // opened while the page is already loaded). Our own setActiveTab uses
         // replaceState, which does not fire hashchange, so this cannot loop.

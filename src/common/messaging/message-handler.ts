@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 
+import { getErrorMessage } from '../utils/error';
 import { Logger } from '../utils/logger';
 
 import type { Message, MessageType } from './message-types';
@@ -8,7 +9,7 @@ import type { Message, MessageType } from './message-types';
  * Callback type for message handlers
  * Handlers can return void, a value, or a Promise of either
  */
-export type MessageHandler<T extends Message = Message, R = any> = (
+export type MessageHandler<T extends Message = Message, R = unknown> = (
     message: T,
 ) => void | R | Promise<void | R>;
 
@@ -24,7 +25,7 @@ export class MessageDispatcherService {
      * @param messageType The type of message to handle
      * @param handler The handler function
      */
-    on<T extends Message, R = any>(messageType: T['type'], handler: MessageHandler<T, R>): void {
+    on<T extends Message, R = unknown>(messageType: T['type'], handler: MessageHandler<T, R>): void {
         this.handlers.set(messageType, handler as MessageHandler);
     }
 
@@ -34,7 +35,7 @@ export class MessageDispatcherService {
      */
     init(): void {
         browser.runtime.onMessage.addListener(
-            (message: Message, _sender, sendResponse: (response?: any) => void): true | undefined => {
+            (message: Message, _sender, sendResponse: (response?: unknown) => void): true | undefined => {
                 const handler = this.handlers.get(message.type);
                 if (!handler) {
                     return undefined;
@@ -48,9 +49,9 @@ export class MessageDispatcherService {
                         .then((value) => {
                             sendResponse(value);
                         })
-                        .catch((error) => {
+                        .catch((error: unknown) => {
                             Logger.error(`Error handling message ${message.type}:`, error);
-                            sendResponse({ error: error.message });
+                            sendResponse({ error: getErrorMessage(error) });
                         });
                     // Return true to indicate we will send a response asynchronously
                     return true;

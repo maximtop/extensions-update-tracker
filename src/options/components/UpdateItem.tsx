@@ -63,7 +63,9 @@ export function UpdateItem({ update }: UpdateItemProps): React.JSX.Element {
                 <button
                     type="button"
                     className="mark-read-btn"
-                    onClick={() => updatesStore.markUpdateAsRead(update.extensionId, update.version)}
+                    onClick={() => {
+                        void updatesStore.markUpdateAsRead(update.extensionId, update.version);
+                    }}
                 >
                     {t('options_update_item_mark_read')}
                 </button>

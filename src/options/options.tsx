@@ -16,9 +16,9 @@ export const options = {
         document.title = t('options_page_document_title');
 
         // Notify background that options page was opened (to clear badge)
-        MessageSender.notifyUpdatesPageOpened();
+        void MessageSender.notifyUpdatesPageOpened();
 
-        const container = document.getElementById('root');
+        const container = document.getElementById('root')!;
 
         const root = createRoot(container);
 

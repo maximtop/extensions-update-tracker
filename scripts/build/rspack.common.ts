@@ -53,7 +53,7 @@ const transformLocaleMessages = (content: Buffer): string | Buffer => {
     if (!suffix) {
         return content;
     }
-    const messages = JSON.parse(content.toString());
+    const messages = JSON.parse(content.toString()) as Record<string, { message: string }>;
     if (messages.name?.message) {
         messages.name.message += suffix;
     }
@@ -69,8 +69,8 @@ const transformLocaleMessages = (content: Buffer): string | Buffer => {
  */
 const transformManifest = (content: Buffer, browserConfig: BrowserConfig): string => {
     const packageJsonPath = path.resolve(currentDirPath, '../../package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    const manifestJson = JSON.parse(content.toString());
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as { version: string };
+    const manifestJson = JSON.parse(content.toString()) as Record<string, unknown>;
     return JSON.stringify(
         buildManifest(manifestJson, browserConfig.browser, packageJson.version),
         null,
@@ -158,7 +158,7 @@ export const genCommonConfig = (browserConfig: BrowserConfig): Configuration => 
     },
     plugins: [
         new rspack.DefinePlugin({
-            __TARGET_BROWSER__: JSON.stringify(browserConfig.browser),
+            TARGET_BROWSER: JSON.stringify(browserConfig.browser),
         }),
         new rspack.CopyRspackPlugin({
             patterns: [

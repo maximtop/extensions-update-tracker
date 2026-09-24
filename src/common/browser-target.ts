@@ -3,14 +3,14 @@
  */
 export type BrowserTarget = 'chrome' | 'edge' | 'firefox';
 
-declare const __TARGET_BROWSER__: BrowserTarget;
+declare const TARGET_BROWSER: BrowserTarget;
 
 /**
  * Browser selected by the build, defaulting to Chrome in unit tests.
  */
-export const CURRENT_BROWSER: BrowserTarget = typeof __TARGET_BROWSER__ === 'undefined'
+export const CURRENT_BROWSER: BrowserTarget = typeof TARGET_BROWSER === 'undefined'
     ? 'chrome'
-    : __TARGET_BROWSER__;
+    : TARGET_BROWSER;
 
 /**
  * Whether this build runs on Firefox.

@@ -8,7 +8,8 @@ import * as v from 'valibot';
 import { NotificationCloseReason } from '../common/types/notification-types';
 import { Logger } from '../common/utils/logger';
 
-import { StorageKey, storageService } from './storage-service';
+import { StorageKey } from './storage-key';
+import { storageService } from './storage-service';
 
 import type { NotificationInteractionState, NotificationStatesStorage } from '../common/types/notification-types';
 
@@ -75,7 +76,7 @@ export class NotificationStateStorage {
         states[state.extensionId] = state;
 
         // Clean up expired states
-        states = await this.cleanupExpiredStates(states);
+        states = this.cleanupExpiredStates(states);
 
         await storageService.set(NOTIFICATION_STATES_KEY, states);
     }
@@ -120,9 +121,9 @@ export class NotificationStateStorage {
      *
      * @param inputStates
      */
-    private async cleanupExpiredStates(
+    private cleanupExpiredStates(
         inputStates: NotificationStatesStorage,
-    ): Promise<NotificationStatesStorage> {
+    ): NotificationStatesStorage {
         const now = Date.now();
         const expiryTime = NotificationStateStorage.STATE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
         const cleanedStates: NotificationStatesStorage = {};

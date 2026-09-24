@@ -140,7 +140,9 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
                     <button
                         type="button"
                         className={`icon-btn ${isMuted ? 'icon-btn-active' : ''}`}
-                        onClick={() => settingsStore.toggleExtensionMuted(extensionId)}
+                        onClick={() => {
+                            void settingsStore.toggleExtensionMuted(extensionId);
+                        }}
                         title={muteLabel}
                         aria-label={muteLabel}
                         aria-pressed={isMuted}

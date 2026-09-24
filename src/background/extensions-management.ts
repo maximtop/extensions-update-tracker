@@ -70,9 +70,15 @@ export class ExtensionsManagement {
      * @returns Promise that resolves when initialization is complete
      */
     async init(): Promise<void> {
-        this.management.onInstalled.addListener(this.onInstalled);
-        this.management.onUninstalled.addListener(this.onUninstalled);
-        this.management.onDisabled.addListener(this.onDisabled);
+        this.management.onInstalled.addListener((info) => {
+            void this.onInstalled(info);
+        });
+        this.management.onUninstalled.addListener((info) => {
+            void this.onUninstalled(info);
+        });
+        this.management.onDisabled.addListener((info) => {
+            void this.onDisabled(info);
+        });
 
         await this.reconcileVersions();
     }
@@ -156,7 +162,7 @@ export class ExtensionsManagement {
         await notificationStateStorage.cleanupOrphanedStates(installedIds);
 
         // Update badge after reconciliation
-        this.badgeService.refresh();
+        await this.badgeService.refresh();
     }
 
     /**
@@ -198,7 +204,7 @@ export class ExtensionsManagement {
         }
 
         // Update badge
-        this.badgeService.refresh();
+        await this.badgeService.refresh();
     };
 
     /**

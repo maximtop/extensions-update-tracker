@@ -1,9 +1,4 @@
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Get current directory equivalent to __dirname in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export enum BuildTargetEnv {
     Dev = 'dev',
@@ -12,15 +7,17 @@ export enum BuildTargetEnv {
     Test = 'test',
 }
 
-const isValidBuildEnv = (buildEnv: any): buildEnv is BuildTargetEnv => {
+const isValidBuildEnv = (buildEnv: string): buildEnv is BuildTargetEnv => {
     return Object.values(BuildTargetEnv).includes(buildEnv as BuildTargetEnv);
 };
 
-export const BUILD_ENV = process.env.BUILD_ENV as BuildTargetEnv || BuildTargetEnv.Dev;
+const buildEnv = process.env.BUILD_ENV || BuildTargetEnv.Dev;
 
-if (!isValidBuildEnv(BUILD_ENV)) {
-    throw new Error(`Invalid BUILD_ENV: ${BUILD_ENV}`);
+if (!isValidBuildEnv(buildEnv)) {
+    throw new Error(`Invalid BUILD_ENV: ${buildEnv}`);
 }
+
+export const BUILD_ENV: BuildTargetEnv = buildEnv;
 
 export interface EnvConfig {
     outputPath: string;
@@ -52,7 +49,7 @@ export const enum Browser {
     Firefox = 'firefox',
 }
 
-export const BUILD_PATH = path.resolve(__dirname, '../../dist');
+export const BUILD_PATH = path.resolve(import.meta.dirname, '../../dist');
 
 export interface BrowserConfig {
     browser: Browser;

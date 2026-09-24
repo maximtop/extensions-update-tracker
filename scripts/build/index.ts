@@ -9,7 +9,20 @@ import { Browser, BUILD_ENV, BuildTargetEnv } from './constants';
 import { createZip } from './create-zip';
 import { getRspackConfig } from './rspack-config';
 
-type CommanderOptions = Record<string, any>;
+/**
+ * Build flags parsed by commander.
+ */
+interface CommanderOptions {
+    /**
+     * Rebuild on source changes instead of building once.
+     */
+    watch: boolean;
+
+    /**
+     * Use the bundler cache; `--no-cache` turns it off.
+     */
+    cache: boolean;
+}
 
 interface PackagePaths {
     /**
@@ -150,7 +163,7 @@ program
     .allowExcessArguments(false)
     .description('Builds extension for chrome browser')
     .action(async () => {
-        await buildSelectedBrowser(Browser.Chrome, program.opts());
+        await buildSelectedBrowser(Browser.Chrome, program.opts<CommanderOptions>());
     });
 
 program
@@ -158,7 +171,7 @@ program
     .allowExcessArguments(false)
     .description('Builds extension for Edge')
     .action(async () => {
-        await buildSelectedBrowser(Browser.Edge, program.opts());
+        await buildSelectedBrowser(Browser.Edge, program.opts<CommanderOptions>());
     });
 
 program
@@ -166,13 +179,13 @@ program
     .allowExcessArguments(false)
     .description('Builds extension for Firefox')
     .action(async () => {
-        await buildSelectedBrowser(Browser.Firefox, program.opts());
+        await buildSelectedBrowser(Browser.Firefox, program.opts<CommanderOptions>());
     });
 
 program
     .description('By default builds for all platforms')
     .action(async () => {
-        await main(program.opts());
+        await main(program.opts<CommanderOptions>());
     });
 
 program.parse(process.argv);

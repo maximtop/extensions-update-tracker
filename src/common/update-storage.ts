@@ -8,7 +8,7 @@
 export interface ExtensionUpdate {
     extensionId: string;
     version: string;
-    previousVersion?: string;
+    previousVersion?: string | undefined;
     updateDate: string; // ISO date string
     isRead: boolean;
     notes?: string;
@@ -22,9 +22,9 @@ export interface ExtensionInfo {
     name: string;
     version: string;
     enabled?: boolean;
-    icons?: { size: number; url: string }[];
+    icons?: { size: number; url: string }[] | undefined;
     description?: string;
-    homepageUrl?: string;
+    homepageUrl?: string | undefined;
     installType?: 'development' | 'normal' | 'sideload' | 'other';
 }
 

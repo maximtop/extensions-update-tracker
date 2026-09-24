@@ -12,7 +12,7 @@ class Storage {
      *
      * @returns The stored value, or undefined if the key doesn't exist
      */
-    async get(key: string) {
+    async get(key: string): Promise<unknown> {
         const result = await browser.storage.local.get(key);
         return result[key];
     }

@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable no-continue */
 
 /**
  * Translation Validation Script
@@ -15,14 +14,10 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 import { validator } from '@adguard/translate';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const LOCALES_DIR = path.join(__dirname, '../src/_locales');
+const LOCALES_DIR = path.join(import.meta.dirname, '../src/_locales');
 const BASE_LOCALE = 'en';
 
 // ANSI color codes for terminal output
@@ -52,7 +47,7 @@ function readMessagesFile(locale) {
     try {
         return JSON.parse(content);
     } catch (error) {
-        throw new Error(`Invalid JSON in ${locale}/messages.json: ${error.message}`);
+        throw new Error(`Invalid JSON in ${locale}/messages.json: ${error.message}`, { cause: error });
     }
 }
 
@@ -87,6 +82,39 @@ function getMessageError(baseMessage, translatedMessage, locale, key) {
     } catch (error) {
         return `${key}: ${error.message}`;
     }
+}
+
+function compareLocale(locale, messages, referenceMessages, referenceKeys) {
+    const keys = getMessageKeys(messages);
+    const missingKeys = referenceKeys.filter((key) => !keys.includes(key));
+    const extraKeys = keys.filter((key) => !referenceKeys.includes(key));
+
+    const invalidMessages = keys
+        .filter((key) => referenceKeys.includes(key))
+        .map((key) => getMessageError(
+            referenceMessages[key].message,
+            messages[key].message,
+            locale,
+            key,
+        ))
+        .filter((error) => error !== null);
+
+    if (missingKeys.length === 0 && extraKeys.length === 0 && invalidMessages.length === 0) {
+        return {
+            locale,
+            status: 'success',
+            keyCount: keys.length,
+        };
+    }
+
+    return {
+        locale,
+        status: 'error',
+        keyCount: keys.length,
+        missingKeys,
+        extraKeys,
+        invalidMessages,
+    };
 }
 
 function validateTranslations() {
@@ -141,50 +169,21 @@ function validateTranslations() {
     const results = [];
 
     // Validate each locale
-    for (const locale of locales) {
-        if (locale === BASE_LOCALE) {
-            continue;
-        }
-
-        let messages;
+    for (const locale of locales.filter((name) => name !== BASE_LOCALE)) {
+        let messages = null;
         try {
             messages = readMessagesFile(locale);
         } catch (error) {
             log(`❌ ${error.message}`, colors.red);
             hasErrors = true;
-            continue;
         }
 
-        const keys = getMessageKeys(messages);
-        const missingKeys = referenceKeys.filter((key) => !keys.includes(key));
-        const extraKeys = keys.filter((key) => !referenceKeys.includes(key));
-
-        const invalidMessages = keys
-            .filter((key) => referenceKeys.includes(key))
-            .map((key) => getMessageError(
-                referenceMessages[key].message,
-                messages[key].message,
-                locale,
-                key,
-            ))
-            .filter((error) => error !== null);
-
-        if (missingKeys.length === 0 && extraKeys.length === 0 && invalidMessages.length === 0) {
-            results.push({
-                locale,
-                status: 'success',
-                keyCount: keys.length,
-            });
-        } else {
-            hasErrors = true;
-            results.push({
-                locale,
-                status: 'error',
-                keyCount: keys.length,
-                missingKeys,
-                extraKeys,
-                invalidMessages,
-            });
+        if (messages) {
+            const result = compareLocale(locale, messages, referenceMessages, referenceKeys);
+            if (result.status === 'error') {
+                hasErrors = true;
+            }
+            results.push(result);
         }
     }
 

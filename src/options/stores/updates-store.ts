@@ -7,14 +7,6 @@ import { Logger } from '../../common/utils/logger';
 import type { UpdateRef } from '../../common/messaging/message-types';
 import type { ExtensionInfo, ExtensionUpdate } from '../../common/update-storage';
 
-interface ExtensionVersionInfo {
-    version: string;
-    detectedTimestampMs: number;
-    isRead?: boolean;
-    previousVersion?: string;
-    infoSnapshot?: any;
-}
-
 export class UpdatesStore {
     // Observable state
     updates: Map<string, ExtensionUpdate[]> = new Map();
@@ -28,7 +20,7 @@ export class UpdatesStore {
     constructor() {
         makeAutoObservable(this);
         // Auto-load on initialization
-        this.loadUpdates();
+        void this.loadUpdates();
     }
 
     /**
@@ -56,10 +48,10 @@ export class UpdatesStore {
             const updatesMap = new Map<string, ExtensionUpdate[]>();
 
             for (const [extensionId, data] of Object.entries(storageData)) {
-                const extensionUpdates = data.updateHistory.map((versionInfo: ExtensionVersionInfo, index: number) => {
+                const extensionUpdates = data.updateHistory.map((versionInfo, index) => {
                     // Determine previous version from the history
                     const prevVersion = index > 0
-                        ? data.updateHistory[index - 1].version
+                        ? data.updateHistory[index - 1]?.version
                         : versionInfo.previousVersion;
 
                     const extensionUpdate: ExtensionUpdate = {
@@ -68,7 +60,6 @@ export class UpdatesStore {
                         previousVersion: prevVersion,
                         updateDate: new Date(versionInfo.detectedTimestampMs).toISOString(),
                         isRead: versionInfo.isRead ?? false,
-                        notes: undefined, // Could be added from infoSnapshot if available
                     };
                     return extensionUpdate;
                 });

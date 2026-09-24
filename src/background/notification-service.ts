@@ -27,7 +27,7 @@ interface ExtensionState {
     enabled: boolean;
     name: string;
     version: string;
-    homepageUrl?: string;
+    homepageUrl?: string | undefined;
 }
 
 export class NotificationService {
@@ -67,16 +67,26 @@ export class NotificationService {
 
     private init() {
         // Set up notification click handlers
-        browser.notifications.onClicked.addListener(this.handleNotificationClick);
-        browser.notifications.onButtonClicked?.addListener(this.handleButtonClick);
-        browser.notifications.onClosed.addListener(this.handleNotificationClosed);
+        browser.notifications.onClicked.addListener((notificationId) => {
+            void this.handleNotificationClick(notificationId);
+        });
+        browser.notifications.onButtonClicked?.addListener((notificationId, buttonIndex) => {
+            void this.handleButtonClick(notificationId, buttonIndex);
+        });
+        browser.notifications.onClosed.addListener((notificationId, byUser) => {
+            void this.handleNotificationClosed(notificationId, byUser);
+        });
         // onShowSettings is available in Firefox but not all browsers
-        browser.notifications.onShowSettings?.addListener(this.handleShowSettings);
+        browser.notifications.onShowSettings?.addListener(() => {
+            void this.handleShowSettings();
+        });
 
         // Listen for extension installation to show welcome notification
         browser.runtime.onInstalled.addListener(this.handleExtensionInstalled);
 
-        notificationStateStorage.addChangeListener(this.handleRemoteStateChange);
+        notificationStateStorage.addChangeListener((states) => {
+            void this.handleRemoteStateChange(states);
+        });
     }
 
     /**
@@ -129,7 +139,7 @@ export class NotificationService {
 
         // Build notification options
         const notificationId = this.generateNotificationId(extensionId);
-        const iconUrl = await this.iconHandler.getExtensionIconUrl(extensionId, isEnabled);
+        const iconUrl = this.iconHandler.getExtensionIconUrl(extensionId, isEnabled);
 
         const title = t('notification_title');
         const message = previousVersion
@@ -166,13 +176,7 @@ export class NotificationService {
             Logger.info(`Notification shown for ${extensionName} (${extensionId})`);
 
             // Store extension state for button click handling
-            this.extensionStates.set(notificationId, {
-                id: extensionId,
-                enabled: isEnabled,
-                name: extensionName,
-                version: currentVersion,
-                homepageUrl: extensionInfo.homepageUrl,
-            });
+            this.extensionStates.set(notificationId, extensionState);
 
             // Track active notification for state management
             const now = Date.now();
@@ -214,14 +218,22 @@ export class NotificationService {
 
         // Schedule new timeout
         // Use global setTimeout (not window.setTimeout) for service worker compatibility
-        const timeoutId = setTimeout(async () => {
-            // Mark as auto-closed (timeout)
-            await this.recordNotificationClosed(notificationId, NotificationCloseReason.Timeout);
-            await this.clearNotification(notificationId.replace(NotificationService.NOTIFICATION_ID_PREFIX, ''));
-            this.autoCloseTimeouts.delete(notificationId);
+        const timeoutId = setTimeout(() => {
+            void this.autoClose(notificationId);
         }, timeoutSeconds * 1000);
 
         this.autoCloseTimeouts.set(notificationId, timeoutId);
+    }
+
+    /**
+     * Closes a notification whose display time ran out and records it as a timeout.
+     *
+     * @param notificationId Notification to close.
+     */
+    private async autoClose(notificationId: string): Promise<void> {
+        await this.recordNotificationClosed(notificationId, NotificationCloseReason.Timeout);
+        await this.clearNotification(notificationId.replace(NotificationService.NOTIFICATION_ID_PREFIX, ''));
+        this.autoCloseTimeouts.delete(notificationId);
     }
 
     /**
@@ -396,7 +408,7 @@ export class NotificationService {
     private handleExtensionInstalled = (details: browser.Runtime.OnInstalledDetailsType): void => {
         if (details.reason === 'install') {
             Logger.info('Extension installed for the first time');
-            this.showWelcomeNotification();
+            void this.showWelcomeNotification();
         }
     };
 
@@ -419,7 +431,7 @@ export class NotificationService {
      *
      * @returns true if there's an active notification for this extension
      */
-    async hasActiveNotification(extensionId: string): Promise<boolean> {
+    hasActiveNotification(extensionId: string): Promise<boolean> {
         const notificationId = this.generateNotificationId(extensionId);
         const hasActive = this.activeNotifications.has(notificationId);
 
@@ -427,7 +439,7 @@ export class NotificationService {
             `Checking active notification for ${extensionId}: ${hasActive ? 'YES' : 'NO'}`,
         );
 
-        return hasActive;
+        return Promise.resolve(hasActive);
     }
 
     /**

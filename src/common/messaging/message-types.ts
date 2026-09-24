@@ -120,7 +120,7 @@ export interface GetExtensionsInfoMessage extends BaseMessage {
 export interface MarkUpdateAsReadMessage extends BaseMessage {
     type: MessageType.MarkUpdateAsRead;
     extensionId: string;
-    version?: string;
+    version?: string | undefined;
 }
 
 /**

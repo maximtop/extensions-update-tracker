@@ -1,10 +1,11 @@
 import browser from 'webextension-polyfill';
 
+import { getErrorMessage } from '../utils/error';
 import { Logger } from '../utils/logger';
 
 import { MessageType } from './message-types';
 
-import type { ExtensionInfo } from '../update-storage';
+import type { ExtensionInfo, ExtensionsUpdateStorageType } from '../update-storage';
 import type { Message, UpdateRef } from './message-types';
 
 /**
@@ -20,11 +21,11 @@ export class MessageSender {
      */
     static async send<T = void>(message: Message): Promise<T> {
         try {
-            const response = await browser.runtime.sendMessage(message);
+            const response: unknown = await browser.runtime.sendMessage(message);
             return response as T;
         } catch (error) {
             // Background script might not be ready yet, log but don't throw
-            Logger.warn(`Failed to send message: ${message.type}, ${error}`);
+            Logger.warn(`Failed to send message: ${message.type}, ${getErrorMessage(error)}`);
             throw error;
         }
     }
@@ -50,7 +51,7 @@ export class MessageSender {
      *
      * @returns Promise that resolves with the extensions update storage data
      */
-    static async getUpdates(): Promise<Record<string, any>> {
+    static async getUpdates(): Promise<ExtensionsUpdateStorageType> {
         return this.send({ type: MessageType.GetUpdates });
     }
 

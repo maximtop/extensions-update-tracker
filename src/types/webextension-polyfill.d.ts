@@ -22,10 +22,10 @@ declare module 'webextension-polyfill' {
          * Added `onButtonClicked` which is non-standard but available in some environments.
          */
         interface Static {
-            onButtonClicked?: browser.Events.Event<
+            onButtonClicked?: Events.Event<
                 (notificationId: string, buttonIndex: number) => void
             >;
-            onShowSettings?: browser.Events.Event<() => void>;
+            onShowSettings?: Events.Event<() => void>;
         }
     }
 

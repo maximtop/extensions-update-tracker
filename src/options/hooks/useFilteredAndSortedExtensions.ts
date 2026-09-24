@@ -28,8 +28,9 @@ export function useFilteredAndSortedExtensions({
     searchQuery,
     sortOrder,
 }: UseFilteredAndSortedExtensionsProps): string[] {
+    const { extensionIds } = updatesStore;
+
     return useMemo(() => {
-        const { extensionIds } = updatesStore;
         const normalizedQuery = searchQuery.trim().toLowerCase();
 
         const filteredIds = extensionIds.filter((id) => {
@@ -66,5 +67,5 @@ export function useFilteredAndSortedExtensions({
         });
 
         return sortedIds;
-    }, [updatesStore, showUnreadOnly, searchQuery, sortOrder, updatesStore.extensionIds]);
+    }, [updatesStore, extensionIds, showUnreadOnly, searchQuery, sortOrder]);
 }

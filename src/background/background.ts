@@ -45,7 +45,7 @@ const asyncInit = async () => {
 
 const init = () => {
     syncInit();
-    asyncInit();
+    void asyncInit();
 };
 
 export { init };

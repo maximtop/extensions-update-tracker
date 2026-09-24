@@ -12,7 +12,8 @@ import {
 } from 'vitest';
 import browser from 'webextension-polyfill';
 
-import { StorageKey, storageService } from '../../../src/background/storage-service';
+import { StorageKey } from '../../../src/background/storage-key';
+import { storageService } from '../../../src/background/storage-service';
 
 // Mock webextension-polyfill
 vi.mock('webextension-polyfill', () => ({

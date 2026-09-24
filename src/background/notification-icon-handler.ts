@@ -17,7 +17,7 @@ export class NotificationIconHandler {
      * @param extensionId
      * @param isEnabled
      */
-    async getExtensionIconUrl(extensionId: string, isEnabled: boolean): Promise<string> {
+    getExtensionIconUrl(extensionId: string, isEnabled: boolean): string {
         // Use our extension's icon for all notifications
         // Service workers can't fetch chrome://extension-icon/ URLs or use Canvas API
         // to convert icons to grayscale, so we use a consistent icon for all notifications

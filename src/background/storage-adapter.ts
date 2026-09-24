@@ -11,7 +11,7 @@ export interface StorageAdapter {
      *
      * @returns Promise resolving to the stored value, or undefined if not found
      */
-    get: (key: string) => Promise<any>;
+    get: (key: string) => Promise<unknown>;
 
     /**
      * Stores a value in storage under the specified key
@@ -21,5 +21,5 @@ export interface StorageAdapter {
      *
      * @returns Promise that resolves when the value is stored
      */
-    set: (key: string, value: any) => Promise<void>;
+    set: (key: string, value: unknown) => Promise<void>;
 }

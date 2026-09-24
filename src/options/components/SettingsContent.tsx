@@ -69,7 +69,7 @@ export const SettingsContent: React.FC = observer(() => {
     };
 
     const handleConfirmReset = () => {
-        settingsStore.resetSettings();
+        void settingsStore.resetSettings();
         setShowResetDialog(false);
     };
 
@@ -90,7 +90,9 @@ export const SettingsContent: React.FC = observer(() => {
                         description={t('options_settings_enable_notifications_desc')}
                         checked={settings.notifications.enabled}
                         disabled={false}
-                        onToggle={() => settingsStore.toggleNotifications()}
+                        onToggle={() => {
+                            void settingsStore.toggleNotifications();
+                        }}
                     />
                     <SwitchRow
                         id="notificationSound"
@@ -98,7 +100,9 @@ export const SettingsContent: React.FC = observer(() => {
                         description={t('options_settings_notification_sound_desc')}
                         checked={settings.notifications.soundEnabled}
                         disabled={!settings.notifications.enabled}
-                        onToggle={() => settingsStore.toggleNotificationSound()}
+                        onToggle={() => {
+                            void settingsStore.toggleNotificationSound();
+                        }}
                     />
                 </div>
             </section>
@@ -114,7 +118,9 @@ export const SettingsContent: React.FC = observer(() => {
                             description={t('options_settings_auto_disable_on_update_desc')}
                             checked={settings.security.autoDisableOnUpdate}
                             disabled={false}
-                            onToggle={() => settingsStore.toggleAutoDisableOnUpdate()}
+                            onToggle={() => {
+                                void settingsStore.toggleAutoDisableOnUpdate();
+                            }}
                         />
                     </div>
                 </section>

@@ -42,11 +42,11 @@ export class BadgeService {
 
     private init() {
         // Initial badge update
-        this.updateBadge();
+        void this.updateBadge();
 
         // Subscribe to updates page opened event to clear badge
         this.messageDispatcher.on(MessageType.UpdatesPageOpened, () => {
-            this.clearBadge();
+            void this.clearBadge();
         });
     }
 

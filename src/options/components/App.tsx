@@ -47,6 +47,18 @@ export const App = observer(() => {
         sortOrder,
     });
 
+    const handleMarkAllAsRead = async () => {
+        const snapshot = await updatesStore.markAllAsRead();
+        if (snapshot.length > 0) {
+            setUndoItems(snapshot);
+        }
+    };
+
+    const handleUndo = async (items: UpdateRef[]) => {
+        await updatesStore.markUpdatesAsUnread(items);
+        setUndoItems(null);
+    };
+
     const isLoading = updatesStore.isLoading || settingsStore.isLoading;
     const hasError = updatesStore.error;
     const isEmpty = updatesStore.extensionIds.length === 0;
@@ -87,11 +99,8 @@ export const App = observer(() => {
                         <StatsBar
                             totalUpdateCount={updatesStore.totalUpdateCount}
                             unreadUpdateCount={updatesStore.unreadUpdateCount}
-                            onMarkAllAsRead={async () => {
-                                const snapshot = await updatesStore.markAllAsRead();
-                                if (snapshot.length > 0) {
-                                    setUndoItems(snapshot);
-                                }
+                            onMarkAllAsRead={() => {
+                                void handleMarkAllAsRead();
                             }}
                         />
 
@@ -144,9 +153,8 @@ export const App = observer(() => {
                 <Toast
                     message={tPlural('options_toast_marked_read', undoItems.length)}
                     actionLabel={t('options_toast_undo')}
-                    onAction={async () => {
-                        await updatesStore.markUpdatesAsUnread(undoItems);
-                        setUndoItems(null);
+                    onAction={() => {
+                        void handleUndo(undoItems);
                     }}
                     onDismiss={() => setUndoItems(null)}
                 />

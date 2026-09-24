@@ -15,7 +15,7 @@ interface ExtensionState {
     enabled: boolean;
     name: string;
     version: string;
-    homepageUrl?: string;
+    homepageUrl?: string | undefined;
 }
 
 interface ButtonConfig {

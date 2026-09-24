@@ -5,8 +5,6 @@ import { MessageSender } from '../../../common/messaging/message-sender';
 import { getErrorMessage } from '../../../common/utils/error';
 import { Logger } from '../../../common/utils/logger';
 
-import type { ExtensionsUpdateStorageType } from '../../../common/update-storage';
-
 /**
  * Represents an unread update to display in the popup.
  */
@@ -14,9 +12,9 @@ export interface UnreadUpdate {
     extensionId: string;
     extensionName: string;
     version: string;
-    previousVersion?: string;
+    previousVersion?: string | undefined;
     timestamp: number;
-    icon?: string;
+    icon?: string | undefined;
 }
 
 /**
@@ -51,7 +49,7 @@ export class PopupUpdatesStore {
         // Auto-load on initialization: MobX stores should be self-contained and ready to use.
         // Loading data in constructor ensures the store is immediately usable when created,
         // simplifying component code and preventing "forgot to load" bugs.
-        this.loadUpdateCounts();
+        void this.loadUpdateCounts();
     }
 
     /**
@@ -67,7 +65,7 @@ export class PopupUpdatesStore {
 
         try {
             // Get update data through message passing
-            const storageData = await MessageSender.getUpdates() as ExtensionsUpdateStorageType;
+            const storageData = await MessageSender.getUpdates();
 
             // Load last checked timestamp through message passing
             const lastCheckedTimestamp = await MessageSender.getLastCheckedTimestamp();

@@ -500,7 +500,7 @@ export class ExtensionsUpdateStorage {
             // Find and mark specific version
             for (let i = extensionData.updateHistory.length - 1; i >= 0; i -= 1) {
                 const entry = extensionData.updateHistory[i];
-                if (entry.version === version && !entry.isRead) {
+                if (entry?.version === version && !entry.isRead) {
                     const updatedEntry: ExtensionVersionInfo = {
                         ...entry,
                         isRead: true,
@@ -588,8 +588,7 @@ export class ExtensionsUpdateStorage {
 
         // Iterate through all extensions and mark all updates as read
         for (const extensionData of Object.values(currentStorage)) {
-            for (let i = 0; i < extensionData.updateHistory.length; i += 1) {
-                const entry = extensionData.updateHistory[i];
+            for (const [i, entry] of extensionData.updateHistory.entries()) {
                 if (!entry.isRead) {
                     const updatedEntry: ExtensionVersionInfo = {
                         ...entry,
@@ -661,8 +660,7 @@ export class ExtensionsUpdateStorage {
         for (const { extensionId, version } of items) {
             const extensionData = currentStorage[extensionId];
             if (extensionData) {
-                for (let i = 0; i < extensionData.updateHistory.length; i += 1) {
-                    const entry = extensionData.updateHistory[i];
+                for (const [i, entry] of extensionData.updateHistory.entries()) {
                     if (entry.version === version && entry.isRead) {
                         const updatedEntry: ExtensionVersionInfo = {
                             ...entry,

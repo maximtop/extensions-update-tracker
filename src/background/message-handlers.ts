@@ -9,6 +9,7 @@ import type { ExtensionsUpdateStorage } from './extensions-update-storage';
 import type { ManagementAdapter } from './management-adapter';
 import type { SettingsStorage } from './settings-storage';
 import type { MessageDispatcherService } from '../common/messaging/message-handler';
+import type { ExtensionInfo } from '../common/update-storage';
 
 const LAST_CHECKED_KEY = 'last-checked-timestamp';
 
@@ -62,7 +63,7 @@ export class RpcHandlers {
             await this.extensionsUpdateStorage.ensureInitialized();
             await this.extensionsUpdateStorage.markAllAsRead();
             // Refresh badge after marking all as read
-            this.badgeService.refresh();
+            await this.badgeService.refresh();
         });
     }
 
@@ -89,7 +90,7 @@ export class RpcHandlers {
 
             Logger.info(`Received GetExtensionsInfo message for ${message.extensionIds.length} extension(s)`);
 
-            const results: Record<string, any> = {};
+            const results: Record<string, ExtensionInfo> = {};
 
             // Fetch all extension info in parallel
             await Promise.all(
@@ -133,7 +134,7 @@ export class RpcHandlers {
             await this.extensionsUpdateStorage.markUpdateAsRead(message.extensionId, message.version);
 
             // Refresh badge after marking update as read
-            this.badgeService.refresh();
+            await this.badgeService.refresh();
         });
     }
 
@@ -152,7 +153,7 @@ export class RpcHandlers {
             await this.extensionsUpdateStorage.markUpdatesAsUnread(message.items);
 
             // Refresh badge after restoring unread state
-            this.badgeService.refresh();
+            await this.badgeService.refresh();
         });
     }
 
@@ -160,7 +161,7 @@ export class RpcHandlers {
      * Handler: Get current user settings
      */
     private registerGetSettings(): void {
-        this.messageDispatcher.on(MessageType.GetSettings, async () => {
+        this.messageDispatcher.on(MessageType.GetSettings, () => {
             Logger.info('Received GetSettings message');
             return this.settingsStorage.get();
         });

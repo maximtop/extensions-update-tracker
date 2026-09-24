@@ -1,22 +1,9 @@
 {
-    "ts-node": {
-        "compilerOptions": {
-            "module": "ESNext"
-        },
-        "esm": true
-    },
+    "extends": "./tsconfig.base.json",
     "compilerOptions": {
-        "outDir": "dist",
+        "types": ["chrome", "node"],
         "jsx": "react",
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "noImplicitAny": true,
-        "module": "ESNext",
-        "target": "es2020",
         "allowJs": true,
-        "moduleResolution": "node",
-        "skipLibCheck": true,
-        "resolveJsonModule": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
@@ -24,7 +11,6 @@
         "src/**/*",
         "tests/**/*",
         "scripts/**/*",
-        ".eslintrc.cjs",
         "vitest.config.ts",
         "playwright.config.ts"
     ],

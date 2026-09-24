@@ -1,3 +1,7 @@
+/**
+ * @file Mounts the popup React tree into the popup page's root element.
+ */
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -9,7 +13,7 @@ import './styles.css';
 
 export const popup = {
     init: () => {
-        const container = document.getElementById('root');
+        const container = document.getElementById('root')!;
 
         const root = createRoot(container);
         root.render(

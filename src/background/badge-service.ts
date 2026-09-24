@@ -1,14 +1,14 @@
 /**
- * Badge service for displaying unread update count on the extension icon
+ * @file Badge service for displaying unread update count on the extension icon.
  */
 
 import browser from 'webextension-polyfill';
 
-import { MessageDispatcherService } from '../common/messaging/message-handler';
 import { MessageType } from '../common/messaging/message-types';
 import { Logger } from '../common/utils/logger';
 
-import { ExtensionsUpdateStorage } from './extensions-update-storage';
+import type { ExtensionsUpdateStorage } from './extensions-update-storage';
+import type { MessageDispatcherService } from '../common/messaging/message-handler';
 
 /**
  * Service responsible for managing the extension's badge counter.
@@ -20,12 +20,22 @@ export class BadgeService {
 
     private static readonly BADGE_TEXT_COLOR = '#FFFFFF'; // White text
 
-    /** Maximum number to display before showing overflow indicator */
+    /**
+     * Maximum number to display before showing overflow indicator
+     */
     private static readonly MAX_BADGE_COUNT = 99;
 
-    /** Suffix to indicate count exceeds maximum (universally understood across all locales) */
+    /**
+     * Suffix to indicate count exceeds maximum (universally understood across all locales)
+     */
     private static readonly OVERFLOW_SUFFIX = '+';
 
+    /**
+     * Creates the service and immediately triggers its own initialization.
+     *
+     * @param storage Source of the update data the badge count is computed from.
+     * @param messageDispatcher Dispatcher used to listen for the updates-page-opened event.
+     */
     constructor(
         private storage: ExtensionsUpdateStorage,
         private messageDispatcher: MessageDispatcherService,
@@ -36,13 +46,16 @@ export class BadgeService {
         this.init();
     }
 
+    /**
+     * Sets the initial badge state and subscribes to the event that clears it.
+     */
     private init() {
         // Initial badge update
-        this.updateBadge();
+        void this.updateBadge();
 
         // Subscribe to updates page opened event to clear badge
         this.messageDispatcher.on(MessageType.UpdatesPageOpened, () => {
-            this.clearBadge();
+            void this.clearBadge();
         });
     }
 

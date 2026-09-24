@@ -1,5 +1,5 @@
 /**
- * Tests the real translation pipeline end to end: actual @adguard/translate,
+ * Tests the real translation pipeline end to end: actual `@adguard/translate`,
  * actual strings from src/_locales, no t() mocks. Guards against broken
  * placeholder substitution (e.g. a literal "%name%" leaking into a
  * notification) and wrong plural form selection per locale.
@@ -43,8 +43,8 @@ const useLocale = (dir: string, uiLanguage: string) => {
 beforeAll(() => {
     // Replace the key-echoing stub from tests/setup.ts with one serving
     // the real locale files, so the full translate pipeline is exercised
-    browser.i18n.getMessage = ((key: string): string => activeMessages[key]?.message ?? '') as never;
-    browser.i18n.getUILanguage = ((): string => activeUiLanguage) as never;
+    browser.i18n.getMessage = ((key: string): string => activeMessages[key]?.message ?? '');
+    browser.i18n.getUILanguage = ((): string => activeUiLanguage);
 });
 
 const minutesAgo = (m: number) => Date.now() - m * 60 * 1000;

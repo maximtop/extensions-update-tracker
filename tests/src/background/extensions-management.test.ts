@@ -5,13 +5,13 @@ import {
     vi,
 } from 'vitest';
 
-import { BadgeService } from '../../../src/background/badge-service';
 import { ExtensionsManagement } from '../../../src/background/extensions-management';
 import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
-import { ManagementAdapter } from '../../../src/background/management-adapter';
-import { NotificationService } from '../../../src/background/notification-service';
 import { settingsStorage } from '../../../src/background/settings-storage';
 
+import type { BadgeService } from '../../../src/background/badge-service';
+import type { ManagementAdapter } from '../../../src/background/management-adapter';
+import type { NotificationService } from '../../../src/background/notification-service';
 import type { StorageAdapter } from '../../../src/background/storage-adapter';
 
 // Mock webextension-polyfill before importing modules that use it
@@ -32,9 +32,9 @@ vi.mock('webextension-polyfill', () => ({
 
 // In-memory StorageAdapter to simulate chrome.storage.local JSON persistence
 class InMemoryStorageAdapter implements StorageAdapter {
-    private store: Record<string, any>;
+    private store: Record<string, unknown>;
 
-    constructor(initial: Record<string, any> = {}) {
+    constructor(initial: Record<string, unknown> = {}) {
         this.store = { ...initial };
     }
 
@@ -42,10 +42,20 @@ class InMemoryStorageAdapter implements StorageAdapter {
         return this.store[key];
     }
 
-    async set(key: string, value: any) {
+    async set(key: string, value: unknown) {
         this.store[key] = value;
     }
 }
+
+interface PersistedExtensionEntry {
+    currentVersion: string;
+    updateHistory: {
+        version: string;
+        detectedTimestampMs: number;
+    }[];
+}
+
+type PersistedExtensionsStorage = Record<string, PersistedExtensionEntry>;
 
 // Helper to create mock services
 function createMockNotificationService(): NotificationService {
@@ -55,7 +65,7 @@ function createMockNotificationService(): NotificationService {
         showWelcomeNotification: vi.fn(),
         clearAllNotifications: vi.fn(),
         hasActiveNotification: vi.fn().mockResolvedValue(false),
-    } as any;
+    } as unknown as NotificationService;
 }
 
 function createMockBadgeService(): BadgeService {
@@ -63,7 +73,7 @@ function createMockBadgeService(): BadgeService {
         refresh: vi.fn(),
         updateBadge: vi.fn(),
         clearBadge: vi.fn(),
-    } as any;
+    } as unknown as BadgeService;
 }
 
 describe('management', () => {
@@ -187,10 +197,10 @@ describe('management', () => {
         const initialData = {
             'existing-ext': {
                 currentVersion: '2.0.0',
-                updateHistory: [] as Array<{
+                updateHistory: [] as {
                     version: string;
                     detectedTimestampMs: number;
-                }>,
+                }[],
             },
         };
 
@@ -212,7 +222,7 @@ describe('management', () => {
         );
         await extensionsManagement.init();
 
-        const handler = addListenerMock.mock.calls[0][0];
+        const handler = addListenerMock.mock.calls[0]?.[0];
 
         handler({
             id: 'new-ext',
@@ -223,7 +233,7 @@ describe('management', () => {
         await vi.waitFor(async () => {
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
             expect(persisted).toEqual(
                 expect.objectContaining({
                     'existing-ext': initialData['existing-ext'],
@@ -275,7 +285,7 @@ describe('management', () => {
         );
         await extensionsManagement.init();
 
-        const handler = addListenerMock.mock.calls[0][0];
+        const handler = addListenerMock.mock.calls[0]?.[0];
 
         const EXT_ID = 'ext';
         handler({ id: EXT_ID, name: 'Ext', version: '1.0.0' });
@@ -284,18 +294,18 @@ describe('management', () => {
         await vi.waitFor(async () => {
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
             const VERSION_HISTORY_EXPECTED_LENGTH = 2;
             expect(persisted?.[EXT_ID]?.updateHistory?.length).toBe(VERSION_HISTORY_EXPECTED_LENGTH);
         });
 
         const persisted = await storageAdapter.get(
             ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-        );
-        expect(persisted[EXT_ID].currentVersion).toBe('1.1.0');
-        expect(persisted[EXT_ID].updateHistory.length).toBe(2);
-        expect(persisted[EXT_ID].updateHistory[0].version).toBe('1.0.0');
-        expect(persisted[EXT_ID].updateHistory[1].version).toBe('1.1.0');
+        ) as PersistedExtensionsStorage;
+        expect(persisted[EXT_ID]!.currentVersion).toBe('1.1.0');
+        expect(persisted[EXT_ID]!.updateHistory.length).toBe(2);
+        expect(persisted[EXT_ID]!.updateHistory[0]!.version).toBe('1.0.0');
+        expect(persisted[EXT_ID]!.updateHistory[1]!.version).toBe('1.1.0');
     });
 
     it('should not duplicate same version; update timestamp of the latest entry', async () => {
@@ -332,7 +342,7 @@ describe('management', () => {
         );
         await extensionsManagement.init();
 
-        const handler = addListenerMock.mock.calls[0][0];
+        const handler = addListenerMock.mock.calls[0]?.[0];
 
         vi.useFakeTimers();
         vi.setSystemTime(new Date('2025-01-01T00:00:00Z'));
@@ -342,7 +352,7 @@ describe('management', () => {
         await vi.waitFor(async () => {
             const persisted1 = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
             firstTs = persisted1?.dup?.updateHistory?.[0]?.detectedTimestampMs ?? 0;
             expect(firstTs).toBeGreaterThan(0);
         });
@@ -352,10 +362,10 @@ describe('management', () => {
         await vi.waitFor(async () => {
             const persisted2 = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
             // Should still have a single history entry with updated timestamp
-            expect(persisted2.dup.updateHistory.length).toBe(1);
-            const secondTs = persisted2.dup.updateHistory[0].detectedTimestampMs;
+            expect(persisted2.dup!.updateHistory.length).toBe(1);
+            const secondTs = persisted2.dup!.updateHistory[0]!.detectedTimestampMs;
             expect(secondTs).toBeGreaterThan(firstTs);
         });
         vi.useRealTimers();
@@ -382,7 +392,7 @@ describe('management', () => {
         });
 
         // Override the max history limit to test trimming behavior
-        (ExtensionsUpdateStorage as any).MAX_HISTORY_ENTRIES = 2;
+        ExtensionsUpdateStorage.MAX_HISTORY_ENTRIES = 2;
 
         const storageService = new ExtensionsUpdateStorage(storageAdapter);
         await storageService.init();
@@ -398,7 +408,7 @@ describe('management', () => {
         );
         await extensionsManagement.init();
 
-        const handler = addListenerMock.mock.calls[0][0];
+        const handler = addListenerMock.mock.calls[0]?.[0];
 
         handler({ id: 'trim', name: 'Trim', version: '1.0.0' });
         handler({ id: 'trim', name: 'Trim', version: '1.1.0' });
@@ -407,10 +417,10 @@ describe('management', () => {
         await vi.waitFor(async () => {
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
             // Should keep only the last 2 entries (1.1.0 and 1.2.0)
-            expect(persisted.trim.updateHistory.length).toBeLessThanOrEqual(2);
-            const versions = persisted.trim.updateHistory.map((e: any) => e.version);
+            expect(persisted.trim!.updateHistory.length).toBeLessThanOrEqual(2);
+            const versions = persisted.trim!.updateHistory.map((e) => e.version);
             expect(versions).toContain('1.2.0');
         });
     });
@@ -451,7 +461,7 @@ describe('management', () => {
 
         await extensionsManagement.init();
 
-        const handler = addListenerMock.mock.calls[0][0];
+        const handler = addListenerMock.mock.calls[0]?.[0];
 
         handler({
             id: 'test-extension',
@@ -463,7 +473,7 @@ describe('management', () => {
         await vi.waitFor(async () => {
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
             expect(persisted).toEqual(
                 expect.objectContaining({
                     'test-extension': expect.objectContaining({
@@ -520,7 +530,7 @@ describe('management', () => {
 
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
 
             expect(persisted['new-ext-1']).toEqual(
                 expect.objectContaining({
@@ -595,12 +605,12 @@ describe('management', () => {
 
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
 
-            expect(persisted['updated-ext'].currentVersion).toBe('2.0.0');
-            expect(persisted['updated-ext'].updateHistory.length).toBe(2);
-            expect(persisted['updated-ext'].updateHistory[0].version).toBe('1.0.0');
-            expect(persisted['updated-ext'].updateHistory[1].version).toBe('2.0.0');
+            expect(persisted['updated-ext']!.currentVersion).toBe('2.0.0');
+            expect(persisted['updated-ext']!.updateHistory.length).toBe(2);
+            expect(persisted['updated-ext']!.updateHistory[0]!.version).toBe('1.0.0');
+            expect(persisted['updated-ext']!.updateHistory[1]!.version).toBe('2.0.0');
         });
 
         it('should not create duplicate entries when versions match', async () => {
@@ -651,11 +661,11 @@ describe('management', () => {
 
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
 
             // Should still have only one history entry
-            expect(persisted['same-ext'].updateHistory.length).toBe(1);
-            expect(persisted['same-ext'].currentVersion).toBe('1.0.0');
+            expect(persisted['same-ext']!.updateHistory.length).toBe(1);
+            expect(persisted['same-ext']!.currentVersion).toBe('1.0.0');
         });
 
         it('should handle mix of new, updated, and unchanged extensions', async () => {
@@ -717,7 +727,7 @@ describe('management', () => {
 
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
 
             // New extension should be added
             expect(persisted['new-ext']).toEqual(
@@ -730,12 +740,12 @@ describe('management', () => {
             );
 
             // Updated extension should have new version appended
-            expect(persisted['updated-ext'].currentVersion).toBe('2.0.0');
-            expect(persisted['updated-ext'].updateHistory.length).toBe(2);
+            expect(persisted['updated-ext']!.currentVersion).toBe('2.0.0');
+            expect(persisted['updated-ext']!.updateHistory.length).toBe(2);
 
             // Unchanged extension should remain the same
-            expect(persisted['unchanged-ext'].currentVersion).toBe('1.5.0');
-            expect(persisted['unchanged-ext'].updateHistory.length).toBe(1);
+            expect(persisted['unchanged-ext']!.currentVersion).toBe('1.5.0');
+            expect(persisted['unchanged-ext']!.updateHistory.length).toBe(1);
         });
 
         it('should handle empty storage on first reconciliation', async () => {
@@ -777,11 +787,11 @@ describe('management', () => {
 
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
 
             expect(Object.keys(persisted).length).toBe(2);
-            expect(persisted['ext-1'].currentVersion).toBe('1.0.0');
-            expect(persisted['ext-2'].currentVersion).toBe('2.0.0');
+            expect(persisted['ext-1']!.currentVersion).toBe('1.0.0');
+            expect(persisted['ext-2']!.currentVersion).toBe('2.0.0');
         });
 
         it('should clean up orphaned data for extensions that are no longer installed', async () => {
@@ -836,7 +846,7 @@ describe('management', () => {
 
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
 
             // Only ext-1 should remain
             expect(Object.keys(persisted).length).toBe(1);
@@ -903,7 +913,7 @@ describe('management', () => {
             );
             await extensionsManagement.init();
 
-            const handler = onUninstalledListenerMock.mock.calls[0][0];
+            const handler = onUninstalledListenerMock.mock.calls[0]?.[0];
 
             // Trigger uninstall - pass ExtensionInfo object, not just string
             await handler({ id: 'ext-to-uninstall', name: 'Extension To Uninstall', version: '1.0.0' });
@@ -912,19 +922,19 @@ describe('management', () => {
             await vi.waitFor(async () => {
                 const persisted = await storageAdapter.get(
                     ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-                );
+                ) as PersistedExtensionsStorage;
                 expect(persisted['ext-to-uninstall']).toBeUndefined();
             }, { timeout: 1000 });
 
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
 
             // Should remove the uninstalled extension data
             expect(persisted['ext-to-uninstall']).toBeUndefined();
             // Should keep other extensions
             expect(persisted['ext-to-keep']).toBeDefined();
-            expect(persisted['ext-to-keep'].currentVersion).toBe('2.0.0');
+            expect(persisted['ext-to-keep']!.currentVersion).toBe('2.0.0');
         });
 
         it('should handle uninstalling extension that was not tracked', async () => {
@@ -973,18 +983,18 @@ describe('management', () => {
             );
             await extensionsManagement.init();
 
-            const handler = onUninstalledListenerMock.mock.calls[0][0];
+            const handler = onUninstalledListenerMock.mock.calls[0]?.[0];
 
             // Trigger uninstall for extension that was never tracked - pass ExtensionInfo object
             await handler({ id: 'never-tracked-ext', name: 'Never Tracked', version: '1.0.0' });
 
             const persisted = await storageAdapter.get(
                 ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            );
+            ) as PersistedExtensionsStorage;
 
             // Should not throw error and should keep existing data
             expect(persisted['tracked-ext']).toBeDefined();
-            expect(persisted['tracked-ext'].currentVersion).toBe('1.0.0');
+            expect(persisted['tracked-ext']!.currentVersion).toBe('1.0.0');
         });
     });
 
@@ -1044,15 +1054,17 @@ describe('management', () => {
         );
         await extensionsManagement.init();
 
-        const handler = onInstalledListenerMock.mock.calls[0][0];
-        await handler({
+        const handler = onInstalledListenerMock.mock.calls[0]?.[0];
+        handler({
             id: 'updated-ext',
             name: 'Updated Extension',
             version: '2.0.0',
             enabled: true,
         });
 
-        expect(setEnabled).toHaveBeenCalledWith('updated-ext', false);
+        await vi.waitFor(() => {
+            expect(setEnabled).toHaveBeenCalledWith('updated-ext', false);
+        });
         expect(mockNotificationService.showUpdateNotification).toHaveBeenCalledWith(
             expect.objectContaining({
                 id: 'updated-ext',
@@ -1084,7 +1096,9 @@ describe('management', () => {
                     addListener: onDisabledListenerMock,
                 },
                 getAll: vi.fn().mockResolvedValue([
-                    { id: 'disabled-ext', name: 'Disabled Extension', version: '2.0.0', enabled: false },
+                    {
+                        id: 'disabled-ext', name: 'Disabled Extension', version: '2.0.0', enabled: false,
+                    },
                 ]),
                 get: vi.fn(),
             };
@@ -1118,15 +1132,15 @@ describe('management', () => {
             const extensionsManagement = new ExtensionsManagement(
                 management,
                 storageService,
-                mockNotificationService as any,
-                mockBadgeService as any,
+                mockNotificationService as unknown as NotificationService,
+                mockBadgeService as unknown as BadgeService,
             );
             await extensionsManagement.init();
 
-            const handler = onDisabledListenerMock.mock.calls[0][0];
+            const handler = onDisabledListenerMock.mock.calls[0]?.[0];
 
             // Trigger disable with extension info
-            await handler({
+            handler({
                 id: 'disabled-ext',
                 name: 'Disabled Extension',
                 version: '2.0.0',
@@ -1134,7 +1148,9 @@ describe('management', () => {
             });
 
             // Should clear the existing notification
-            expect(mockNotificationService.clearNotification).toHaveBeenCalledWith('disabled-ext');
+            await vi.waitFor(() => {
+                expect(mockNotificationService.clearNotification).toHaveBeenCalledWith('disabled-ext');
+            });
 
             // Should re-show notification with updated info (grayscale icon, enable/uninstall buttons)
             expect(mockNotificationService.showUpdateNotification).toHaveBeenCalledWith(
@@ -1184,12 +1200,12 @@ describe('management', () => {
             const extensionsManagement = new ExtensionsManagement(
                 management,
                 storageService,
-                mockNotificationService as any,
-                mockBadgeService as any,
+                mockNotificationService as unknown as NotificationService,
+                mockBadgeService as unknown as BadgeService,
             );
             await extensionsManagement.init();
 
-            const handler = onDisabledListenerMock.mock.calls[0][0];
+            const handler = onDisabledListenerMock.mock.calls[0]?.[0];
 
             // Trigger disable for extension with no stored data
             await handler({

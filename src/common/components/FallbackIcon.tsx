@@ -1,7 +1,16 @@
+/**
+ * @file Fallback SVG icon shown in place of an extension's real icon.
+ */
+
 import React from 'react';
 
+/**
+ * Props for {@link FallbackIcon}.
+ */
 interface FallbackIconProps {
-    /** The name of the extension to generate the fallback icon for */
+    /**
+     * The name of the extension to generate the fallback icon for
+     */
     name: string;
 }
 
@@ -9,6 +18,9 @@ interface FallbackIconProps {
  * Fallback SVG icon component displayed when an extension has no icon.
  * Uses the first letter of the extension name on a neutral surface,
  * colored through the shared design tokens (see theme.css).
+ *
+ * @param root0 Component props.
+ * @param root0.name Extension name; its first letter is shown in the icon.
  */
 export function FallbackIcon({ name }: FallbackIconProps): React.JSX.Element {
     const firstLetter = name.charAt(0).toUpperCase();

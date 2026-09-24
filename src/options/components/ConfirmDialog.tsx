@@ -1,28 +1,61 @@
+/**
+ * @file Accessible modal confirmation dialog used in place of window.confirm.
+ */
+
 import React, { useEffect, useRef } from 'react';
 
 /**
  * Props for the ConfirmDialog component
  */
 interface ConfirmDialogProps {
-    /** Whether the dialog is currently visible */
+    /**
+     * Whether the dialog is currently visible
+     */
     isOpen: boolean;
-    /** Title text displayed in the dialog header */
+
+    /**
+     * Title text displayed in the dialog header
+     */
     title: string;
-    /** Message text displayed in the dialog body */
+
+    /**
+     * Message text displayed in the dialog body
+     */
     message: string;
-    /** Text for the confirmation button */
+
+    /**
+     * Text for the confirmation button
+     */
     confirmText: string;
-    /** Text for the cancel button */
+
+    /**
+     * Text for the cancel button
+     */
     cancelText: string;
-    /** Callback invoked when the user confirms the action */
+
+    /**
+     * Callback invoked when the user confirms the action
+     */
     onConfirm: () => void;
-    /** Callback invoked when the user cancels or closes the dialog */
+
+    /**
+     * Callback invoked when the user cancels or closes the dialog
+     */
     onCancel: () => void;
 }
 
 /**
  * Modal confirmation dialog component
  * Replaces browser's native window.confirm with a proper accessible modal
+ *
+ * @param root0 Component props.
+ * @param root0.isOpen Whether the dialog is currently visible.
+ * @param root0.title Title text displayed in the dialog header.
+ * @param root0.message Message text displayed in the dialog body.
+ * @param root0.confirmText Text for the confirmation button.
+ * @param root0.cancelText Text for the cancel button.
+ * @param root0.onConfirm Callback invoked when the user confirms the action.
+ * @param root0.onCancel Callback invoked when the user cancels or closes the dialog.
  */
 export function ConfirmDialog({
     isOpen,

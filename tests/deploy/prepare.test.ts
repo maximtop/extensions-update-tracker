@@ -2,7 +2,7 @@
 
 /**
  * @file Exercise the deployment preparation protocol against simulated GitHub and Git responses.
- * Identical in every extension repository; repository specifics come from scripts/deploy/constants.
+ * Repository specifics come from scripts/deploy/constants.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -33,11 +33,13 @@ import {
 import { DeployMode, prepare } from '../../scripts/deploy/prepare';
 import { amoNotesLength } from '../../scripts/deploy/release';
 
+import type * as DeployConstants from '../../scripts/deploy/constants';
+
 const notesLimit = vi.hoisted(() => ({ override: undefined as number | undefined }));
 
 vi.mock('node:child_process', () => ({ execFileSync: vi.fn() }));
 vi.mock('../../scripts/deploy/constants', async (original) => {
-    const actual = await original<typeof import('../../scripts/deploy/constants')>();
+    const actual = await original<typeof DeployConstants>();
     return {
         ...actual,
         // Lets a test shrink the limit below the generated notes; `undefined` keeps the real one.

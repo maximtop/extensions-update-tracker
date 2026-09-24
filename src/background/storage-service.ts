@@ -1,6 +1,6 @@
 /**
- * Storage service with schema validation using Valibot
- * Provides type-safe storage operations with automatic validation and error recovery
+ * @file Storage service with schema validation using Valibot.
+ * Provides type-safe storage operations with automatic validation and error recovery.
  */
 
 import * as v from 'valibot';
@@ -8,29 +8,7 @@ import browser from 'webextension-polyfill';
 
 import { Logger } from '../common/utils/logger';
 
-/**
- * Storage key configuration with valibot schema for validation
- *
- * @example
- * import * as v from 'valibot';
- *
- * const STATES_KEY = new StorageKey(
- *     'notification_states',
- *     {},
- *     v.record(v.string(), v.object({
- *         extensionId: v.string(),
- *         version: v.string(),
- *         // ... more fields
- *     }))
- * );
- */
-export class StorageKey<T> {
-    constructor(
-        public readonly key: string,
-        public readonly defaultValue: T,
-        public readonly schema?: v.BaseSchema<T, T, v.BaseIssue<unknown>>,
-    ) {}
-}
+import type { StorageKey } from './storage-key';
 
 /**
  * Storage service interface with schema validation
@@ -42,6 +20,7 @@ export interface IStorageService {
      * Errors are logged internally
      *
      * @param key - Storage key configuration
+     *
      * @returns The data (or default value on error)
      */
     get<T>(key: StorageKey<T>): Promise<T>;
@@ -72,11 +51,13 @@ class StorageService implements IStorageService {
     /**
      * Reads data from storage with optional schema validation
      * Automatically fixes corrupted/outdated data by merging with defaults when validation fails
+     *
+     * @param storageKey Key to read, with its default value and validation schema.
      */
     async get<T>(storageKey: StorageKey<T>): Promise<T> {
         try {
             const result = await browser.storage.local.get(storageKey.key);
-            const rawData = result[storageKey.key];
+            const rawData: unknown = result[storageKey.key];
 
             // Return default if key doesn't exist
             // Clone the default value to prevent mutations
@@ -86,7 +67,7 @@ class StorageService implements IStorageService {
 
             // If no schema provided, return data as-is
             if (!storageKey.schema) {
-                return rawData;
+                return rawData as T;
             }
 
             // Validate with valibot schema
@@ -156,9 +137,10 @@ class StorageService implements IStorageService {
      *
      * @param target - The default/base object
      * @param source - The stored/user object to merge in
+     *
      * @returns Merged object with source values taking precedence
      */
-    private deepMerge<T>(target: T, source: any): T {
+    private deepMerge<T>(target: T, source: unknown): T {
         // Handle non-object cases
         if (!target || typeof target !== 'object' || Array.isArray(target)) {
             return target;
@@ -167,9 +149,9 @@ class StorageService implements IStorageService {
             return target;
         }
 
-        const result: any = { ...target };
+        const result = { ...target } as Record<string, unknown>;
 
-        for (const [key, sourceValue] of Object.entries(source)) {
+        for (const [key, sourceValue] of Object.entries(source as Record<string, unknown>)) {
             const targetValue = result[key];
 
             // If both are objects (and not arrays), recurse
@@ -194,6 +176,8 @@ class StorageService implements IStorageService {
 
     /**
      * Clones the default value to prevent mutations
+     *
+     * @param defaultValue Value to clone before handing it back to the caller.
      */
     private cloneDefaultValue<T>(defaultValue: T): T {
         // For primitive types, return as-is
@@ -207,11 +191,14 @@ class StorageService implements IStorageService {
         }
 
         // Fallback to JSON clone for objects/arrays
-        return JSON.parse(JSON.stringify(defaultValue));
+        return JSON.parse(JSON.stringify(defaultValue)) as T;
     }
 
     /**
      * Writes data to storage
+     *
+     * @param storageKey Key to write, with its default value and validation schema.
+     * @param value Data to write.
      */
     async set<T>(storageKey: StorageKey<T>, value: T): Promise<void> {
         try {
@@ -223,6 +210,8 @@ class StorageService implements IStorageService {
 
     /**
      * Removes a key from storage
+     *
+     * @param storageKey Key to remove, with its default value and validation schema.
      */
     async remove<T>(storageKey: StorageKey<T>): Promise<void> {
         try {

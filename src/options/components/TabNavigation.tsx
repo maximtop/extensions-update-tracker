@@ -1,20 +1,39 @@
+/**
+ * @file Tab navigation bar for the options page (General, Settings, About).
+ */
+
 import React from 'react';
 
 import { t } from '../../common/utils/i18n';
 import {
-    OptionsTab,
     TAB_ABOUT,
     TAB_GENERAL,
     TAB_SETTINGS,
 } from '../types/tab-types';
 
+import type { OptionsTab } from '../types/tab-types';
+
+/**
+ * Props for TabNavigation.
+ */
 interface TabNavigationProps {
+    /**
+     * Currently active tab.
+     */
     activeTab: OptionsTab;
+
+    /**
+     * Called with the tab the user selected.
+     */
     onTabChange: (tab: OptionsTab) => void;
 }
 
 /**
  * Tab navigation component for switching between Updates and Settings views
+ *
+ * @param root0 Component props.
+ * @param root0.activeTab Currently active tab.
+ * @param root0.onTabChange Called with the tab the user selected.
  */
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps): React.JSX.Element {
     return (

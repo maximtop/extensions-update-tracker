@@ -1,3 +1,7 @@
+/**
+ * @file Options page title and short lead description.
+ */
+
 import React from 'react';
 
 import { t } from '../../common/utils/i18n';

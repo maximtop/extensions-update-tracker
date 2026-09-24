@@ -1,5 +1,5 @@
 /**
- * Options page tab types and constants
+ * @file Options page tab types and constants
  */
 
 /**

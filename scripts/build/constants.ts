@@ -1,31 +1,49 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+/**
+ * @file Build-time constants: target environments, supported browsers, and their configs.
+ */
 
-// Get current directory equivalent to __dirname in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import path from 'path';
 
 export enum BuildTargetEnv {
     Dev = 'dev',
     Beta = 'beta',
     Release = 'release',
-    Test = 'test'
+    Test = 'test',
 }
 
-const isValidBuildEnv = (buildEnv: any): buildEnv is BuildTargetEnv => {
+/**
+ * Checks whether a raw string (e.g. from an environment variable) is a known {@link BuildTargetEnv}.
+ *
+ * @param buildEnv Value to check.
+ *
+ * @returns True when `buildEnv` matches one of the `BuildTargetEnv` values.
+ */
+const isValidBuildEnv = (buildEnv: string): buildEnv is BuildTargetEnv => {
     return Object.values(BuildTargetEnv).includes(buildEnv as BuildTargetEnv);
 };
 
-export const BUILD_ENV = process.env.BUILD_ENV as BuildTargetEnv || BuildTargetEnv.Dev;
+const buildEnv = process.env.BUILD_ENV || BuildTargetEnv.Dev;
 
-if (!isValidBuildEnv(BUILD_ENV)) {
-    throw new Error(`Invalid BUILD_ENV: ${BUILD_ENV}`);
+if (!isValidBuildEnv(buildEnv)) {
+    throw new Error(`Invalid BUILD_ENV: ${buildEnv}`);
 }
 
-export type EnvConfig = {
+export const BUILD_ENV: BuildTargetEnv = buildEnv;
+
+/**
+ * Per-environment build settings.
+ */
+export interface EnvConfig {
+    /**
+     * Directory name under the dist folder that this environment's build is written to.
+     */
     outputPath: string;
+
+    /**
+     * Rspack mode to build with.
+     */
     mode: 'development' | 'production';
-};
+}
 
 export const ENV_CONF: Record<BuildTargetEnv, EnvConfig> = {
     [BuildTargetEnv.Dev]: {
@@ -49,16 +67,30 @@ export const ENV_CONF: Record<BuildTargetEnv, EnvConfig> = {
 export const enum Browser {
     Chrome = 'chrome',
     Edge = 'edge',
-    Firefox = 'firefox'
+    Firefox = 'firefox',
 }
 
-export const BUILD_PATH = path.resolve(__dirname, '../../dist');
+export const BUILD_PATH = path.resolve(import.meta.dirname, '../../dist');
 
-export type BrowserConfig = {
+/**
+ * Per-browser build settings.
+ */
+export interface BrowserConfig {
+    /**
+     * Browser this config applies to.
+     */
     browser: Browser;
+
+    /**
+     * Whether to bundle the extension's devtools panel for this browser.
+     */
     devtools: boolean;
+
+    /**
+     * Directory name (relative to `BUILD_PATH/<env>`) that this browser's build is written to.
+     */
     buildDir: string;
-};
+}
 
 export const BROWSERS_CONF: Record<Browser, BrowserConfig> = {
     [Browser.Chrome]: {

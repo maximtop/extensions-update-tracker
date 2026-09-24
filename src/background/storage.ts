@@ -1,3 +1,7 @@
+/**
+ * @file Simple wrapper around browser.storage.local API.
+ */
+
 import browser from 'webextension-polyfill';
 
 /**
@@ -7,18 +11,22 @@ import browser from 'webextension-polyfill';
 class Storage {
     /**
      * Retrieves a value from local storage by key
+     *
      * @param key - The storage key to retrieve
+     *
      * @returns The stored value, or undefined if the key doesn't exist
      */
-    async get(key: string) {
+    async get(key: string): Promise<unknown> {
         const result = await browser.storage.local.get(key);
         return result[key];
     }
 
     /**
      * Stores a value in local storage under the specified key
+     *
      * @param key - The storage key to set
      * @param value - The value to store (must be JSON-serializable)
+     *
      * @returns A promise that resolves when the value is stored
      */
     async set(key: string, value: unknown) {

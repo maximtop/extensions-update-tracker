@@ -1,3 +1,7 @@
+/**
+ * @file Background script entry point: wires up the services and starts them.
+ */
+
 import { MessageDispatcherService } from '../common/messaging/message-handler';
 
 import { BadgeService } from './badge-service';
@@ -32,20 +36,32 @@ const rpcHandlers = new RpcHandlers(
     settingsStorage,
 );
 
+/**
+ * Starts the services that must be ready before the background script can receive messages.
+ */
 const syncInit = () => {
     messageDispatcher.init();
     rpcHandlers.init();
 };
 
+/**
+ * Loads persisted state and starts the services that depend on it.
+ *
+ * @returns Promise that resolves once settings and extension data have loaded.
+ */
 const asyncInit = async () => {
     await settingsStorage.load();
     await extensionsUpdateStorage.init();
     await extensionsManagement.init();
 };
 
+/**
+ * Entry point called once on background script startup: runs the synchronous init
+ * immediately and kicks off the asynchronous init without blocking the caller.
+ */
 const init = () => {
     syncInit();
-    asyncInit();
+    void asyncInit();
 };
 
 export { init };

@@ -1,16 +1,36 @@
+/**
+ * @file Extension group card: header with identity/mute/expand controls, plus its update
+ * history rows.
+ */
+
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 
 import { FallbackIcon } from '../../common/components/FallbackIcon';
-import { ExtensionUpdate } from '../../common/update-storage';
 import { t, tPlural } from '../../common/utils/i18n';
 import { useRootStore } from '../stores/root-store';
 
 import { UpdateItem } from './UpdateItem';
 
+import type { ExtensionUpdate } from '../../common/update-storage';
+
+/**
+ * Props for ExtensionCard.
+ */
 interface ExtensionCardProps {
+    /**
+     * Id of the extension the card represents.
+     */
     extensionId: string;
+
+    /**
+     * Full, unfiltered update history for this extension.
+     */
     updates: ExtensionUpdate[];
+
+    /**
+     * Whether only unread updates should be shown in the version list.
+     */
     showUnreadOnly: boolean;
 }
 
@@ -139,7 +159,9 @@ export const ExtensionCard: React.FC<ExtensionCardProps> = observer(({ extension
                     <button
                         type="button"
                         className={`icon-btn ${isMuted ? 'icon-btn-active' : ''}`}
-                        onClick={() => settingsStore.toggleExtensionMuted(extensionId)}
+                        onClick={() => {
+                            void settingsStore.toggleExtensionMuted(extensionId);
+                        }}
                         title={muteLabel}
                         aria-label={muteLabel}
                         aria-pressed={isMuted}

@@ -1,7 +1,11 @@
+/**
+ * @file Top-level options page component: renders the tab layout and switches between
+ * loading, error, empty, and content states.
+ */
+
 import { observer } from 'mobx-react-lite';
 import React, { useState, useEffect } from 'react';
 
-import { UpdateRef } from '../../common/messaging/message-types';
 import { t, tPlural } from '../../common/utils/i18n';
 import { useFilteredAndSortedExtensions } from '../hooks/useFilteredAndSortedExtensions';
 import { useRootStore } from '../stores/root-store';
@@ -19,6 +23,8 @@ import { LoadingState } from './states/LoadingState';
 import { StatsBar } from './StatsBar';
 import { TabNavigation } from './TabNavigation';
 import { Toast } from './Toast';
+
+import type { UpdateRef } from '../../common/messaging/message-types';
 
 /**
  * Main app component - orchestrates the options page layout
@@ -45,6 +51,18 @@ export const App = observer(() => {
         searchQuery,
         sortOrder,
     });
+
+    const handleMarkAllAsRead = async () => {
+        const snapshot = await updatesStore.markAllAsRead();
+        if (snapshot.length > 0) {
+            setUndoItems(snapshot);
+        }
+    };
+
+    const handleUndo = async (items: UpdateRef[]) => {
+        await updatesStore.markUpdatesAsUnread(items);
+        setUndoItems(null);
+    };
 
     const isLoading = updatesStore.isLoading || settingsStore.isLoading;
     const hasError = updatesStore.error;
@@ -86,11 +104,8 @@ export const App = observer(() => {
                         <StatsBar
                             totalUpdateCount={updatesStore.totalUpdateCount}
                             unreadUpdateCount={updatesStore.unreadUpdateCount}
-                            onMarkAllAsRead={async () => {
-                                const snapshot = await updatesStore.markAllAsRead();
-                                if (snapshot.length > 0) {
-                                    setUndoItems(snapshot);
-                                }
+                            onMarkAllAsRead={() => {
+                                void handleMarkAllAsRead();
                             }}
                         />
 
@@ -143,9 +158,8 @@ export const App = observer(() => {
                 <Toast
                     message={tPlural('options_toast_marked_read', undoItems.length)}
                     actionLabel={t('options_toast_undo')}
-                    onAction={async () => {
-                        await updatesStore.markUpdatesAsUnread(undoItems);
-                        setUndoItems(null);
+                    onAction={() => {
+                        void handleUndo(undoItems);
                     }}
                     onDismiss={() => setUndoItems(null)}
                 />

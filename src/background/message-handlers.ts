@@ -1,13 +1,19 @@
-import { MessageDispatcherService } from '../common/messaging/message-handler';
+/**
+ * @file Registers the RPC message handlers the popup and options pages call into.
+ */
+
 import { MessageType } from '../common/messaging/message-types';
 import { getErrorMessage } from '../common/utils/error';
 import { Logger } from '../common/utils/logger';
 
-import { BadgeService } from './badge-service';
-import { ExtensionsUpdateStorage } from './extensions-update-storage';
-import { ManagementAdapter } from './management-adapter';
-import { SettingsStorage } from './settings-storage';
 import { storage } from './storage';
+
+import type { BadgeService } from './badge-service';
+import type { ExtensionsUpdateStorage } from './extensions-update-storage';
+import type { ManagementAdapter } from './management-adapter';
+import type { SettingsStorage } from './settings-storage';
+import type { MessageDispatcherService } from '../common/messaging/message-handler';
+import type { ExtensionInfo } from '../common/update-storage';
 
 const LAST_CHECKED_KEY = 'last-checked-timestamp';
 
@@ -18,6 +24,15 @@ const LAST_CHECKED_KEY = 'last-checked-timestamp';
 export class RpcHandlers {
     private initialized = false;
 
+    /**
+     * Creates the handler registry; call {@link init} to actually register the handlers.
+     *
+     * @param messageDispatcher Dispatcher the handlers are registered on.
+     * @param extensionsUpdateStorage Source of extension update data for the relevant handlers.
+     * @param badgeService Badge service refreshed after storage-mutating handlers.
+     * @param managementAdapter Adapter used to fetch extension metadata.
+     * @param settingsStorage Source and sink for user settings.
+     */
     constructor(
         private messageDispatcher: MessageDispatcherService,
         private extensionsUpdateStorage: ExtensionsUpdateStorage,
@@ -61,7 +76,7 @@ export class RpcHandlers {
             await this.extensionsUpdateStorage.ensureInitialized();
             await this.extensionsUpdateStorage.markAllAsRead();
             // Refresh badge after marking all as read
-            this.badgeService.refresh();
+            await this.badgeService.refresh();
         });
     }
 
@@ -88,7 +103,7 @@ export class RpcHandlers {
 
             Logger.info(`Received GetExtensionsInfo message for ${message.extensionIds.length} extension(s)`);
 
-            const results: Record<string, any> = {};
+            const results: Record<string, ExtensionInfo> = {};
 
             // Fetch all extension info in parallel
             await Promise.all(
@@ -132,7 +147,7 @@ export class RpcHandlers {
             await this.extensionsUpdateStorage.markUpdateAsRead(message.extensionId, message.version);
 
             // Refresh badge after marking update as read
-            this.badgeService.refresh();
+            await this.badgeService.refresh();
         });
     }
 
@@ -151,7 +166,7 @@ export class RpcHandlers {
             await this.extensionsUpdateStorage.markUpdatesAsUnread(message.items);
 
             // Refresh badge after restoring unread state
-            this.badgeService.refresh();
+            await this.badgeService.refresh();
         });
     }
 
@@ -159,7 +174,7 @@ export class RpcHandlers {
      * Handler: Get current user settings
      */
     private registerGetSettings(): void {
-        this.messageDispatcher.on(MessageType.GetSettings, async () => {
+        this.messageDispatcher.on(MessageType.GetSettings, () => {
             Logger.info('Received GetSettings message');
             return this.settingsStorage.get();
         });

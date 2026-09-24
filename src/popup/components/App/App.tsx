@@ -1,3 +1,7 @@
+/**
+ * @file Root popup component showing unread update counts and recent updates.
+ */
+
 import { observer } from 'mobx-react-lite';
 import React, { useContext } from 'react';
 
@@ -9,6 +13,10 @@ import { RootStoreContext } from '../../stores/root-store';
 
 import './App.css';
 
+/**
+ * Popup root component. Renders loading, error, all-caught-up, or unread-updates
+ * states based on the popup updates store, and exposes actions to view or clear updates.
+ */
 function AppComponent() {
     const { popupUpdatesStore } = useContext(RootStoreContext);
     const {
@@ -20,19 +28,20 @@ function AppComponent() {
     } = popupUpdatesStore;
 
     const handleViewUpdates = () => {
-        chrome.tabs.create({
+        void chrome.tabs.create({
             url: chrome.runtime.getURL('options.html'),
         });
     };
 
-    const handleMarkAllAsRead = async () => {
-        await popupUpdatesStore.markAllAsRead();
+    const handleMarkAllAsRead = () => {
+        void popupUpdatesStore.markAllAsRead();
     };
 
     const handleRetry = () => {
-        popupUpdatesStore.loadUpdateCounts();
+        void popupUpdatesStore.loadUpdateCounts();
     };
 
+    const [latest] = recentUnread;
     const hasUnread = !isLoading && !error && unreadCount > 0;
     const isCaughtUp = !isLoading && !error && unreadCount === 0;
 
@@ -123,29 +132,29 @@ function AppComponent() {
                     </div>
 
                     <div className="updates">
-                        {unreadCount === 1 ? (
+                        {unreadCount === 1 && latest ? (
                             <button
                                 type="button"
                                 className="latest"
                                 onClick={handleViewUpdates}
                             >
                                 <span className="latest-top">
-                                    {renderIcon(recentUnread[0])}
+                                    {renderIcon(latest)}
                                     <strong className="latest-name">
-                                        {recentUnread[0].extensionName}
+                                        {latest.extensionName}
                                     </strong>
                                 </span>
                                 <span className="latest-meta">
                                     <span className="version-route num">
-                                        {renderRoute(recentUnread[0])}
+                                        {renderRoute(latest)}
                                     </span>
                                     <span
                                         className="latest-time"
                                         title={formatDate(
-                                            new Date(recentUnread[0].timestamp).toISOString(),
+                                            new Date(latest.timestamp).toISOString(),
                                         )}
                                     >
-                                        {formatTimeAgo(recentUnread[0].timestamp)}
+                                        {formatTimeAgo(latest.timestamp)}
                                     </span>
                                 </span>
                             </button>

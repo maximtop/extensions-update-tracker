@@ -1,3 +1,7 @@
+/**
+ * @file Packs a built extension directory into a zip archive for store upload.
+ */
+
 import fs from 'fs';
 import path from 'path';
 
@@ -8,6 +12,9 @@ import { ZipFile } from 'yazl';
  *
  * The result is sorted so that the archive layout does not depend on the order
  * the filesystem happens to enumerate entries in.
+ *
+ * @param dir Directory to walk recursively.
+ * @param base Directory that returned paths are made relative to.
  */
 const collectFiles = (dir: string, base: string): string[] => {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -30,6 +37,9 @@ const collectFiles = (dir: string, base: string): string[] => {
  *
  * Files land at the archive root rather than inside a wrapper directory, which
  * is the layout the Chrome Web Store expects from an extension package.
+ *
+ * @param sourceDir Directory whose contents become the archive's top-level entries.
+ * @param zipPath Path the zip archive is written to.
  */
 export const createZip = async (sourceDir: string, zipPath: string): Promise<void> => {
     const zipFile = new ZipFile();

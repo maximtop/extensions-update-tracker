@@ -1,9 +1,16 @@
+/**
+ * @file Sends runtime messages from UI pages to the background script.
+ */
+
 import browser from 'webextension-polyfill';
 
-import { ExtensionInfo } from '../update-storage';
+import { getErrorMessage } from '../utils/error';
 import { Logger } from '../utils/logger';
 
-import { Message, MessageType, UpdateRef } from './message-types';
+import { MessageType } from './message-types';
+
+import type { ExtensionInfo, ExtensionsUpdateStorageType } from '../update-storage';
+import type { Message, UpdateRef } from './message-types';
 
 /**
  * Service for sending messages to the background script
@@ -11,16 +18,18 @@ import { Message, MessageType, UpdateRef } from './message-types';
 export class MessageSender {
     /**
      * Sends a message to the background script
+     *
      * @param message The message to send
+     *
      * @returns Promise that resolves with the response from the background script
      */
     static async send<T = void>(message: Message): Promise<T> {
         try {
-            const response = await browser.runtime.sendMessage(message);
+            const response: unknown = await browser.runtime.sendMessage(message);
             return response as T;
         } catch (error) {
             // Background script might not be ready yet, log but don't throw
-            Logger.warn(`Failed to send message: ${message.type}, ${error}`);
+            Logger.warn(`Failed to send message: ${message.type}, ${getErrorMessage(error)}`);
             throw error;
         }
     }
@@ -43,15 +52,18 @@ export class MessageSender {
 
     /**
      * Requests all extension updates from the background script
+     *
      * @returns Promise that resolves with the extensions update storage data
      */
-    static async getUpdates(): Promise<Record<string, any>> {
+    static async getUpdates(): Promise<ExtensionsUpdateStorageType> {
         return this.send({ type: MessageType.GetUpdates });
     }
 
     /**
      * Requests multiple extensions info from the background script
+     *
      * @param extensionIds Array of extension IDs to get info for
+     *
      * @returns Promise that resolves with a map of extension IDs to extension info
      */
     static async getExtensionsInfo(extensionIds: string[]): Promise<Record<string, ExtensionInfo>> {
@@ -60,6 +72,7 @@ export class MessageSender {
 
     /**
      * Requests the background script to mark a specific update as read
+     *
      * @param extensionId The ID of the extension
      * @param version Optional version to mark as read (defaults to latest)
      */
@@ -70,6 +83,7 @@ export class MessageSender {
     /**
      * Requests the background script to mark a set of updates as unread again
      * Used to undo a mark-all-as-read action
+     *
      * @param items References to the updates to restore
      */
     static async markUpdatesAsUnread(items: UpdateRef[]): Promise<void> {
@@ -78,6 +92,7 @@ export class MessageSender {
 
     /**
      * Requests the last checked timestamp from the background script
+     *
      * @returns Promise that resolves with the timestamp or null
      */
     static async getLastCheckedTimestamp(): Promise<number | null> {
@@ -86,6 +101,7 @@ export class MessageSender {
 
     /**
      * Sets the last checked timestamp via the background script
+     *
      * @param timestamp The timestamp to set
      */
     static async setLastCheckedTimestamp(timestamp: number): Promise<void> {

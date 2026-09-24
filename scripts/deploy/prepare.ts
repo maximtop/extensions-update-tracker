@@ -1,6 +1,6 @@
 /**
  * @file Resolve one published release and verify its immutable store upload inputs.
- * Follows the shared extension deployment flow; repository specifics live in ./constants.
+ * Repository specifics live in ./constants.
  */
 
 import { execFileSync } from 'node:child_process';

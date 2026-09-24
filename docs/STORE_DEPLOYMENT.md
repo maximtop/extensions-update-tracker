@@ -1,7 +1,7 @@
-# Shared store deployment
+# Store deployment
 
-All extension repositories use the same release-to-store boundary for Chrome,
-Edge, and Firefox. Store submission is deliberately separate from release
+Releases reach Chrome, Edge, and Firefox through one release-to-store
+boundary. Store submission is deliberately separate from release
 creation, so creating a GitHub Release never changes a store listing by itself.
 
 ## Release contract
@@ -42,9 +42,9 @@ certified submission, and Firefox publishes a reviewed and signed listed
 version. A successful workflow proves only the action and state reported in its
 job summary.
 
-## Portable boundary
+## Deployment files
 
-These files are byte-identical in every repository:
+The release-to-store flow lives in these files:
 
 - `.github/actions/setup-toolchain/action.yml`
 - `.github/actions/package-extension/action.yml`
@@ -61,20 +61,15 @@ These files are byte-identical in every repository:
 
 Repository-specific values live in `scripts/deploy/constants.ts`: the release
 asset prefix, enabled stores, Firefox extension ID, required source files,
-reviewer-notes path and summary. Build and package inputs stay in `.github/workflows/ci.yml`; the release
-title stays in `.github/workflows/release.yml`. Other platform jobs,
-such as Kode Injector's native helper and Apple release, remain repository
-specific.
-
-This boundary can later move to a separate repository as reusable workflows
-and a small versioned package. Extraction should pass the current constants as
-workflow inputs and keep extension IDs, source requirements, build commands,
-and store credentials in each extension repository.
+reviewer-notes path and summary. The deployment scripts and workflows read
+them from there and hold no repository values of their own. Build and package
+inputs stay in `.github/workflows/ci.yml`; the release title stays in
+`.github/workflows/release.yml`.
 
 ## GitHub configuration
 
 Public identifiers are repository variables. Credentials are repository
-secrets and may share the same values across extensions owned by one publisher.
+secrets.
 
 | Kind | Name |
 | --- | --- |

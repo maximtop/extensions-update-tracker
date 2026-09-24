@@ -1,14 +1,18 @@
-import { Management } from 'webextension-polyfill';
+/**
+ * @file Central coordinator for extension lifecycle events (install/uninstall/disable).
+ */
 
 import { SUPPORTS_EXTENSION_STATE_CHANGES } from '../common/browser-target';
 import { Logger } from '../common/utils/logger';
 
-import { BadgeService } from './badge-service';
-import { ExtensionsUpdateStorage } from './extensions-update-storage';
-import { ManagementAdapter } from './management-adapter';
-import { NotificationService } from './notification-service';
 import { notificationStateStorage } from './notification-state-storage';
 import { settingsStorage } from './settings-storage';
+
+import type { BadgeService } from './badge-service';
+import type { ExtensionsUpdateStorage } from './extensions-update-storage';
+import type { ManagementAdapter } from './management-adapter';
+import type { NotificationService } from './notification-service';
+import type { Management } from 'webextension-polyfill';
 
 /**
  * Manages extension lifecycle events and coordinates responses to extension updates.
@@ -70,9 +74,15 @@ export class ExtensionsManagement {
      * @returns Promise that resolves when initialization is complete
      */
     async init(): Promise<void> {
-        this.management.onInstalled.addListener(this.onInstalled);
-        this.management.onUninstalled.addListener(this.onUninstalled);
-        this.management.onDisabled.addListener(this.onDisabled);
+        this.management.onInstalled.addListener((info) => {
+            void this.onInstalled(info);
+        });
+        this.management.onUninstalled.addListener((info) => {
+            void this.onUninstalled(info);
+        });
+        this.management.onDisabled.addListener((info) => {
+            void this.onDisabled(info);
+        });
 
         await this.reconcileVersions();
     }
@@ -156,7 +166,7 @@ export class ExtensionsManagement {
         await notificationStateStorage.cleanupOrphanedStates(installedIds);
 
         // Update badge after reconciliation
-        this.badgeService.refresh();
+        await this.badgeService.refresh();
     }
 
     /**
@@ -198,7 +208,7 @@ export class ExtensionsManagement {
         }
 
         // Update badge
-        this.badgeService.refresh();
+        await this.badgeService.refresh();
     };
 
     /**
@@ -206,6 +216,7 @@ export class ExtensionsManagement {
      *
      * @param info Updated extension information supplied by the browser.
      * @param previousVersion Version recorded before the update.
+     *
      * @returns Information reflecting the disabled state when the action succeeds.
      */
     private async disableUpdatedExtension(

@@ -1,8 +1,8 @@
 // @vitest-environment node
 
 /**
- * @file Store release validation against generated ZIP fixtures. Identical in every extension
- * repository; repository specifics come from scripts/deploy/constants.
+ * @file Store release validation against generated ZIP fixtures.
+ * Repository specifics come from scripts/deploy/constants.
  */
 
 import { createHash } from 'node:crypto';

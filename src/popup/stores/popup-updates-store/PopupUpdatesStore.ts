@@ -1,3 +1,7 @@
+/**
+ * @file MobX store tracking unread and total extension updates shown in the popup.
+ */
+
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { EXTENSION_DEFAULTS } from '../../../common/constants';
@@ -9,11 +13,34 @@ import { Logger } from '../../../common/utils/logger';
  * Represents an unread update to display in the popup.
  */
 export interface UnreadUpdate {
+    /**
+     * ID of the extension this update belongs to.
+     */
     extensionId: string;
+
+    /**
+     * Display name of the extension.
+     */
     extensionName: string;
+
+    /**
+     * Version installed by this update.
+     */
     version: string;
+
+    /**
+     * Version that was installed before this update, when known.
+     */
     previousVersion?: string | undefined;
+
+    /**
+     * Time the update was detected, in milliseconds since the epoch.
+     */
     timestamp: number;
+
+    /**
+     * URL of the extension icon to display, undefined when no icon is available.
+     */
     icon?: string | undefined;
 }
 
@@ -44,6 +71,9 @@ export class PopupUpdatesStore {
 
     error: string | null = null;
 
+    /**
+     * Creates the store, wires up MobX observability, and kicks off the initial load.
+     */
     constructor() {
         makeAutoObservable(this);
         // Auto-load on initialization: MobX stores should be self-contained and ready to use.
@@ -55,7 +85,7 @@ export class PopupUpdatesStore {
     /**
      * Load update counts and metadata from background page
      *
-     * @param showLoadingState
+     * @param showLoadingState Whether to set `isLoading` while the request is in flight.
      */
     async loadUpdateCounts(showLoadingState = true) {
         if (showLoadingState) {

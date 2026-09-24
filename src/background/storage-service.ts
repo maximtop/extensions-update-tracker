@@ -1,6 +1,6 @@
 /**
- * Storage service with schema validation using Valibot
- * Provides type-safe storage operations with automatic validation and error recovery
+ * @file Storage service with schema validation using Valibot.
+ * Provides type-safe storage operations with automatic validation and error recovery.
  */
 
 import * as v from 'valibot';
@@ -52,7 +52,7 @@ class StorageService implements IStorageService {
      * Reads data from storage with optional schema validation
      * Automatically fixes corrupted/outdated data by merging with defaults when validation fails
      *
-     * @param storageKey
+     * @param storageKey Key to read, with its default value and validation schema.
      */
     async get<T>(storageKey: StorageKey<T>): Promise<T> {
         try {
@@ -177,7 +177,7 @@ class StorageService implements IStorageService {
     /**
      * Clones the default value to prevent mutations
      *
-     * @param defaultValue
+     * @param defaultValue Value to clone before handing it back to the caller.
      */
     private cloneDefaultValue<T>(defaultValue: T): T {
         // For primitive types, return as-is
@@ -197,8 +197,8 @@ class StorageService implements IStorageService {
     /**
      * Writes data to storage
      *
-     * @param storageKey
-     * @param value
+     * @param storageKey Key to write, with its default value and validation schema.
+     * @param value Data to write.
      */
     async set<T>(storageKey: StorageKey<T>, value: T): Promise<void> {
         try {
@@ -211,7 +211,7 @@ class StorageService implements IStorageService {
     /**
      * Removes a key from storage
      *
-     * @param storageKey
+     * @param storageKey Key to remove, with its default value and validation schema.
      */
     async remove<T>(storageKey: StorageKey<T>): Promise<void> {
         try {

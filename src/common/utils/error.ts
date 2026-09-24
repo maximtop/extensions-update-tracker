@@ -1,11 +1,14 @@
 /**
- * Utility functions for error handling
+ * @file Utility functions for error handling
  */
 
 /**
  * Error with a message.
  */
 interface ErrorWithMessage {
+    /**
+     * Human-readable error message.
+     */
     message: string;
 }
 

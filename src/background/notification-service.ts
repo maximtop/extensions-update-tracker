@@ -1,5 +1,5 @@
 /**
- * Notification service for displaying extension update notifications
+ * @file Notification service for displaying extension update notifications.
  */
 
 import browser from 'webextension-polyfill';
@@ -22,14 +22,39 @@ import type {
 } from '../common/types/notification-types';
 import type { Management } from 'webextension-polyfill';
 
+/**
+ * Extension fields tracked per shown notification so button clicks can act on them later.
+ */
 interface ExtensionState {
+    /**
+     * Extension id, or the literal `'welcome'` for the onboarding notification.
+     */
     id: string;
+
+    /**
+     * Enabled state of the extension at the time the notification was shown.
+     */
     enabled: boolean;
+
+    /**
+     * Display name of the extension.
+     */
     name: string;
+
+    /**
+     * Version of the extension the notification is about.
+     */
     version: string;
+
+    /**
+     * Extension's homepage URL, when it declares one.
+     */
     homepageUrl?: string | undefined;
 }
 
+/**
+ * Shows, tracks, and reacts to clicks on extension-update notifications.
+ */
 export class NotificationService {
     private static readonly OPTIONS_PAGE_URL = browser.runtime.getURL('options.html');
 
@@ -61,10 +86,19 @@ export class NotificationService {
      */
     private activeNotifications: Map<string, { extensionId: string; version: string; shownAt: number }> = new Map();
 
+    /**
+     * Creates the service and immediately registers its browser notification listeners.
+     *
+     * @param updateStorage Storage used to mark an update as read when its notification is
+     * clicked; omitted in contexts where that isn't needed (e.g. tests).
+     */
     constructor(private updateStorage?: ExtensionsUpdateStorage) {
         this.init();
     }
 
+    /**
+     * Registers the browser notification event listeners this service reacts to.
+     */
     private init() {
         // Set up notification click handlers
         browser.notifications.onClicked.addListener((notificationId) => {
@@ -92,8 +126,9 @@ export class NotificationService {
     /**
      * Shows a notification for an extension update
      *
-     * @param extensionInfo
-     * @param previousVersion
+     * @param extensionInfo Current metadata of the updated extension.
+     * @param previousVersion Version the extension was on before this update, when known;
+     * omitted for a first install.
      */
     async showUpdateNotification(
         extensionInfo: Management.ExtensionInfo,
@@ -206,8 +241,8 @@ export class NotificationService {
     /**
      * Schedule auto-close for a notification
      *
-     * @param notificationId
-     * @param timeoutSeconds
+     * @param notificationId Id of the notification to close after the timeout.
+     * @param timeoutSeconds Delay, in seconds, before the notification is auto-closed.
      */
     private scheduleAutoClose(notificationId: string, timeoutSeconds: number): void {
         // Clear any existing timeout for this notification
@@ -239,7 +274,7 @@ export class NotificationService {
     /**
      * Generates a consistent notification ID for an extension
      *
-     * @param extensionId
+     * @param extensionId Extension id to derive the notification id from.
      */
     private generateNotificationId(extensionId: string): string {
         return `${NotificationService.NOTIFICATION_ID_PREFIX}${extensionId}`;
@@ -248,7 +283,7 @@ export class NotificationService {
     /**
      * Handles notification body click (opens updates page)
      *
-     * @param notificationId
+     * @param notificationId Id of the clicked notification.
      */
     private handleNotificationClick = async (notificationId: string): Promise<void> => {
         try {
@@ -282,8 +317,8 @@ export class NotificationService {
      * Handles notification button clicks
      * Delegates to button handler for action execution
      *
-     * @param notificationId
-     * @param buttonIndex
+     * @param notificationId Id of the notification whose button was clicked.
+     * @param buttonIndex Index of the clicked button.
      */
     private handleButtonClick = async (
         notificationId: string,
@@ -321,8 +356,8 @@ export class NotificationService {
      * Handles notification closed event
      * This is called by the browser when a notification is closed
      *
-     * @param notificationId
-     * @param byUser
+     * @param notificationId Id of the closed notification.
+     * @param byUser Whether the browser reports the close as user-initiated.
      */
     private handleNotificationClosed = async (
         notificationId: string,
@@ -342,8 +377,8 @@ export class NotificationService {
     /**
      * Records that a notification was closed with a specific reason
      *
-     * @param notificationId
-     * @param closeReason
+     * @param notificationId Id of the closed notification.
+     * @param closeReason Why the notification was closed.
      */
     private async recordNotificationClosed(
         notificationId: string,
@@ -379,7 +414,7 @@ export class NotificationService {
      * Handles notification state changes from other devices
      * Automatically clears notifications that were dismissed on another device
      *
-     * @param states
+     * @param states Latest synced notification states, keyed by extension id.
      */
     private handleRemoteStateChange = async (
         states: NotificationStatesStorage,
@@ -403,7 +438,7 @@ export class NotificationService {
      * Handles extension installation event
      * Shows welcome notification for first-time installations
      *
-     * @param details
+     * @param details Install event details from `browser.runtime.onInstalled`.
      */
     private handleExtensionInstalled = (details: browser.Runtime.OnInstalledDetailsType): void => {
         if (details.reason === 'install') {
@@ -445,7 +480,7 @@ export class NotificationService {
     /**
      * Clears a notification for a specific extension
      *
-     * @param extensionId
+     * @param extensionId Extension whose notification should be cleared.
      */
     async clearNotification(extensionId: string): Promise<void> {
         const notificationId = this.generateNotificationId(extensionId);

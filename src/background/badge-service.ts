@@ -1,5 +1,5 @@
 /**
- * Badge service for displaying unread update count on the extension icon
+ * @file Badge service for displaying unread update count on the extension icon.
  */
 
 import browser from 'webextension-polyfill';
@@ -30,6 +30,12 @@ export class BadgeService {
      */
     private static readonly OVERFLOW_SUFFIX = '+';
 
+    /**
+     * Creates the service and immediately triggers its own initialization.
+     *
+     * @param storage Source of the update data the badge count is computed from.
+     * @param messageDispatcher Dispatcher used to listen for the updates-page-opened event.
+     */
     constructor(
         private storage: ExtensionsUpdateStorage,
         private messageDispatcher: MessageDispatcherService,
@@ -40,6 +46,9 @@ export class BadgeService {
         this.init();
     }
 
+    /**
+     * Sets the initial badge state and subscribes to the event that clears it.
+     */
     private init() {
         // Initial badge update
         void this.updateBadge();

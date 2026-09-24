@@ -1,3 +1,7 @@
+/**
+ * @file Extension update ledger: renders one ExtensionCard per extension, or an empty state.
+ */
+
 import React from 'react';
 
 import { t } from '../../common/utils/i18n';
@@ -6,23 +10,46 @@ import { ExtensionCard } from './ExtensionCard';
 
 import type { ExtensionUpdate } from '../../common/update-storage';
 
+/**
+ * Props for ExtensionsList.
+ */
 interface ExtensionsListProps {
+    /**
+     * Ids of the extensions to render, already filtered and sorted.
+     */
     extensionIds: string[];
+
+    /**
+     * Whether only unread updates are shown, used to pick the right empty-state copy.
+     */
     showUnreadOnly: boolean;
+
+    /**
+     * Current search text, used to pick the right empty-state copy.
+     */
     searchQuery: string;
+
+    /**
+     * Called when the user clears the search from the empty state.
+     */
     onClearSearch: () => void;
+
+    /**
+     * Resolves the update history for a given extension id.
+     */
     getUpdatesForExtension: (extensionId: string) => ExtensionUpdate[];
 }
 
 /**
  * Extension update ledger: one group per extension, separated by rules
  *
- * @param root0
- * @param root0.extensionIds
- * @param root0.showUnreadOnly
- * @param root0.searchQuery
- * @param root0.onClearSearch
- * @param root0.getUpdatesForExtension
+ * @param root0 Component props.
+ * @param root0.extensionIds Ids of the extensions to render, already filtered and sorted.
+ * @param root0.showUnreadOnly Whether only unread updates are shown, used to pick the right
+ * empty-state copy.
+ * @param root0.searchQuery Current search text, used to pick the right empty-state copy.
+ * @param root0.onClearSearch Called when the user clears the search from the empty state.
+ * @param root0.getUpdatesForExtension Resolves the update history for a given extension id.
  */
 export function ExtensionsList({
     extensionIds,

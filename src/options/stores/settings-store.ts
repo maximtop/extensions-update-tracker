@@ -1,5 +1,5 @@
 /**
- * Settings store for managing user preferences in the UI
+ * @file Settings store for managing user preferences in the UI
  * Uses message passing to communicate with background page for settings operations
  */
 
@@ -35,6 +35,9 @@ function getTabFromHash(): OptionsTab {
     return match ? (match[0] as OptionsTab) : DEFAULT_TAB;
 }
 
+/**
+ * Options page settings state: loads/persists user settings and the active tab.
+ */
 export class SettingsStore {
     // Observable state
     settings: UserSettings = DEFAULT_SETTINGS;
@@ -45,6 +48,9 @@ export class SettingsStore {
 
     activeTab: OptionsTab = getTabFromHash();
 
+    /**
+     * Kicks off the initial settings load and subscribes to hash-based tab navigation.
+     */
     constructor() {
         makeAutoObservable(this);
         void this.loadSettings();
@@ -127,7 +133,7 @@ export class SettingsStore {
     /**
      * Mute/unmute notifications for a specific extension
      *
-     * @param extensionId
+     * @param extensionId Id of the extension to mute or unmute.
      */
     async toggleExtensionMuted(extensionId: string) {
         const isMuted = this.settings.extensionPreferences.mutedExtensions[extensionId] || false;
@@ -143,7 +149,7 @@ export class SettingsStore {
     /**
      * Check if extension notifications are muted
      *
-     * @param extensionId
+     * @param extensionId Id of the extension to check.
      */
     isExtensionMuted(extensionId: string): boolean {
         const DEFAULT_MUTED_STATUS = false;
@@ -171,7 +177,7 @@ export class SettingsStore {
      * the tab and tabs can be linked to directly. replaceState avoids piling
      * up history entries and the scroll jump of assigning location.hash.
      *
-     * @param tab
+     * @param tab Tab to make active.
      */
     setActiveTab(tab: OptionsTab) {
         this.activeTab = tab;
@@ -182,7 +188,7 @@ export class SettingsStore {
     /**
      * Update settings (internal helper)
      *
-     * @param partial
+     * @param partial Settings fields to merge into the current settings.
      */
     private async updateSettings(partial: Partial<UserSettings>) {
         try {

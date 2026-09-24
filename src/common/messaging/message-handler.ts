@@ -1,3 +1,7 @@
+/**
+ * @file Dispatches incoming runtime messages to registered handlers.
+ */
+
 import browser from 'webextension-polyfill';
 
 import { getErrorMessage } from '../utils/error';

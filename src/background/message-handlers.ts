@@ -1,3 +1,7 @@
+/**
+ * @file Registers the RPC message handlers the popup and options pages call into.
+ */
+
 import { MessageType } from '../common/messaging/message-types';
 import { getErrorMessage } from '../common/utils/error';
 import { Logger } from '../common/utils/logger';
@@ -20,6 +24,15 @@ const LAST_CHECKED_KEY = 'last-checked-timestamp';
 export class RpcHandlers {
     private initialized = false;
 
+    /**
+     * Creates the handler registry; call {@link init} to actually register the handlers.
+     *
+     * @param messageDispatcher Dispatcher the handlers are registered on.
+     * @param extensionsUpdateStorage Source of extension update data for the relevant handlers.
+     * @param badgeService Badge service refreshed after storage-mutating handlers.
+     * @param managementAdapter Adapter used to fetch extension metadata.
+     * @param settingsStorage Source and sink for user settings.
+     */
     constructor(
         private messageDispatcher: MessageDispatcherService,
         private extensionsUpdateStorage: ExtensionsUpdateStorage,

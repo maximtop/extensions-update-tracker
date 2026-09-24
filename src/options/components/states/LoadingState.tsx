@@ -1,3 +1,7 @@
+/**
+ * @file Loading state shown on the Updates tab while updates are being fetched.
+ */
+
 import React from 'react';
 
 import { t } from '../../../common/utils/i18n';

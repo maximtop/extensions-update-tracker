@@ -1,5 +1,5 @@
 /**
- * Handles notification button clicks and determines button configurations
+ * @file Handles notification button clicks and determines button configurations.
  */
 
 import browser from 'webextension-polyfill';
@@ -10,18 +10,51 @@ import { Logger } from '../common/utils/logger';
 
 import type { NotificationButton } from '../common/types/notification-types';
 
+/**
+ * Extension fields needed to decide which notification buttons to show and how to
+ * handle clicking them.
+ */
 interface ExtensionState {
+    /**
+     * Extension id, or the literal `'welcome'` for the onboarding notification.
+     */
     id: string;
+
+    /**
+     * Current enabled state of the extension.
+     */
     enabled: boolean;
+
+    /**
+     * Display name of the extension.
+     */
     name: string;
+
+    /**
+     * Current version of the extension.
+     */
     version: string;
+
+    /**
+     * Extension's homepage URL, when it declares one.
+     */
     homepageUrl?: string | undefined;
 }
 
+/**
+ * Buttons to render on a notification, in display order.
+ */
 interface ButtonConfig {
+    /**
+     * Buttons to render, in display order.
+     */
     buttons: NotificationButton[];
 }
 
+/**
+ * Decides which buttons a notification shows for a given extension state, and
+ * carries out the action when one of them is clicked.
+ */
 export class NotificationButtonHandler {
     private static readonly OPTIONS_PAGE_URL = browser.runtime.getURL('options.html');
 
@@ -30,8 +63,8 @@ export class NotificationButtonHandler {
     /**
      * Determines which buttons to show based on extension state
      *
-     * @param extensionState
-     * @param buttonIconUrl
+     * @param extensionState State of the extension the notification is about.
+     * @param buttonIconUrl Icon URL applied to every button in the returned configuration.
      */
     getButtonConfiguration(
         extensionState: ExtensionState,
@@ -105,8 +138,9 @@ export class NotificationButtonHandler {
      * Handles button click and executes the appropriate action
      * Returns the close reason for state tracking
      *
-     * @param extensionState
-     * @param buttonIndex
+     * @param extensionState State of the extension the notification is about.
+     * @param buttonIndex Index of the clicked button, matching the order from
+     * {@link getButtonConfiguration}.
      */
     async handleButtonClick(
         extensionState: ExtensionState,
@@ -129,7 +163,7 @@ export class NotificationButtonHandler {
     /**
      * Handles welcome notification button clicks
      *
-     * @param buttonIndex
+     * @param buttonIndex Index of the clicked button: 0 opens the options page, other values dismiss.
      */
     private async handleWelcomeButtonClick(buttonIndex: number): Promise<NotificationCloseReason> {
         if (buttonIndex === 0) {
@@ -147,8 +181,8 @@ export class NotificationButtonHandler {
     /**
      * Handles disabled extension button clicks
      *
-     * @param extensionState
-     * @param buttonIndex
+     * @param extensionState State of the extension the notification is about.
+     * @param buttonIndex Index of the clicked button: 0 enables the extension, other values uninstall it.
      */
     private async handleDisabledExtensionButtonClick(
         extensionState: ExtensionState,
@@ -178,8 +212,9 @@ export class NotificationButtonHandler {
     /**
      * Handles enabled extension button clicks
      *
-     * @param extensionState
-     * @param buttonIndex
+     * @param extensionState State of the extension the notification is about.
+     * @param buttonIndex Index of the clicked button: 0 opens the homepage or options page,
+     * other values dismiss.
      */
     private async handleEnabledExtensionButtonClick(
         extensionState: ExtensionState,

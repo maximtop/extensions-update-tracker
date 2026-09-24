@@ -1,11 +1,14 @@
 /**
- * Handles icon retrieval and manipulation for notifications
+ * @file Handles icon retrieval and manipulation for notifications.
  */
 
 import browser from 'webextension-polyfill';
 
 import { Logger } from '../common/utils/logger';
 
+/**
+ * Resolves the icon shown in extension-update notifications.
+ */
 export class NotificationIconHandler {
     private static readonly ICON_SIZE = 48;
 
@@ -14,8 +17,8 @@ export class NotificationIconHandler {
      * Service workers can't access chrome:// URLs or Canvas API,
      * so we use the extension's own icon for all notifications
      *
-     * @param extensionId
-     * @param isEnabled
+     * @param extensionId Id of the extension the notification is about; used only for logging.
+     * @param isEnabled Enabled state of the extension; used only for logging.
      */
     getExtensionIconUrl(extensionId: string, isEnabled: boolean): string {
         // Use our extension's icon for all notifications

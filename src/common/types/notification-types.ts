@@ -1,12 +1,19 @@
 /**
- * Extension update notification types and interfaces
+ * @file Extension update notification types and interfaces
  */
 
 /**
  * Notification button configuration
  */
 export interface NotificationButton {
+    /**
+     * Text shown on the button.
+     */
     title: string;
+
+    /**
+     * Optional icon shown alongside the button title.
+     */
     iconUrl?: string;
 }
 
@@ -14,13 +21,44 @@ export interface NotificationButton {
  * Chrome notification options for extension updates
  */
 export interface UpdateNotificationOptions {
+    /**
+     * Chrome notification layout; only `basic` is used for update notifications.
+     */
     type: 'basic';
+
+    /**
+     * URL of the icon shown in the notification.
+     */
     iconUrl: string;
+
+    /**
+     * Notification title.
+     */
     title: string;
+
+    /**
+     * Notification body text.
+     */
     message: string;
+
+    /**
+     * Action buttons shown on the notification.
+     */
     buttons?: NotificationButton[];
+
+    /**
+     * Notification priority, from -2 (lowest) to 2 (highest); Chrome restricts positive values.
+     */
     priority?: 0 | 1 | 2;
+
+    /**
+     * Whether the notification stays visible until the user dismisses it.
+     */
     requireInteraction?: boolean;
+
+    /**
+     * Whether to suppress the notification sound.
+     */
     silent?: boolean;
 }
 
@@ -28,10 +66,29 @@ export interface UpdateNotificationOptions {
  * Data associated with a notification for tracking purposes
  */
 export interface NotificationMetadata {
+    /**
+     * ID of the extension the notification is about.
+     */
     extensionId: string;
+
+    /**
+     * Display name of the extension the notification is about.
+     */
     extensionName: string;
+
+    /**
+     * Version that triggered the notification.
+     */
     version: string;
+
+    /**
+     * Version that was installed before this update, when known.
+     */
     previousVersion?: string;
+
+    /**
+     * Time the notification was created, in milliseconds since the epoch.
+     */
     timestamp: number;
 }
 

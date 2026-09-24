@@ -1,8 +1,9 @@
+/**
+ * @file Playwright configuration for browser extension testing.
+ */
+
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * Playwright configuration for browser extension testing
- */
 export default defineConfig({
     testDir: './tests/e2e',
     // Timeout for each test (30 seconds)

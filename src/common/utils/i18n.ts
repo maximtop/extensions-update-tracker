@@ -1,3 +1,7 @@
+/**
+ * @file Resolves the UI language and exposes translation helpers backed by `@adguard/translate`.
+ */
+
 import { translate, type I18nInterface, type Locale } from '@adguard/translate';
 import browser from 'webextension-polyfill';
 
@@ -5,7 +9,7 @@ const BASE_LOCALE: Locale = 'en';
 
 /**
  * Locales bundled with the extension (folders in src/_locales),
- * in @adguard/translate notation: lowercase with underscore separators
+ * in `@adguard/translate` notation: lowercase with underscore separators
  */
 const SUPPORTED_LOCALES: Locale[] = ['de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'pt_br', 'ru', 'zh_cn'];
 
@@ -14,7 +18,7 @@ const SUPPORTED_LOCALES: Locale[] = ['de', 'en', 'es', 'fr', 'it', 'ja', 'ko', '
  * chrome.i18n actually serves messages from, so plural form selection matches
  * the language of the loaded messages
  *
- * @returns Locale code supported by @adguard/translate
+ * @returns Locale code supported by `@adguard/translate`
  */
 function resolveLocale(): Locale {
     const normalized = browser.i18n.getUILanguage().toLowerCase().replace('-', '_') as Locale;

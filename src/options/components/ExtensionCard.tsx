@@ -1,3 +1,8 @@
+/**
+ * @file Extension group card: header with identity/mute/expand controls, plus its update
+ * history rows.
+ */
+
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 
@@ -9,9 +14,23 @@ import { UpdateItem } from './UpdateItem';
 
 import type { ExtensionUpdate } from '../../common/update-storage';
 
+/**
+ * Props for ExtensionCard.
+ */
 interface ExtensionCardProps {
+    /**
+     * Id of the extension the card represents.
+     */
     extensionId: string;
+
+    /**
+     * Full, unfiltered update history for this extension.
+     */
     updates: ExtensionUpdate[];
+
+    /**
+     * Whether only unread updates should be shown in the version list.
+     */
     showUnreadOnly: boolean;
 }
 

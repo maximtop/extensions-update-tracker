@@ -1,6 +1,6 @@
 /**
- * Storage service for notification interaction states
- * Uses browser.storage.local to persist dismissed notification states
+ * @file Storage service for notification interaction states.
+ * Uses browser.storage.local to persist dismissed notification states.
  */
 
 import * as v from 'valibot';
@@ -42,6 +42,10 @@ const NOTIFICATION_STATES_KEY = new StorageKey<NotificationStatesStorage>(
     NotificationStatesStorageSchema,
 );
 
+/**
+ * Persists per-extension notification interaction state (shown/closed/dismissed), so
+ * repeat notifications for an already-dismissed version can be suppressed.
+ */
 export class NotificationStateStorage {
     private static readonly STATE_EXPIRY_DAYS = 30; // States expire after 30 days
 
@@ -52,7 +56,7 @@ export class NotificationStateStorage {
     /**
      * Gets the notification state for a specific extension
      *
-     * @param extensionId
+     * @param extensionId Extension to look up.
      */
     async getState(extensionId: string): Promise<NotificationInteractionState | null> {
         const states = await storageService.get(NOTIFICATION_STATES_KEY);
@@ -69,7 +73,7 @@ export class NotificationStateStorage {
     /**
      * Saves a notification state
      *
-     * @param state
+     * @param state Interaction state to persist, keyed by its `extensionId`.
      */
     async saveState(state: NotificationInteractionState): Promise<void> {
         let states = await this.getAllStates();
@@ -84,8 +88,8 @@ export class NotificationStateStorage {
     /**
      * Checks if a notification was dismissed by the user for a specific version
      *
-     * @param extensionId
-     * @param version
+     * @param extensionId Extension to check.
+     * @param version Version the notification would be shown for.
      */
     async wasDismissedByUser(extensionId: string, version: string): Promise<boolean> {
         const state = await this.getState(extensionId);
@@ -101,7 +105,7 @@ export class NotificationStateStorage {
     /**
      * Clears the dismissed state for an extension (e.g., when showing notification for new version)
      *
-     * @param extensionId
+     * @param extensionId Extension whose state should be cleared.
      */
     async clearState(extensionId: string): Promise<void> {
         const states = await this.getAllStates();
@@ -119,7 +123,7 @@ export class NotificationStateStorage {
     /**
      * Removes expired notification states and invalid keys
      *
-     * @param inputStates
+     * @param inputStates States to filter, keyed by extension id.
      */
     private cleanupExpiredStates(
         inputStates: NotificationStatesStorage,
@@ -154,7 +158,7 @@ export class NotificationStateStorage {
      * Cleans up orphaned notification states for uninstalled extensions
      * Also removes states with invalid extension IDs (keys that are not exactly 32 characters)
      *
-     * @param installedExtensionIds
+     * @param installedExtensionIds Ids of the extensions currently installed.
      */
     async cleanupOrphanedStates(installedExtensionIds: Set<string>): Promise<void> {
         const allStates = await this.getAllStates();
@@ -195,7 +199,7 @@ export class NotificationStateStorage {
     /**
      * Adds a listener for notification state changes
      *
-     * @param listener
+     * @param listener Called after every notification state is saved.
      */
     addChangeListener(listener: (changes: NotificationStatesStorage) => void): void {
         this.changeListeners.push(listener);
@@ -204,7 +208,7 @@ export class NotificationStateStorage {
     /**
      * Removes a change listener
      *
-     * @param listener
+     * @param listener Listener previously passed to {@link addChangeListener}.
      */
     removeChangeListener(listener: (changes: NotificationStatesStorage) => void): void {
         const index = this.changeListeners.indexOf(listener);

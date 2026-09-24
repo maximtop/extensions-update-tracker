@@ -1,3 +1,7 @@
+/**
+ * @file Simple wrapper around browser.storage.local API.
+ */
+
 import browser from 'webextension-polyfill';
 
 /**

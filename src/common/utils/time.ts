@@ -1,5 +1,5 @@
 /**
- * Time-related utility functions
+ * @file Time-related utility functions
  */
 
 import {

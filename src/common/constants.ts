@@ -1,5 +1,5 @@
 /**
- * Application-wide constants
+ * @file Application-wide constants
  */
 
 /**

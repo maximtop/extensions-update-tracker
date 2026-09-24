@@ -1,3 +1,7 @@
+/**
+ * @file Root popup component showing unread update counts and recent updates.
+ */
+
 import { observer } from 'mobx-react-lite';
 import React, { useContext } from 'react';
 
@@ -9,6 +13,10 @@ import { RootStoreContext } from '../../stores/root-store';
 
 import './App.css';
 
+/**
+ * Popup root component. Renders loading, error, all-caught-up, or unread-updates
+ * states based on the popup updates store, and exposes actions to view or clear updates.
+ */
 function AppComponent() {
     const { popupUpdatesStore } = useContext(RootStoreContext);
     const {

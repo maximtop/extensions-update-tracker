@@ -1,3 +1,7 @@
+/**
+ * @file Sends runtime messages from UI pages to the background script.
+ */
+
 import browser from 'webextension-polyfill';
 
 import { getErrorMessage } from '../utils/error';

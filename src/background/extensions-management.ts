@@ -1,3 +1,7 @@
+/**
+ * @file Central coordinator for extension lifecycle events (install/uninstall/disable).
+ */
+
 import { SUPPORTS_EXTENSION_STATE_CHANGES } from '../common/browser-target';
 import { Logger } from '../common/utils/logger';
 

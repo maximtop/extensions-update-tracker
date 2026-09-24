@@ -1,3 +1,7 @@
+/**
+ * @file Shared Rspack configuration factory used by every target browser.
+ */
+
 // Node built-in modules
 import fs from 'fs';
 import path from 'path';
@@ -46,7 +50,10 @@ const NAME_SUFFIXES: Partial<Record<BuildTargetEnv, string>> = {
 /**
  * Appends the build-specific name suffix to a copied locale messages.json file
  *
- * @param content
+ * @param content Raw contents of the copied `messages.json` file.
+ *
+ * @returns The file unchanged when the current build has no name suffix, otherwise the
+ * re-serialized JSON with the suffix appended to the `name` message.
  */
 const transformLocaleMessages = (content: Buffer): string | Buffer => {
     const suffix = NAME_SUFFIXES[BUILD_ENV];
@@ -64,8 +71,10 @@ const transformLocaleMessages = (content: Buffer): string | Buffer => {
  * Stamps the copied manifest with the version from package.json, so the two can
  * never drift apart in a published build.
  *
- * @param content
- * @param browserConfig
+ * @param content Raw contents of the copied `manifest.json` file.
+ * @param browserConfig Build config of the browser the manifest is being packaged for.
+ *
+ * @returns The re-serialized, browser-specific manifest JSON.
  */
 const transformManifest = (content: Buffer, browserConfig: BrowserConfig): string => {
     const packageJsonPath = path.resolve(currentDirPath, '../../package.json');
@@ -78,6 +87,13 @@ const transformManifest = (content: Buffer, browserConfig: BrowserConfig): strin
     );
 };
 
+/**
+ * Builds the Rspack configuration shared by every target browser.
+ *
+ * @param browserConfig Build config of the browser to configure the build for.
+ *
+ * @returns The Rspack configuration for `browserConfig`.
+ */
 export const genCommonConfig = (browserConfig: BrowserConfig): Configuration => ({
     // Set the mode based on the environment
     mode: isDev ? 'development' : 'production',

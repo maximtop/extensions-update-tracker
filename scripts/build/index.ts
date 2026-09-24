@@ -1,3 +1,7 @@
+/**
+ * @file CLI entry point that builds (and, outside watch mode, zips) the extension per browser.
+ */
+
 import fs from 'fs';
 import path from 'path';
 
@@ -24,6 +28,9 @@ interface CommanderOptions {
     cache: boolean;
 }
 
+/**
+ * Source directory and destination archive path for one browser's package step.
+ */
 interface PackagePaths {
     /**
      * Directory the bundler emits into.
@@ -44,8 +51,12 @@ interface PackagePaths {
  * the old ZipWebpackPlugin resolved `path: '../'` against
  * `compilation.options.output.path`.
  *
- * @param rspackConfig
- * @param browser
+ * @param rspackConfig Rspack configuration the build was run with.
+ * @param browser Browser being packaged.
+ *
+ * @returns The build's output directory and the zip path it should be packaged to.
+ *
+ * @throws When `rspackConfig` has no `output.path`.
  */
 const getPackagePaths = (rspackConfig: Configuration, browser: Browser): PackagePaths => {
     const outputPath = rspackConfig.output?.path;
@@ -59,6 +70,12 @@ const getPackagePaths = (rspackConfig: Configuration, browser: Browser): Package
     };
 };
 
+/**
+ * Builds the extension for one browser and, outside watch mode, packages it into a zip.
+ *
+ * @param browser Browser to build.
+ * @param options Parsed CLI flags.
+ */
 const bundleBrowser = async (browser: Browser, options: CommanderOptions) => {
     const rspackConfig = getRspackConfig(browser);
 
@@ -99,6 +116,12 @@ const testPlan = [
     (options: CommanderOptions) => bundleBrowser(Browser.Chrome, options),
 ];
 
+/**
+ * Runs a build plan's tasks one after another, in order.
+ *
+ * @param tasks Build steps to run in sequence.
+ * @param options Parsed CLI flags passed through to each task.
+ */
 const runBuild = async (
     tasks: ((options: CommanderOptions) => Promise<unknown>)[],
     options: CommanderOptions,
@@ -108,6 +131,13 @@ const runBuild = async (
     }
 };
 
+/**
+ * Runs the build plan matching the current `BUILD_ENV`.
+ *
+ * @param options Parsed CLI flags passed through to each task.
+ *
+ * @throws When `BUILD_ENV` is not one of the known target environments.
+ */
 const mainBuild = async (options: CommanderOptions) => {
     switch (BUILD_ENV) {
         case BuildTargetEnv.Dev: {
@@ -131,6 +161,11 @@ const mainBuild = async (options: CommanderOptions) => {
     }
 };
 
+/**
+ * Runs the default (no-subcommand) build plan, exiting the process with code 1 on failure.
+ *
+ * @param options Parsed CLI flags.
+ */
 const main = async (options: CommanderOptions) => {
     try {
         await mainBuild(options);
@@ -140,6 +175,13 @@ const main = async (options: CommanderOptions) => {
     }
 };
 
+/**
+ * Runs the `bundleBrowser` step for a single browser subcommand, exiting the process with
+ * code 1 on failure.
+ *
+ * @param browser Browser selected on the command line.
+ * @param options Parsed CLI flags.
+ */
 const buildSelectedBrowser = async (browser: Browser, options: CommanderOptions) => {
     try {
         await bundleBrowser(browser, options);

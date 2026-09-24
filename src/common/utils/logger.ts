@@ -1,5 +1,5 @@
 /**
- * Centralized logging utility with configurable log levels
+ * @file Centralized logging utility with configurable log levels
  *
  * Provides a consistent interface for logging throughout the extension
  * with built-in log level filtering to control verbosity in production.

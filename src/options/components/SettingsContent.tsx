@@ -1,3 +1,7 @@
+/**
+ * @file Settings tab content: notification, security, and reset sections.
+ */
+
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 
@@ -7,12 +11,38 @@ import { useRootStore } from '../stores/root-store';
 
 import { ConfirmDialog } from './ConfirmDialog';
 
+/**
+ * Props for SwitchRow.
+ */
 interface SwitchRowProps {
+    /**
+     * DOM id assigned to the row's button, referenced by its aria attributes.
+     */
     id: string;
+
+    /**
+     * Row heading text.
+     */
     title: string;
+
+    /**
+     * Supporting text shown under the title.
+     */
     description: string;
+
+    /**
+     * Current on/off state of the switch.
+     */
     checked: boolean;
+
+    /**
+     * Whether the switch is non-interactive.
+     */
     disabled: boolean;
+
+    /**
+     * Called when the row is activated to flip the switch.
+     */
     onToggle: () => void;
 }
 
@@ -20,13 +50,13 @@ interface SwitchRowProps {
  * A single settings switch row: whole row is the control, per the design's
  * switch-list pattern (row click, pointer, and keyboard all toggle).
  *
- * @param root0
- * @param root0.id
- * @param root0.title
- * @param root0.description
- * @param root0.checked
- * @param root0.disabled
- * @param root0.onToggle
+ * @param root0 Component props.
+ * @param root0.id DOM id assigned to the row's button, referenced by its aria attributes.
+ * @param root0.title Row heading text.
+ * @param root0.description Supporting text shown under the title.
+ * @param root0.checked Current on/off state of the switch.
+ * @param root0.disabled Whether the switch is non-interactive.
+ * @param root0.onToggle Called when the row is activated to flip the switch.
  */
 function SwitchRow({
     id,

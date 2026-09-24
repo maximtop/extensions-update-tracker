@@ -1,3 +1,7 @@
+/**
+ * @file Empty state shown on the Updates tab when no extension has recorded updates.
+ */
+
 import React from 'react';
 
 import { t } from '../../../common/utils/i18n';

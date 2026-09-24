@@ -1,3 +1,7 @@
+/**
+ * @file Adapter interface the storage service implements for ExtensionsManagement.
+ */
+
 import type { Management } from 'webextension-polyfill';
 
 /**

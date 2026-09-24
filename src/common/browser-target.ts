@@ -1,4 +1,8 @@
 /**
+ * @file Identifies which browser the current build targets.
+ */
+
+/**
  * Browser targets produced by the release build.
  */
 export type BrowserTarget = 'chrome' | 'edge' | 'firefox';

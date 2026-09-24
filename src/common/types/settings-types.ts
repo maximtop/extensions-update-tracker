@@ -1,5 +1,5 @@
 /**
- * User preferences and settings types
+ * @file User preferences and settings types
  */
 
 /**
@@ -46,8 +46,19 @@ export interface SecuritySettings {
  * Complete user settings
  */
 export interface UserSettings {
+    /**
+     * Global notification settings.
+     */
     notifications: NotificationSettings;
+
+    /**
+     * Per-extension notification preferences.
+     */
     extensionPreferences: ExtensionNotificationPreferences;
+
+    /**
+     * Security and automation settings.
+     */
     security: SecuritySettings;
 }
 

@@ -1,3 +1,7 @@
+/**
+ * @file Build-time constants: target environments, supported browsers, and their configs.
+ */
+
 import path from 'path';
 
 export enum BuildTargetEnv {
@@ -7,6 +11,13 @@ export enum BuildTargetEnv {
     Test = 'test',
 }
 
+/**
+ * Checks whether a raw string (e.g. from an environment variable) is a known {@link BuildTargetEnv}.
+ *
+ * @param buildEnv Value to check.
+ *
+ * @returns True when `buildEnv` matches one of the `BuildTargetEnv` values.
+ */
 const isValidBuildEnv = (buildEnv: string): buildEnv is BuildTargetEnv => {
     return Object.values(BuildTargetEnv).includes(buildEnv as BuildTargetEnv);
 };
@@ -19,8 +30,18 @@ if (!isValidBuildEnv(buildEnv)) {
 
 export const BUILD_ENV: BuildTargetEnv = buildEnv;
 
+/**
+ * Per-environment build settings.
+ */
 export interface EnvConfig {
+    /**
+     * Directory name under the dist folder that this environment's build is written to.
+     */
     outputPath: string;
+
+    /**
+     * Rspack mode to build with.
+     */
     mode: 'development' | 'production';
 }
 
@@ -51,9 +72,23 @@ export const enum Browser {
 
 export const BUILD_PATH = path.resolve(import.meta.dirname, '../../dist');
 
+/**
+ * Per-browser build settings.
+ */
 export interface BrowserConfig {
+    /**
+     * Browser this config applies to.
+     */
     browser: Browser;
+
+    /**
+     * Whether to bundle the extension's devtools panel for this browser.
+     */
     devtools: boolean;
+
+    /**
+     * Directory name (relative to `BUILD_PATH/<env>`) that this browser's build is written to.
+     */
     buildDir: string;
 }
 

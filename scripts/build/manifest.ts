@@ -1,3 +1,7 @@
+/**
+ * @file Derives a browser-specific manifest.json from the shared Chromium-shaped source manifest.
+ */
+
 import { Browser } from './constants';
 
 /**
@@ -10,6 +14,9 @@ export const FIREFOX_GECKO_ID = 'extensions-update-tracker@maximtop.dev';
  */
 export const FIREFOX_STRICT_MIN_VERSION = '140.0';
 
+/**
+ * Shape of the manifest fields this module reads or rewrites.
+ */
 type ExtensionManifest = Record<string, unknown> & {
     background?: {
         service_worker?: string;
@@ -26,6 +33,8 @@ type ExtensionManifest = Record<string, unknown> & {
  * @param version Package version to stamp into the manifest.
  *
  * @returns A browser-specific manifest object.
+ *
+ * @throws When building for Firefox and the source manifest has no `background.service_worker`.
  */
 export const buildManifest = (
     sourceManifest: Record<string, unknown>,

@@ -1,16 +1,39 @@
 /**
- * Common types for extension update tracking shared between background and UI
+ * @file Common types for extension update tracking shared between background and UI
  */
 
 /**
  * Represents a single extension update record for display in the UI
  */
 export interface ExtensionUpdate {
+    /**
+     * ID of the extension this update belongs to.
+     */
     extensionId: string;
+
+    /**
+     * Version installed by this update.
+     */
     version: string;
+
+    /**
+     * Version that was installed before this update, when known.
+     */
     previousVersion?: string | undefined;
-    updateDate: string; // ISO date string
+
+    /**
+     * ISO date string of when the update was detected.
+     */
+    updateDate: string;
+
+    /**
+     * Whether the user has acknowledged/viewed this update.
+     */
     isRead: boolean;
+
+    /**
+     * Optional free-form notes about the update.
+     */
     notes?: string;
 }
 
@@ -18,13 +41,54 @@ export interface ExtensionUpdate {
  * Extension info for display
  */
 export interface ExtensionInfo {
+    /**
+     * Extension ID.
+     */
     id: string;
+
+    /**
+     * Display name of the extension.
+     */
     name: string;
+
+    /**
+     * Currently installed version.
+     */
     version: string;
+
+    /**
+     * Whether the extension is currently enabled.
+     */
     enabled?: boolean;
-    icons?: { size: number; url: string }[] | undefined;
+
+    /**
+     * Icons available for the extension, undefined when none are provided.
+     */
+    icons?: {
+        /**
+         * Icon width and height in pixels (icons are square).
+         */
+        size: number;
+
+        /**
+         * URL of the icon image.
+         */
+        url: string;
+    }[] | undefined;
+
+    /**
+     * Extension description shown to the user.
+     */
     description?: string;
+
+    /**
+     * URL of the extension's homepage, when available.
+     */
     homepageUrl?: string | undefined;
+
+    /**
+     * How the extension was installed.
+     */
     installType?: 'development' | 'normal' | 'sideload' | 'other';
 }
 
@@ -65,7 +129,17 @@ export interface ExtensionVersionInfo {
         /**
          * Extension icons with their sizes and URLs
          */
-        icons?: { size: number; url: string }[];
+        icons?: {
+            /**
+             * Icon width and height in pixels (icons are square).
+             */
+            size: number;
+
+            /**
+             * URL of the icon image.
+             */
+            url: string;
+        }[];
     };
 }
 
@@ -73,7 +147,14 @@ export interface ExtensionVersionInfo {
  * Stored extension data structure containing current version and update history
  */
 export interface StoredExtensionData {
+    /**
+     * Extension version currently installed.
+     */
     currentVersion: string;
+
+    /**
+     * History of detected versions, oldest first.
+     */
     updateHistory: ExtensionVersionInfo[];
 }
 

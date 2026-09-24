@@ -21,6 +21,14 @@ import type * as v from 'valibot';
  * );
  */
 export class StorageKey<T> {
+    /**
+     * Creates a storage key descriptor.
+     *
+     * @param key Raw key the value is stored under in `browser.storage.local`.
+     * @param defaultValue Value returned when the key is missing or fails validation.
+     * @param schema Valibot schema the stored value is validated against; when omitted,
+     * the stored value is returned as-is.
+     */
     constructor(
         public readonly key: string,
         public readonly defaultValue: T,

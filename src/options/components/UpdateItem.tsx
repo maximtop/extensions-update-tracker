@@ -1,3 +1,7 @@
+/**
+ * @file Single update-history row within an ExtensionCard.
+ */
+
 import React from 'react';
 
 import { t } from '../../common/utils/i18n';
@@ -6,10 +10,23 @@ import { useRootStore } from '../stores/root-store';
 
 import type { ExtensionUpdate } from '../../common/update-storage';
 
+/**
+ * Props for UpdateItem.
+ */
 interface UpdateItemProps {
+    /**
+     * The update to render.
+     */
     update: ExtensionUpdate;
 }
 
+/**
+ * One version row in an extension's update history: version, relative time,
+ * an unread badge, a mark-as-read action, and release notes when present.
+ *
+ * @param root0 Component props.
+ * @param root0.update The update to render.
+ */
 export function UpdateItem({ update }: UpdateItemProps): React.JSX.Element {
     const { updatesStore } = useRootStore();
 

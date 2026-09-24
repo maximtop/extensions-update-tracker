@@ -1,3 +1,8 @@
+/**
+ * @file Top-level options page component: renders the tab layout and switches between
+ * loading, error, empty, and content states.
+ */
+
 import { observer } from 'mobx-react-lite';
 import React, { useState, useEffect } from 'react';
 

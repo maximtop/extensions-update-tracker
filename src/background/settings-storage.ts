@@ -1,6 +1,6 @@
 /**
- * Settings storage service using StorageService with Valibot validation
- * All writes are centralized through the background page
+ * @file Settings storage service using StorageService with Valibot validation.
+ * All writes are centralized through the background page.
  */
 
 import * as v from 'valibot';
@@ -54,11 +54,17 @@ const SETTINGS_KEY = new StorageKey<UserSettings>(
     UserSettingsSchema,
 );
 
+/**
+ * Loads, persists, and broadcasts changes to user settings.
+ */
 export class SettingsStorage {
     private settings: UserSettings = DEFAULT_SETTINGS;
 
     private changeListeners: ((settings: UserSettings) => void)[] = [];
 
+    /**
+     * Creates the storage and starts loading persisted settings in the background.
+     */
     constructor() {
         void this.init();
     }
@@ -83,7 +89,7 @@ export class SettingsStorage {
      * Save settings to storage
      * Uses StorageService which handles errors internally
      *
-     * @param settings
+     * @param settings Complete settings object to persist and adopt.
      */
     async save(settings: UserSettings): Promise<void> {
         await storageService.set(SETTINGS_KEY, settings);
@@ -94,7 +100,8 @@ export class SettingsStorage {
     /**
      * Update specific settings without replacing all
      *
-     * @param partial
+     * @param partial Settings fields to merge into the current settings; each nested
+     * object (notifications, extensionPreferences, security) is merged rather than replaced.
      */
     async update(partial: Partial<UserSettings>): Promise<void> {
         const updated = {
@@ -134,7 +141,7 @@ export class SettingsStorage {
     /**
      * Check if notifications are enabled for a specific extension
      *
-     * @param extensionId
+     * @param extensionId Extension to check.
      */
     areNotificationsEnabledForExtension(extensionId: string): boolean {
         if (!this.settings.notifications.enabled) {
@@ -147,8 +154,8 @@ export class SettingsStorage {
     /**
      * Mute/unmute notifications for a specific extension
      *
-     * @param extensionId
-     * @param muted
+     * @param extensionId Extension to mute or unmute.
+     * @param muted Whether the extension's update notifications should be muted.
      */
     async setExtensionMuted(extensionId: string, muted: boolean): Promise<void> {
         const mutedExtensions = {
@@ -178,7 +185,7 @@ export class SettingsStorage {
     /**
      * Add a listener for settings changes
      *
-     * @param listener
+     * @param listener Called with the new settings after every save.
      */
     addChangeListener(listener: (settings: UserSettings) => void): void {
         this.changeListeners.push(listener);
@@ -187,7 +194,7 @@ export class SettingsStorage {
     /**
      * Remove a settings change listener
      *
-     * @param listener
+     * @param listener Listener previously passed to {@link addChangeListener}.
      */
     removeChangeListener(listener: (settings: UserSettings) => void): void {
         const index = this.changeListeners.indexOf(listener);

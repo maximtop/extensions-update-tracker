@@ -1,7 +1,10 @@
 /**
- * Adapter interface for browser storage operations
+ * @file Adapter interface for browser storage operations.
+ */
+
+/**
  * Provides a thin abstraction layer over browser.storage.local API
- * to enable easier testing and potential future storage backend changes
+ * to enable easier testing and potential future storage backend changes.
  */
 export interface StorageAdapter {
     /**

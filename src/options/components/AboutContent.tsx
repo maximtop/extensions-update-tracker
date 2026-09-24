@@ -1,3 +1,7 @@
+/**
+ * @file About tab content for the options page: extension identity, resource links, and credits.
+ */
+
 import React from 'react';
 import browser from 'webextension-polyfill';
 
@@ -13,19 +17,33 @@ const WEB_STORE_URL = CURRENT_BROWSER === 'chrome'
 
 const AUTHOR_NAME = 'Maxim Topciu';
 
+/**
+ * Props for LinkRow.
+ */
 interface LinkRowProps {
+    /**
+     * Destination URL, opened in a new tab.
+     */
     href: string;
+
+    /**
+     * Row heading text.
+     */
     title: string;
+
+    /**
+     * Supporting text shown under the title.
+     */
     description: string;
 }
 
 /**
  * A single external link row, visually matching the settings switch-list rows
  *
- * @param root0
- * @param root0.href
- * @param root0.title
- * @param root0.description
+ * @param root0 Component props.
+ * @param root0.href Destination URL, opened in a new tab.
+ * @param root0.title Row heading text.
+ * @param root0.description Supporting text shown under the title.
  */
 function LinkRow({ href, title, description }: LinkRowProps): React.JSX.Element {
     return (

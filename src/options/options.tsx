@@ -1,3 +1,8 @@
+/**
+ * @file Mounts the options page React tree and wires up its one-time init side effects
+ * (document title, background notification).
+ */
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 

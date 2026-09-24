@@ -1,3 +1,7 @@
+/**
+ * @file Mounts the popup React tree into the popup page's root element.
+ */
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 

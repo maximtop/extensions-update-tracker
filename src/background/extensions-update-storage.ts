@@ -1,3 +1,7 @@
+/**
+ * @file Persistent storage of extension update history and metadata, with schema validation.
+ */
+
 import * as v from 'valibot';
 
 import { Logger } from '../common/utils/logger';

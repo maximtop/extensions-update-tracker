@@ -35,11 +35,13 @@ vi.mock('webextension-polyfill', () => ({
 
 describe('NotificationStateStorage', () => {
     let storage: NotificationStateStorage;
-    const mockStorageData: Record<string, any> = {};
+    const mockStorageData: Record<string, unknown> = {};
 
     // Set up mock implementations once (outside beforeEach to prevent clearing)
     // Use JSON clone to avoid shared object references
-    vi.mocked(browser.storage.local.get).mockImplementation(async (key: string) => {
+    // Parameter types are inferred from the real browser.storage.local.get signature.
+    vi.mocked(browser.storage.local.get).mockImplementation(async (keys) => {
+        const key = keys as string;
         const value = mockStorageData[key];
         if (value === undefined) {
             return {};
@@ -48,14 +50,17 @@ describe('NotificationStateStorage', () => {
         return { [key]: JSON.parse(JSON.stringify(value)) };
     });
 
-    vi.mocked(browser.storage.local.set).mockImplementation(async (items: Record<string, any>) => {
+    // Parameter type is inferred from the real browser.storage.local.set signature.
+    vi.mocked(browser.storage.local.set).mockImplementation(async (items) => {
         for (const [key, value] of Object.entries(items)) {
             // Clone to avoid shared references
             mockStorageData[key] = JSON.parse(JSON.stringify(value));
         }
     });
 
-    vi.mocked(browser.storage.local.remove).mockImplementation(async (key: string) => {
+    // Parameter type is inferred from the real browser.storage.local.remove signature.
+    vi.mocked(browser.storage.local.remove).mockImplementation(async (keys) => {
+        const key = keys as string;
         delete mockStorageData[key];
     });
 

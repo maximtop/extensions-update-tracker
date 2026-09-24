@@ -9,8 +9,20 @@ import {
 import { SettingsStorage } from '../../../src/background/settings-storage';
 import { DEFAULT_SETTINGS } from '../../../src/common/types/settings-types';
 
+import type { Mock } from 'vitest';
+
+interface MockedBrowser {
+    storage: {
+        local: {
+            get: Mock;
+            set: Mock;
+        };
+        onChanged: { addListener: Mock };
+    };
+}
+
 // Create storage outside the mock for test access
-const mockStorage: Record<string, any> = {};
+const mockStorage: Record<string, unknown> = {};
 
 // Mock webextension-polyfill
 vi.mock('webextension-polyfill', () => {
@@ -19,7 +31,7 @@ vi.mock('webextension-polyfill', () => {
             storage: {
                 local: {
                     get: vi.fn((key: string) => Promise.resolve({ [key]: mockStorage[key] })),
-                    set: vi.fn((data: Record<string, any>) => {
+                    set: vi.fn((data: Record<string, unknown>) => {
                         Object.assign(mockStorage, data);
                         return Promise.resolve();
                     }),
@@ -34,7 +46,7 @@ vi.mock('webextension-polyfill', () => {
 
 describe('SettingsStorage', () => {
     let settingsStorage: SettingsStorage;
-    let browser: any;
+    let browser: MockedBrowser;
 
     beforeEach(async () => {
         // Clear mock storage
@@ -43,7 +55,7 @@ describe('SettingsStorage', () => {
 
         // Import browser after mocking
         const browserModule = await import('webextension-polyfill');
-        browser = browserModule.default;
+        browser = browserModule.default as unknown as MockedBrowser;
 
         settingsStorage = new SettingsStorage();
         // Wait for async init to complete
@@ -74,7 +86,7 @@ describe('SettingsStorage', () => {
                 },
             };
 
-            (browser.storage.local.get).mockResolvedValueOnce({
+            browser.storage.local.get.mockResolvedValueOnce({
                 'user-settings': storedSettings,
             });
 
@@ -90,7 +102,7 @@ describe('SettingsStorage', () => {
                 },
             };
 
-            (browser.storage.local.get).mockResolvedValueOnce({
+            browser.storage.local.get.mockResolvedValueOnce({
                 'user-settings': partialSettings,
             });
 

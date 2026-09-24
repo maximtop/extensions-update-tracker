@@ -1,5 +1,5 @@
 /**
- * Tests the real translation pipeline end to end: actual @adguard/translate,
+ * Tests the real translation pipeline end to end: actual `@adguard/translate`,
  * actual strings from src/_locales, no t() mocks. Guards against broken
  * placeholder substitution (e.g. a literal "%name%" leaking into a
  * notification) and wrong plural form selection per locale.

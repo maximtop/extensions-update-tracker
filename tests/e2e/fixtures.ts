@@ -1,5 +1,4 @@
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 import {
     test as base,
@@ -10,8 +9,7 @@ import {
 
 import { getSampleExtensionPath } from './helpers';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentDir = import.meta.dirname;
 
 /**
  * How long to wait for the tracker's own service worker to register. Chromium
@@ -27,7 +25,7 @@ const SERVICE_WORKER_TIMEOUT_MS = 15000;
  * localized, so matching on the human-readable name can never succeed.
  * `homepage_url` is the only stable identifying field that survives the build.
  *
- * @param manifestText
+ * @param manifestText The manifest.json contents fetched from the extension's page.
  */
 const isTrackerManifest = (manifestText: string): boolean => {
     try {
@@ -45,7 +43,7 @@ const isTrackerManifest = (manifestText: string): boolean => {
  * registers a worker too, so a silent fallback would run the whole suite against
  * the wrong extension and still report success.
  *
- * @param context
+ * @param context The Playwright browser context both extensions are loaded into.
  */
 const findTrackerServiceWorker = async (context: BrowserContext): Promise<Worker> => {
     const deadline = Date.now() + SERVICE_WORKER_TIMEOUT_MS;
@@ -85,8 +83,8 @@ export const test = base.extend<{
 }>({
     // `headless` is Playwright's own option, so `--headed` and the config still
     // control it even though the context is launched by hand here.
-    context: async ({ headless }, use) => {
-        const pathToExtension = path.join(__dirname, '../../dist/test/chrome');
+    context: async ({ headless }, provide) => {
+        const pathToExtension = path.join(currentDir, '../../dist/test/chrome');
         const sampleExtensionPath = getSampleExtensionPath();
 
         const context = await chromium.launchPersistentContext('', {
@@ -103,19 +101,22 @@ export const test = base.extend<{
                 '--no-sandbox',
             ],
         });
-        await use(context);
+        await provide(context);
         await context.close();
     },
     // For Manifest V3: our background logic lives in a service worker, and the
     // sample extension registers one too, so it has to be identified explicitly.
-    serviceWorker: async ({ context }, use) => {
+    serviceWorker: async ({ context }, provide) => {
         const ourServiceWorker = await findTrackerServiceWorker(context);
-        await use(ourServiceWorker);
+        await provide(ourServiceWorker);
     },
-    extensionId: async ({ serviceWorker }, use) => {
+    extensionId: async ({ serviceWorker }, provide) => {
         const urlParts = serviceWorker.url().split('/');
         const [, , extensionId] = urlParts;
-        await use(extensionId);
+        if (!extensionId) {
+            throw new Error(`Could not parse extension ID from service worker URL: ${serviceWorker.url()}`);
+        }
+        await provide(extensionId);
     },
 });
 

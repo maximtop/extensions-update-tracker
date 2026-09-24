@@ -54,9 +54,9 @@ describe('ExtensionsUpdateStorage', () => {
         expect(extensionsUpdateStorage.getStorage()).toEqual({});
         expect(storageAdapterMock.get).toHaveBeenCalledWith(ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY);
         // Logger outputs timestamp, message, errors as separate params
-        const { calls } = (console.error as any).mock;
+        const { calls } = vi.mocked(console.error).mock;
         expect(calls.length).toBeGreaterThan(0);
-        expect(calls[0][1]).toContain('Failed to parse extensions update storage:');
+        expect(calls[0]?.[1]).toContain('Failed to parse extensions update storage:');
     });
 
     it('should initialize with object from the storage if data has valid format', async () => {
@@ -68,7 +68,6 @@ describe('ExtensionsUpdateStorage', () => {
         const validData = {
             'extension-id': {
                 currentVersion: '1.0.0',
-                // @ts-expect-error - updateHistory is not required
                 updateHistory: [],
             },
         };

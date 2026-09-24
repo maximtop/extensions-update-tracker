@@ -28,7 +28,7 @@ test.describe('Mark All as Read Functionality', () => {
         await optionsPage.waitForTimeout(3000);
 
         // Wait for updates to be tracked and displayed
-        const unreadBadge = await optionsPage.getByTestId('unread-updates-count');
+        const unreadBadge = optionsPage.getByTestId('unread-updates-count');
         await expect(unreadBadge).toBeVisible({ timeout: 15000 });
 
         const initialUnreadText = await unreadBadge.textContent();
@@ -40,7 +40,7 @@ test.describe('Mark All as Read Functionality', () => {
         expect(initialUnreadCount).toBeGreaterThanOrEqual(2);
 
         // Click "Mark All as Read" button
-        const markAllButton = await optionsPage.getByTestId('mark-all-read-button');
+        const markAllButton = optionsPage.getByTestId('mark-all-read-button');
         await expect(markAllButton).toBeVisible();
         await markAllButton.click();
 
@@ -48,7 +48,7 @@ test.describe('Mark All as Read Functionality', () => {
         await optionsPage.waitForTimeout(2000);
 
         // Verify the unread count is now 0
-        const updatedUnreadBadge = await optionsPage.getByTestId('unread-updates-count');
+        const updatedUnreadBadge = optionsPage.getByTestId('unread-updates-count');
         const updatedUnreadText = await updatedUnreadBadge.textContent();
         const updatedUnreadCount = parseInt(updatedUnreadText || '0', 10);
 

@@ -31,7 +31,7 @@ test.describe('Basic Extension Functionality', () => {
         expect(optionsTitle).toBeTruthy();
 
         // Check that main content is visible
-        const header = await optionsPage.locator('h1').first();
+        const header = optionsPage.locator('h1').first();
         await expect(header).toBeVisible();
 
         // Open popup page
@@ -49,7 +49,7 @@ test.describe('Basic Extension Functionality', () => {
         }
 
         // Verify popup page loaded correctly by checking for root element
-        const popupRoot = await popupPage.locator('#root');
+        const popupRoot = popupPage.locator('#root');
         await expect(popupRoot).toBeAttached();
 
         console.log('✓ All pages loaded without errors');

@@ -13,7 +13,7 @@ export function getExtensionPath(): string {
  * Get extension ID from chrome://extensions page
  * Works with Manifest V3 service workers
  *
- * @param context
+ * @param context The Playwright browser context the extension is loaded into.
  */
 export async function getExtensionId(context: BrowserContext): Promise<string> {
     const extensionsPage = await context.newPage();
@@ -46,7 +46,7 @@ export async function getExtensionId(context: BrowserContext): Promise<string> {
 /**
  * Get extension URLs
  *
- * @param extensionId
+ * @param extensionId The loaded extension's ID.
  */
 export function getExtensionUrls(extensionId: string) {
     return {
@@ -59,7 +59,7 @@ export function getExtensionUrls(extensionId: string) {
 /**
  * Setup console monitoring for a page
  *
- * @param page
+ * @param page The Playwright page to monitor for console errors.
  */
 export function setupConsoleErrorDetection(page: Page) {
     const errors: string[] = [];
@@ -83,7 +83,7 @@ export function setupConsoleErrorDetection(page: Page) {
 /**
  * Setup console message collection (all types)
  *
- * @param page
+ * @param page The Playwright page to monitor for console messages.
  */
 export function setupConsoleMonitoring(page: Page) {
     const messages: string[] = [];

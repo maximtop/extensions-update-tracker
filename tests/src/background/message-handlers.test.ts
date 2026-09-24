@@ -12,7 +12,26 @@ import { RpcHandlers } from '../../../src/background/message-handlers';
 import { MessageDispatcherService } from '../../../src/common/messaging/message-handler';
 import { MessageType } from '../../../src/common/messaging/message-types';
 
+import type { ManagementAdapter } from '../../../src/background/management-adapter';
+import type { SettingsStorage } from '../../../src/background/settings-storage';
 import type { StorageAdapter } from '../../../src/background/storage-adapter';
+import type { MessageHandler } from '../../../src/common/messaging/message-handler';
+
+// Test-only shape exposing the private `handlers` map so tests can invoke
+// registered handlers directly, bypassing the runtime message listener.
+interface MessageDispatcherWithHandlers {
+    handlers: Map<MessageType, MessageHandler>;
+}
+
+// Shape returned by the GetUpdates handler
+type GetUpdatesResult = Record<string, {
+    currentVersion: string;
+    updateHistory: {
+        version: string;
+        detectedTimestampMs: number;
+        isRead?: boolean;
+    }[];
+}>;
 
 // Mock webextension-polyfill before any imports
 vi.mock('webextension-polyfill', () => ({
@@ -31,13 +50,13 @@ vi.mock('webextension-polyfill', () => ({
 }));
 
 class InMemoryStorageAdapter implements StorageAdapter {
-    private data: Record<string, any> = {};
+    private data: Record<string, unknown> = {};
 
-    async get(key: string): Promise<any> {
+    async get(key: string): Promise<unknown> {
         return this.data[key] || null;
     }
 
-    async set(key: string, value: any): Promise<void> {
+    async set(key: string, value: unknown): Promise<void> {
         this.data[key] = value;
     }
 }
@@ -48,8 +67,8 @@ describe('RpcHandlers', () => {
     let badgeService: BadgeService;
     let rpcHandlers: RpcHandlers;
     let storageAdapter: InMemoryStorageAdapter;
-    let managementAdapter: any;
-    let settingsStorage: any;
+    let managementAdapter: ManagementAdapter;
+    let settingsStorage: SettingsStorage;
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -62,14 +81,14 @@ describe('RpcHandlers', () => {
         managementAdapter = {
             get: vi.fn(),
             getAll: vi.fn(),
-        };
+        } as unknown as ManagementAdapter;
 
         settingsStorage = {
             get: vi.fn().mockResolvedValue({}),
             update: vi.fn(),
             reset: vi.fn(),
             setExtensionMuted: vi.fn(),
-        };
+        } as unknown as SettingsStorage;
 
         rpcHandlers = new RpcHandlers(
             messageDispatcher,
@@ -105,15 +124,16 @@ describe('RpcHandlers', () => {
             rpcHandlers.init();
 
             // Get the handler directly
-            const handler = (messageDispatcher as any).handlers.get(MessageType.GetUpdates);
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.GetUpdates)!;
 
             // Trigger the handler (simulating message from popup)
-            const result = await handler({ type: MessageType.GetUpdates });
+            const result = await handler({ type: MessageType.GetUpdates }) as GetUpdatesResult;
 
             // Verify that we get the correct data, not empty object
             expect(result).toHaveProperty('test-extension-id');
             expect(result['test-extension-id']).toHaveProperty('currentVersion', '1.0.1');
-            expect(result['test-extension-id'].updateHistory).toHaveLength(2);
+            expect(result['test-extension-id']!.updateHistory).toHaveLength(2);
         });
 
         it('should handle multiple concurrent GetUpdates requests during initialization', async () => {
@@ -134,7 +154,8 @@ describe('RpcHandlers', () => {
             rpcHandlers.init();
 
             // Get the handler directly
-            const handler = (messageDispatcher as any).handlers.get(MessageType.GetUpdates);
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.GetUpdates)!;
 
             // Trigger multiple concurrent requests before init completes
             const request1 = handler({ type: MessageType.GetUpdates });
@@ -171,7 +192,8 @@ describe('RpcHandlers', () => {
             rpcHandlers.init();
 
             // Get the handler directly
-            const handler = (messageDispatcher as any).handlers.get(MessageType.MarkAllAsRead);
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.MarkAllAsRead)!;
 
             // Trigger the handler (this should wait for init internally)
             await handler({ type: MessageType.MarkAllAsRead });
@@ -180,7 +202,7 @@ describe('RpcHandlers', () => {
             const storage = extensionsUpdateStorage.getStorage();
             expect(storage).not.toBeNull();
             if (storage) {
-                expect(storage['test-extension-id'].updateHistory[0].isRead).toBe(true);
+                expect(storage['test-extension-id']!.updateHistory[0]!.isRead).toBe(true);
             }
         });
     });
@@ -210,7 +232,8 @@ describe('RpcHandlers', () => {
             rpcHandlers.init();
 
             // Get the handler directly
-            const handler = (messageDispatcher as any).handlers.get(MessageType.MarkUpdateAsRead);
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.MarkUpdateAsRead)!;
 
             // Trigger the handler (this should wait for init internally)
             await handler({
@@ -223,7 +246,7 @@ describe('RpcHandlers', () => {
             const storage = extensionsUpdateStorage.getStorage();
             expect(storage).not.toBeNull();
             if (storage) {
-                const unreadUpdate = storage['test-extension-id'].updateHistory.find((u) => u.version === '1.0.1');
+                const unreadUpdate = storage['test-extension-id']!.updateHistory.find((u) => u.version === '1.0.1');
                 expect(unreadUpdate?.isRead).toBe(true);
             }
         });

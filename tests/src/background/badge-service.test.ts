@@ -9,9 +9,17 @@ import {
 import { BadgeService } from '../../../src/background/badge-service';
 import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
 import { MessageDispatcherService } from '../../../src/common/messaging/message-handler';
+import { MessageType } from '../../../src/common/messaging/message-types';
 
 import type { StorageAdapter } from '../../../src/background/storage-adapter';
+import type { MessageHandler } from '../../../src/common/messaging/message-handler';
 import type { Mock } from 'vitest';
+
+// Test-only shape exposing the private `handlers` map so the test can invoke the
+// registered UpdatesPageOpened handler directly, bypassing the runtime message listener.
+interface MessageDispatcherWithHandlers {
+    handlers: Map<MessageType, MessageHandler>;
+}
 
 interface MockedBrowser {
     action: {
@@ -271,6 +279,53 @@ describe('BadgeService', () => {
             await badgeService.refresh();
 
             expect(browser.action.setBadgeText).toHaveBeenCalled();
+        });
+    });
+
+    describe('UpdatesPageOpened event', () => {
+        it('should clear the badge when the updates page is opened', async () => {
+            const storageData = {
+                'ext-1': {
+                    currentVersion: '1.0.0',
+                    updateHistory: [
+                        {
+                            version: '1.0.0',
+                            detectedTimestampMs: Date.now(),
+                            isRead: false,
+                        },
+                    ],
+                },
+            };
+            const newStorageAdapter = new InMemoryStorageAdapter({ 'extensions-update-storage': storageData });
+            const newStorage = new ExtensionsUpdateStorage(newStorageAdapter);
+            await newStorage.init();
+
+            vi.clearAllMocks();
+            browser.action.setBadgeText.mockResolvedValue(undefined);
+            browser.action.setBadgeBackgroundColor.mockResolvedValue(undefined);
+            browser.action.setBadgeTextColor.mockResolvedValue(undefined);
+
+            // Constructing the service subscribes to UpdatesPageOpened and shows the
+            // non-zero count from storage first.
+            badgeService = new BadgeService(newStorage, messageHandler);
+            await vi.waitFor(() => {
+                expect(browser.action.setBadgeText).toHaveBeenCalledWith({ text: '1' });
+            }, { timeout: 100 });
+
+            const handler = (messageHandler as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.UpdatesPageOpened)!;
+            expect(handler).toBeDefined();
+
+            vi.clearAllMocks();
+            browser.action.setBadgeText.mockResolvedValue(undefined);
+
+            // The handler fires clearBadge() without awaiting it, so wait for the
+            // resulting call instead of the handler's own (immediately-resolved) return.
+            void handler({ type: MessageType.UpdatesPageOpened });
+
+            await vi.waitFor(() => {
+                expect(browser.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
+            }, { timeout: 100 });
         });
     });
 });

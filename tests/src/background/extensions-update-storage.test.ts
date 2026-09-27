@@ -225,4 +225,100 @@ describe('ExtensionsUpdateStorage', () => {
             expect(storageAdapterMock.set).not.toHaveBeenCalled();
         });
     });
+
+    describe('markUpdatesAsUnread', () => {
+        it('should restore read updates to unread across multiple extensions', async () => {
+            const storageAdapterMock = {
+                get: vi.fn(),
+                set: vi.fn(),
+            };
+
+            const initialData = {
+                'ext-1': {
+                    currentVersion: '1.1.0',
+                    updateHistory: [
+                        {
+                            version: '1.1.0',
+                            detectedTimestampMs: Date.now(),
+                            isRead: true,
+                        },
+                    ],
+                },
+                'ext-2': {
+                    currentVersion: '2.1.0',
+                    updateHistory: [
+                        {
+                            version: '2.0.0',
+                            detectedTimestampMs: Date.now() - 2000,
+                            isRead: true,
+                        },
+                        {
+                            version: '2.1.0',
+                            detectedTimestampMs: Date.now(),
+                            isRead: true,
+                        },
+                    ],
+                },
+            };
+            storageAdapterMock.get.mockResolvedValue(initialData);
+
+            const extensionsUpdateStorage = new ExtensionsUpdateStorage(storageAdapterMock);
+            await extensionsUpdateStorage.init();
+
+            await extensionsUpdateStorage.markUpdatesAsUnread([
+                { extensionId: 'ext-1', version: '1.1.0' },
+                { extensionId: 'ext-2', version: '2.1.0' },
+            ]);
+
+            expect(storageAdapterMock.set).toHaveBeenCalledWith(
+                ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
+                expect.objectContaining({
+                    'ext-1': expect.objectContaining({
+                        updateHistory: expect.arrayContaining([
+                            expect.objectContaining({ version: '1.1.0', isRead: false }),
+                        ]),
+                    }),
+                    'ext-2': expect.objectContaining({
+                        updateHistory: expect.arrayContaining([
+                            expect.objectContaining({ version: '2.0.0', isRead: true }),
+                            expect.objectContaining({ version: '2.1.0', isRead: false }),
+                        ]),
+                    }),
+                }),
+            );
+        });
+
+        it('should not write to storage when none of the referenced updates are marked read', async () => {
+            const storageAdapterMock = {
+                get: vi.fn(),
+                set: vi.fn(),
+            };
+
+            const initialData = {
+                'ext-1': {
+                    currentVersion: '1.0.0',
+                    updateHistory: [
+                        {
+                            version: '1.0.0',
+                            detectedTimestampMs: Date.now(),
+                            isRead: false,
+                        },
+                    ],
+                },
+            };
+            storageAdapterMock.get.mockResolvedValue(initialData);
+
+            const extensionsUpdateStorage = new ExtensionsUpdateStorage(storageAdapterMock);
+            await extensionsUpdateStorage.init();
+            storageAdapterMock.set.mockClear();
+
+            // Already unread, and a reference to an extension that was never tracked
+            await extensionsUpdateStorage.markUpdatesAsUnread([
+                { extensionId: 'ext-1', version: '1.0.0' },
+                { extensionId: 'never-tracked', version: '9.9.9' },
+            ]);
+
+            expect(storageAdapterMock.set).not.toHaveBeenCalled();
+        });
+    });
 });

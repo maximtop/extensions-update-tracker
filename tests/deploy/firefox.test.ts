@@ -33,7 +33,10 @@ const addon: AmoAddon = {
     current_version: { version: '1.2.3' },
 };
 const version: AmoVersion = {
-    id: 123, version: '1.2.3', channel: 'listed', file: { status: AMO_STATUS.Unreviewed },
+    id: 123,
+    version: '1.2.3',
+    channel: 'listed',
+    file: { status: AMO_STATUS.Unreviewed },
 };
 const firefoxManifest = JSON.stringify({
     manifest_version: 3,

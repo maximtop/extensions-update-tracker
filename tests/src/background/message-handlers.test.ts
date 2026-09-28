@@ -191,6 +191,8 @@ describe('RpcHandlers', () => {
             // Initialize handlers
             rpcHandlers.init();
 
+            const refreshSpy = vi.spyOn(badgeService, 'refresh');
+
             // Get the handler directly
             const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
                 .handlers.get(MessageType.MarkAllAsRead)!;
@@ -204,6 +206,7 @@ describe('RpcHandlers', () => {
             if (storage) {
                 expect(storage['test-extension-id']!.updateHistory[0]!.isRead).toBe(true);
             }
+            expect(refreshSpy).toHaveBeenCalled();
         });
     });
 
@@ -231,6 +234,8 @@ describe('RpcHandlers', () => {
             // Initialize handlers
             rpcHandlers.init();
 
+            const refreshSpy = vi.spyOn(badgeService, 'refresh');
+
             // Get the handler directly
             const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
                 .handlers.get(MessageType.MarkUpdateAsRead)!;
@@ -249,6 +254,94 @@ describe('RpcHandlers', () => {
                 const unreadUpdate = storage['test-extension-id']!.updateHistory.find((u) => u.version === '1.0.1');
                 expect(unreadUpdate?.isRead).toBe(true);
             }
+            expect(refreshSpy).toHaveBeenCalled();
+        });
+    });
+
+    describe('MarkUpdatesAsUnread handler', () => {
+        it('should restore the referenced updates to unread and refresh the badge', async () => {
+            await storageAdapter.set(ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY, {
+                'test-extension-id': {
+                    currentVersion: '1.0.1',
+                    updateHistory: [
+                        {
+                            version: '1.0.1',
+                            detectedTimestampMs: Date.now(),
+                            isRead: true,
+                        },
+                    ],
+                },
+            });
+
+            rpcHandlers.init();
+
+            const refreshSpy = vi.spyOn(badgeService, 'refresh');
+
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.MarkUpdatesAsUnread)!;
+
+            await handler({
+                type: MessageType.MarkUpdatesAsUnread,
+                items: [{ extensionId: 'test-extension-id', version: '1.0.1' }],
+            });
+
+            const storage = extensionsUpdateStorage.getStorage();
+            expect(storage).not.toBeNull();
+            if (storage) {
+                expect(storage['test-extension-id']!.updateHistory[0]!.isRead).toBe(false);
+            }
+            expect(refreshSpy).toHaveBeenCalled();
+        });
+    });
+
+    describe('GetExtensionsInfo handler', () => {
+        it('should return mapped info for every requested extension', async () => {
+            rpcHandlers.init();
+
+            vi.mocked(managementAdapter.get).mockImplementation(async (id: string) => ({
+                id,
+                name: `Name-${id}`,
+                version: '1.0.0',
+                enabled: true,
+            }) as Awaited<ReturnType<typeof managementAdapter.get>>);
+
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.GetExtensionsInfo)!;
+
+            const result = await handler({
+                type: MessageType.GetExtensionsInfo,
+                extensionIds: ['ext-a', 'ext-b'],
+            }) as Record<string, { id: string; name: string }>;
+
+            expect(result['ext-a']).toEqual(expect.objectContaining({ id: 'ext-a', name: 'Name-ext-a' }));
+            expect(result['ext-b']).toEqual(expect.objectContaining({ id: 'ext-b', name: 'Name-ext-b' }));
+        });
+
+        it('should omit extensions whose lookup fails, without failing the whole request', async () => {
+            rpcHandlers.init();
+
+            vi.mocked(managementAdapter.get).mockImplementation(async (id: string) => {
+                if (id === 'broken-ext') {
+                    throw new Error('Extension not found');
+                }
+                return {
+                    id,
+                    name: `Name-${id}`,
+                    version: '1.0.0',
+                    enabled: true,
+                } as Awaited<ReturnType<typeof managementAdapter.get>>;
+            });
+
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.GetExtensionsInfo)!;
+
+            const result = await handler({
+                type: MessageType.GetExtensionsInfo,
+                extensionIds: ['ok-ext', 'broken-ext'],
+            }) as Record<string, { id: string }>;
+
+            expect(result['ok-ext']).toEqual(expect.objectContaining({ id: 'ok-ext' }));
+            expect(result['broken-ext']).toBeUndefined();
         });
     });
 });

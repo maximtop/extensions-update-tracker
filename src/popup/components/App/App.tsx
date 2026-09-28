@@ -45,21 +45,25 @@ function AppComponent() {
     const hasUnread = !isLoading && !error && unreadCount > 0;
     const isCaughtUp = !isLoading && !error && unreadCount === 0;
 
-    const renderIcon = (unread: (typeof recentUnread)[number]) => (
-        <span className="record-icon">
-            {unread.icon ? (
-                <img src={unread.icon} alt="" />
-            ) : (
-                <FallbackIcon name={unread.extensionName} />
-            )}
-        </span>
-    );
+    const renderIcon = (unread: (typeof recentUnread)[number]) => {
+        return (
+            <span className="record-icon">
+                {unread.icon ? (
+                    <img src={unread.icon} alt="" />
+                ) : (
+                    <FallbackIcon name={unread.extensionName} />
+                )}
+            </span>
+        );
+    };
 
-    const renderRoute = (unread: (typeof recentUnread)[number]) => (
-        unread.previousVersion
-            ? `${unread.previousVersion} → ${unread.version}`
-            : unread.version
-    );
+    const renderRoute = (unread: (typeof recentUnread)[number]) => {
+        return (
+            unread.previousVersion
+                ? `${unread.previousVersion} → ${unread.version}`
+                : unread.version
+        );
+    };
 
     return (
         <div className="container popup-shell">

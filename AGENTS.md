@@ -497,6 +497,26 @@ In `messages.json`, group keys by context with blank lines between sections:
 }
 ```
 
+## Testing
+
+### Restore shared/static state a test overrides
+
+**Rule: If a test mutates a `static` field or other module-level shared state, restore the original value before the test ends (`try`/`finally`), even if nothing currently depends on the original value.**
+
+Vitest runs tests in the same file against the same module instance, so a `static` field set by one test stays set for every test that runs after it. `extensions-management.test.ts` set `ExtensionsUpdateStorage.MAX_HISTORY_ENTRIES = 2` to test trimming and never restored it; later tests happened not to create long enough histories to notice, but the pollution was real and would break silently the moment someone added a test that did.
+
+### Don't gate an e2e wait on an element that's always rendered
+
+**Rule: Before waiting on a locator to prove some background state is ready, check whether that locator is actually conditional on that state.**
+
+`unread-updates-count` in `StatsBar.tsx` renders unconditionally, including at `0`. A test that does `await expect(unreadBadge).toBeVisible()` to mean "tracking finished" is wrong — it resolves immediately, before tracking runs. Prefer polling the actual value (`await expect(async () => { ... }).toPass(...)`, or `toHaveText(...)` for an exact expected result) over a fixed `waitForTimeout` guess, which is either too short (flaky) or too long (slow) for CI.
+
+### Give every RPC message handler and storage-mutating method a direct test
+
+**Rule: Every `RpcHandlers` handler and every public `ExtensionsUpdateStorage` method needs at least one test that calls it directly, not just indirect exercise through another feature's test.**
+
+`markUpdatesAsUnread` (the mark-all-as-read undo path) and the partial-failure branch of `GetExtensionsInfo` (one extension's `management.get()` rejecting) had zero coverage anywhere in the suite before this audit. Indirect coverage through an unrelated caller's test disappears the moment that caller stops calling the method, silently uncovering the behavior.
+
 ## General Principles
 
 1. **Type safety first** - Leverage TypeScript's type system fully

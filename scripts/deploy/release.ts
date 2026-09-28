@@ -44,15 +44,17 @@ export interface PublishedRelease {
  *
  * @returns The nested value, or undefined when any step is missing.
  */
-const read = (value: unknown, ...keys: string[]): unknown => keys.reduce<unknown>(
-    (current, key) => {
-        if (current && typeof current === 'object') {
-            return (current as Record<string, unknown>)[key];
-        }
-        return undefined;
-    },
-    value,
-);
+const read = (value: unknown, ...keys: string[]): unknown => {
+    return keys.reduce<unknown>(
+        (current, key) => {
+            if (current && typeof current === 'object') {
+                return (current as Record<string, unknown>)[key];
+            }
+            return undefined;
+        },
+        value,
+    );
+};
 
 /**
  * Validate a stable published release and return its version.
@@ -147,7 +149,9 @@ export const verifyManifest = (bytes: Buffer, version: string, browser: string):
  *
  * @returns Unicode code points after trimming surrounding whitespace.
  */
-export const amoNotesLength = (notes: string): number => [...notes.trim()].length;
+export const amoNotesLength = (notes: string): number => {
+    return [...notes.trim()].length;
+};
 
 /**
  * Fail before upload if the approval notes exceed our own length limit, which sits below the one

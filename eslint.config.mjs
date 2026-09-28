@@ -60,6 +60,23 @@ export default defineConfig([
                 ignoreUrls: true,
                 ignoreRegExpLiterals: true,
             }],
+            // More than three items in braces: one item per line. Airbnb only breaks the braces.
+            '@stylistic/exp-list-style': ['error', {
+                singleLine: { maxItems: 3 },
+                overrides: {
+                    '()': 'off',
+                    '[]': 'off',
+                    '<>': 'off',
+                    '{}': { singleLine: { spacing: 'always' } },
+                    ImportAttributes: 'off',
+                    JSONObjectExpression: 'off',
+                    TSEnumBody: 'off',
+                    TSInterfaceBody: 'off',
+                    TSTypeLiteral: 'off',
+                },
+            }],
+            // No one-line functions: a block never shares a line with its braces.
+            '@stylistic/brace-style': ['error', '1tbs', { allowSingleLine: false }],
             curly: ['error', 'all'],
             'arrow-body-style': 'off',
             'class-methods-use-this': 'off',
@@ -70,7 +87,21 @@ export default defineConfig([
                 alphabetize: { order: 'asc', caseInsensitive: true },
             }],
             // for..of is native in every supported browser; the regenerator concern no longer applies.
-            'no-restricted-syntax': ['error', 'ForInStatement', 'LabeledStatement', 'WithStatement'],
+            'no-restricted-syntax': [
+                'error',
+                'ForInStatement',
+                'LabeledStatement',
+                'WithStatement',
+                // No one-line functions: a named arrow function has a block body. Inline callbacks may stay short.
+                ...[
+                    'VariableDeclarator',
+                    'PropertyDefinition',
+                    'ExportDefaultDeclaration',
+                ].map((parent) => ({
+                    selector: `${parent} > ArrowFunctionExpression[expression=true]`,
+                    message: 'Give a named arrow function a block body with an explicit return.',
+                })),
+            ],
             // Release and build steps await one after another on purpose.
             'no-await-in-loop': 'off',
             'no-console': ['error', { allow: ['debug', 'warn', 'error'] }],

@@ -145,7 +145,10 @@ export const amoToken = (issuer: string, secret: string): string => {
     const now = Math.floor(Date.now() / MILLISECONDS_PER_SECOND);
     const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
     const payload = Buffer.from(JSON.stringify({
-        iss: issuer, jti: randomUUID(), iat: now, exp: now + AMO_JWT_LIFETIME_SECONDS,
+        iss: issuer,
+        jti: randomUUID(),
+        iat: now,
+        exp: now + AMO_JWT_LIFETIME_SECONDS,
     })).toString('base64url');
     const message = `${header}.${payload}`;
     return `${message}.${createHmac('sha256', secret).update(message).digest('base64url')}`;

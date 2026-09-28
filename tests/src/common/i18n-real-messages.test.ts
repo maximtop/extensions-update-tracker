@@ -47,7 +47,9 @@ beforeAll(() => {
     browser.i18n.getUILanguage = ((): string => activeUiLanguage);
 });
 
-const minutesAgo = (m: number) => Date.now() - m * 60 * 1000;
+const minutesAgo = (m: number) => {
+    return Date.now() - m * 60 * 1000;
+};
 
 afterEach(() => {
     useLocale('en', 'en');

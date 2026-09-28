@@ -391,38 +391,45 @@ describe('management', () => {
             [ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY]: {},
         });
 
-        // Override the max history limit to test trimming behavior
+        // Override the max history limit to test trimming behavior. This is a shared
+        // static field, so it must be restored afterwards or later tests in this file
+        // (and any file sharing the module) silently run with a limit of 2.
+        const originalMaxHistoryEntries = ExtensionsUpdateStorage.MAX_HISTORY_ENTRIES;
         ExtensionsUpdateStorage.MAX_HISTORY_ENTRIES = 2;
 
-        const storageService = new ExtensionsUpdateStorage(storageAdapter);
-        await storageService.init();
+        try {
+            const storageService = new ExtensionsUpdateStorage(storageAdapter);
+            await storageService.init();
 
-        const mockNotificationService = createMockNotificationService();
-        const mockBadgeService = createMockBadgeService();
+            const mockNotificationService = createMockNotificationService();
+            const mockBadgeService = createMockBadgeService();
 
-        const extensionsManagement = new ExtensionsManagement(
-            management,
-            storageService,
-            mockNotificationService,
-            mockBadgeService,
-        );
-        await extensionsManagement.init();
+            const extensionsManagement = new ExtensionsManagement(
+                management,
+                storageService,
+                mockNotificationService,
+                mockBadgeService,
+            );
+            await extensionsManagement.init();
 
-        const handler = addListenerMock.mock.calls[0]?.[0];
+            const handler = addListenerMock.mock.calls[0]?.[0];
 
-        handler({ id: 'trim', name: 'Trim', version: '1.0.0' });
-        handler({ id: 'trim', name: 'Trim', version: '1.1.0' });
-        handler({ id: 'trim', name: 'Trim', version: '1.2.0' });
+            handler({ id: 'trim', name: 'Trim', version: '1.0.0' });
+            handler({ id: 'trim', name: 'Trim', version: '1.1.0' });
+            handler({ id: 'trim', name: 'Trim', version: '1.2.0' });
 
-        await vi.waitFor(async () => {
-            const persisted = await storageAdapter.get(
-                ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
-            ) as PersistedExtensionsStorage;
-            // Should keep only the last 2 entries (1.1.0 and 1.2.0)
-            expect(persisted.trim!.updateHistory.length).toBeLessThanOrEqual(2);
-            const versions = persisted.trim!.updateHistory.map((e) => e.version);
-            expect(versions).toContain('1.2.0');
-        });
+            await vi.waitFor(async () => {
+                const persisted = await storageAdapter.get(
+                    ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY,
+                ) as PersistedExtensionsStorage;
+                // Should keep only the last 2 entries (1.1.0 and 1.2.0)
+                expect(persisted.trim!.updateHistory.length).toBeLessThanOrEqual(2);
+                const versions = persisted.trim!.updateHistory.map((e) => e.version);
+                expect(versions).toContain('1.2.0');
+            });
+        } finally {
+            ExtensionsUpdateStorage.MAX_HISTORY_ENTRIES = originalMaxHistoryEntries;
+        }
     });
 
     it('should write updated extension info to the storage', async () => {
@@ -1097,7 +1104,10 @@ describe('management', () => {
                 },
                 getAll: vi.fn().mockResolvedValue([
                     {
-                        id: 'disabled-ext', name: 'Disabled Extension', version: '2.0.0', enabled: false,
+                        id: 'disabled-ext',
+                        name: 'Disabled Extension',
+                        version: '2.0.0',
+                        enabled: false,
                     },
                 ]),
                 get: vi.fn(),

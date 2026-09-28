@@ -1104,7 +1104,10 @@ describe('management', () => {
                 },
                 getAll: vi.fn().mockResolvedValue([
                     {
-                        id: 'disabled-ext', name: 'Disabled Extension', version: '2.0.0', enabled: false,
+                        id: 'disabled-ext',
+                        name: 'Disabled Extension',
+                        version: '2.0.0',
+                        enabled: false,
                     },
                 ]),
                 get: vi.fn(),

@@ -325,7 +325,10 @@ describe('RpcHandlers', () => {
                     throw new Error('Extension not found');
                 }
                 return {
-                    id, name: `Name-${id}`, version: '1.0.0', enabled: true,
+                    id,
+                    name: `Name-${id}`,
+                    version: '1.0.0',
+                    enabled: true,
                 } as Awaited<ReturnType<typeof managementAdapter.get>>;
             });
 

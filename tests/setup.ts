@@ -38,7 +38,10 @@ vi.mock('webextension-polyfill', () => {
             getAll: async (): Promise<unknown[]> => [],
             get: async (): Promise<{ id: string; name: string; enabled: boolean; version: string }> => {
                 return {
-                    id: '', name: '', enabled: true, version: '',
+                    id: '',
+                    name: '',
+                    enabled: true,
+                    version: '',
                 };
             },
             setEnabled: async (): Promise<void> => {},

@@ -92,12 +92,14 @@ const isStoreTarget = (value: string | undefined): value is StoreTarget => {
  *
  * @returns Approval notes for the release.
  */
-const approvalNotes = (repository: string, tag: string): string => [
-    AMO_APPROVAL_NOTES_SUMMARY,
-    '',
-    `Build and test instructions: https://github.com/${repository}/blob/${tag}/${AMO_REVIEW_NOTES_PATH}`,
-    `The same file is ${AMO_REVIEW_NOTES_PATH} in the attached source ZIP.`,
-].join('\n');
+const approvalNotes = (repository: string, tag: string): string => {
+    return [
+        AMO_APPROVAL_NOTES_SUMMARY,
+        '',
+        `Build and test instructions: https://github.com/${repository}/blob/${tag}/${AMO_REVIEW_NOTES_PATH}`,
+        `The same file is ${AMO_REVIEW_NOTES_PATH} in the attached source ZIP.`,
+    ].join('\n');
+};
 
 /**
  * Prepare store assets and GitHub outputs without executing code from the release tag.

@@ -76,16 +76,20 @@ const STORE_CONFIG: Record<string, Record<string, string>> = {
     },
 };
 const UNSUPPORTED_MODE: Record<string, string> = {
-    chrome: 'upload', edge: 'status', firefox: 'upload',
+    chrome: 'upload',
+    edge: 'status',
+    firefox: 'upload',
 };
-const envFor = (target: string, mode = 'submit'): NodeJS.ProcessEnv => ({
-    GITHUB_REPOSITORY: 'fixture/repository',
-    GITHUB_OUTPUT: 'fixture-output',
-    GH_TOKEN: 'fixture-token',
-    STORE_TARGET: target,
-    DEPLOY_MODE: mode,
-    ...STORE_CONFIG[target],
-});
+const envFor = (target: string, mode = 'submit'): NodeJS.ProcessEnv => {
+    return {
+        GITHUB_REPOSITORY: 'fixture/repository',
+        GITHUB_OUTPUT: 'fixture-output',
+        GH_TOKEN: 'fixture-token',
+        STORE_TARGET: target,
+        DEPLOY_MODE: mode,
+        ...STORE_CONFIG[target],
+    };
+};
 const pack = (files: Record<string, string>): Buffer => {
     const zip = new AdmZip();
     Object.entries(files).forEach(([name, value]) => {
@@ -114,9 +118,13 @@ const sourceFiles = {
 };
 const REVIEW_INSTRUCTIONS = 'Reviewer instructions';
 const sourcePackage = pack({ ...sourceFiles, [AMO_REVIEW_NOTES_PATH]: REVIEW_INSTRUCTIONS });
-const assetName = (kind: string): string => `${RELEASE_ASSET_PREFIX}-1.2.3-${kind}.zip`;
-const downloadArguments = (): string[] | undefined => vi.mocked(execFileSync).mock.calls
-    .find(([file, args]) => file === 'gh' && args?.[1] === 'download')?.[1] as string[] | undefined;
+const assetName = (kind: string): string => {
+    return `${RELEASE_ASSET_PREFIX}-1.2.3-${kind}.zip`;
+};
+const downloadArguments = (): string[] | undefined => {
+    return vi.mocked(execFileSync).mock.calls
+        .find(([file, args]) => file === 'gh' && args?.[1] === 'download')?.[1] as string[] | undefined;
+};
 let assets: Record<string, Buffer>;
 let release = { tagName: 'v1.2.3', isDraft: false, isPrerelease: false };
 
@@ -247,8 +255,10 @@ describe.each(STORE_TARGETS)('release preparation protocol for %s', (target) => 
 
 describe('Firefox approval notes', () => {
     const NOTES_TARGET = path.join(STORE_UPLOAD_DIRECTORY, AMO_APPROVAL_NOTES_FILENAME);
-    const writtenNotes = (): string | undefined => vi.mocked(writeFileSync).mock.calls
-        .find(([file]) => String(file) === NOTES_TARGET)?.[1] as string | undefined;
+    const writtenNotes = (): string | undefined => {
+        return vi.mocked(writeFileSync).mock.calls
+            .find(([file]) => String(file) === NOTES_TARGET)?.[1] as string | undefined;
+    };
 
     it('send a short note that links the reviewer instructions pinned to the release tag', () => {
         prepare(envFor(Store.Firefox, DeployMode.Submit));

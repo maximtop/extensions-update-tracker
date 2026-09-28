@@ -94,120 +94,122 @@ const transformManifest = (content: Buffer, browserConfig: BrowserConfig): strin
  *
  * @returns The Rspack configuration for `browserConfig`.
  */
-export const genCommonConfig = (browserConfig: BrowserConfig): Configuration => ({
-    // Set the mode based on the environment
-    mode: isDev ? 'development' : 'production',
-    // Adjust optimization settings
-    optimization: {
-        minimize: false, // Disable code minification to keep code readable
-        runtimeChunk: false,
-    },
-    cache: isDev,
-    // Set devtool to false for production to disable source maps
-    devtool: isDev ? 'inline-source-map' : false,
-    entry: {
-        [BACKGROUND_OUTPUT]: {
-            import: BACKGROUND_PATH,
+export const genCommonConfig = (browserConfig: BrowserConfig): Configuration => {
+    return {
+        // Set the mode based on the environment
+        mode: isDev ? 'development' : 'production',
+        // Adjust optimization settings
+        optimization: {
+            minimize: false, // Disable code minification to keep code readable
+            runtimeChunk: false,
         },
-        [POPUP_OUTPUT]: {
-            import: POPUP_PATH,
+        cache: isDev,
+        // Set devtool to false for production to disable source maps
+        devtool: isDev ? 'inline-source-map' : false,
+        entry: {
+            [BACKGROUND_OUTPUT]: {
+                import: BACKGROUND_PATH,
+            },
+            [POPUP_OUTPUT]: {
+                import: POPUP_PATH,
+            },
+            [OPTIONS_OUTPUT]: {
+                import: OPTIONS_PATH,
+            },
         },
-        [OPTIONS_OUTPUT]: {
-            import: OPTIONS_PATH,
+        output: {
+            path: path.join(BUILD_PATH, OUTPUT_PATH, browserConfig.buildDir),
+            filename: '[name].js',
+            // Native replacement for CleanWebpackPlugin
+            clean: true,
         },
-    },
-    output: {
-        path: path.join(BUILD_PATH, OUTPUT_PATH, browserConfig.buildDir),
-        filename: '[name].js',
-        // Native replacement for CleanWebpackPlugin
-        clean: true,
-    },
-    resolve: {
-        extensions: ['.tsx', '.ts', '.js'],
-        symlinks: false,
-        alias: {
-            '@': path.resolve(currentDirPath, '../../src'),
+        resolve: {
+            extensions: ['.tsx', '.ts', '.js'],
+            symlinks: false,
+            alias: {
+                '@': path.resolve(currentDirPath, '../../src'),
+            },
         },
-    },
-    module: {
-        rules: [
-            {
-                test: /\.(js|ts)x?$/,
-                exclude: /node_modules/,
-                use: [
-                    {
-                        loader: 'builtin:swc-loader',
-                        // builtin:swc-loader does not read .swcrc, so the SWC
-                        // options have to be declared inline here.
-                        options: {
-                            jsc: {
-                                parser: {
-                                    syntax: 'typescript',
-                                    tsx: true,
-                                    decorators: true,
-                                },
-                                transform: {
-                                    legacyDecorator: true,
-                                    decoratorMetadata: true,
+        module: {
+            rules: [
+                {
+                    test: /\.(js|ts)x?$/,
+                    exclude: /node_modules/,
+                    use: [
+                        {
+                            loader: 'builtin:swc-loader',
+                            // builtin:swc-loader does not read .swcrc, so the SWC
+                            // options have to be declared inline here.
+                            options: {
+                                jsc: {
+                                    parser: {
+                                        syntax: 'typescript',
+                                        tsx: true,
+                                        decorators: true,
+                                    },
+                                    transform: {
+                                        legacyDecorator: true,
+                                        decoratorMetadata: true,
+                                    },
                                 },
                             },
                         },
-                    },
-                ],
-            },
-            {
-                test: /\.css$/,
-                // Opts out of Rspack's native CSS pipeline, which cannot be
-                // combined with css-loader/style-loader.
-                type: 'javascript/auto',
-                use: [
-                    'style-loader',
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            url: false,
+                    ],
+                },
+                {
+                    test: /\.css$/,
+                    // Opts out of Rspack's native CSS pipeline, which cannot be
+                    // combined with css-loader/style-loader.
+                    type: 'javascript/auto',
+                    use: [
+                        'style-loader',
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                url: false,
+                            },
                         },
-                    },
-                ],
-            },
-        ],
-    },
-    plugins: [
-        new rspack.DefinePlugin({
-            TARGET_BROWSER: JSON.stringify(browserConfig.browser),
-        }),
-        new rspack.CopyRspackPlugin({
-            patterns: [
-                {
-                    from: path.resolve(currentDirPath, '../../src/assets'),
-                    to: 'assets',
-                    globOptions: {
-                        ignore: ['**/.DS_Store'],
-                    },
-                },
-                {
-                    from: path.resolve(currentDirPath, '../../src/_locales'),
-                    to: '_locales',
-                    transform: transformLocaleMessages,
-                },
-                {
-                    from: path.resolve(currentDirPath, '../../src/manifest.json'),
-                    to: 'manifest.json',
-                    transform: (content) => transformManifest(content, browserConfig),
+                    ],
                 },
             ],
-        }),
-        new rspack.HtmlRspackPlugin({
-            template: path.join(POPUP_PATH, 'index.html'),
-            filename: `${POPUP_OUTPUT}.html`,
-            chunks: [POPUP_OUTPUT],
-            scriptLoading: 'blocking',
-        }),
-        new rspack.HtmlRspackPlugin({
-            template: path.join(OPTIONS_PATH, 'options.html'),
-            filename: `${OPTIONS_OUTPUT}.html`,
-            chunks: [OPTIONS_OUTPUT],
-            scriptLoading: 'blocking',
-        }),
-    ],
-});
+        },
+        plugins: [
+            new rspack.DefinePlugin({
+                TARGET_BROWSER: JSON.stringify(browserConfig.browser),
+            }),
+            new rspack.CopyRspackPlugin({
+                patterns: [
+                    {
+                        from: path.resolve(currentDirPath, '../../src/assets'),
+                        to: 'assets',
+                        globOptions: {
+                            ignore: ['**/.DS_Store'],
+                        },
+                    },
+                    {
+                        from: path.resolve(currentDirPath, '../../src/_locales'),
+                        to: '_locales',
+                        transform: transformLocaleMessages,
+                    },
+                    {
+                        from: path.resolve(currentDirPath, '../../src/manifest.json'),
+                        to: 'manifest.json',
+                        transform: (content) => transformManifest(content, browserConfig),
+                    },
+                ],
+            }),
+            new rspack.HtmlRspackPlugin({
+                template: path.join(POPUP_PATH, 'index.html'),
+                filename: `${POPUP_OUTPUT}.html`,
+                chunks: [POPUP_OUTPUT],
+                scriptLoading: 'blocking',
+            }),
+            new rspack.HtmlRspackPlugin({
+                template: path.join(OPTIONS_PATH, 'options.html'),
+                filename: `${OPTIONS_OUTPUT}.html`,
+                chunks: [OPTIONS_OUTPUT],
+                scriptLoading: 'blocking',
+            }),
+        ],
+    };
+};

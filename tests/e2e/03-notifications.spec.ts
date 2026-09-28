@@ -46,9 +46,11 @@ test.describe('Notifications', () => {
         const result = await serviceWorker.evaluate(async () => {
             const notificationId = 'e2e-buttons-check';
 
-            const getIds = () => new Promise<string[]>((resolve) => {
-                chrome.notifications.getAll((all) => resolve(Object.keys(all)));
-            });
+            const getIds = () => {
+                return new Promise<string[]>((resolve) => {
+                    chrome.notifications.getAll((all) => resolve(Object.keys(all)));
+                });
+            };
 
             const created = await new Promise<string>((resolve) => {
                 chrome.notifications.create(notificationId, {

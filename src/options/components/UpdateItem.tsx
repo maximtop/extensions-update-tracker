@@ -31,7 +31,9 @@ export function UpdateItem({ update }: UpdateItemProps): React.JSX.Element {
     const { updatesStore } = useRootStore();
 
     // Shared relative-time formatting (same wording as the popup)
-    const getTimeAgo = (dateString: string) => formatTimeAgo(new Date(dateString).getTime());
+    const getTimeAgo = (dateString: string) => {
+        return formatTimeAgo(new Date(dateString).getTime());
+    };
 
     const getAriaLabel = () => {
         const timeAgo = getTimeAgo(update.updateDate);

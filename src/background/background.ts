@@ -3,6 +3,7 @@
  */
 
 import { MessageDispatcherService } from '../common/messaging/message-handler';
+import { Logger } from '../common/utils/logger';
 
 import { BadgeService } from './badge-service';
 import { ExtensionsManagement } from './extensions-management';
@@ -18,9 +19,6 @@ const notificationService = new NotificationService(extensionsUpdateStorage);
 const messageDispatcher = new MessageDispatcherService();
 const badgeService = new BadgeService(extensionsUpdateStorage, messageDispatcher);
 
-// Note: These constructors use TypeScript's parameter properties pattern (private params).
-// While an options object pattern could improve readability, it would require significant
-// refactoring of test files (18+ instances). The current pattern is idiomatic TypeScript.
 const extensionsManagement = new ExtensionsManagement(
     managementAdapter,
     extensionsUpdateStorage,
@@ -37,31 +35,26 @@ const rpcHandlers = new RpcHandlers(
 );
 
 /**
- * Starts the services that must be ready before the background script can receive messages.
- */
-const syncInit = () => {
-    messageDispatcher.init();
-    rpcHandlers.init();
-};
-
-/**
- * Loads persisted state and starts the services that depend on it.
+ * Loads persisted settings and extension data.
  *
  * @returns Promise that resolves once settings and extension data have loaded.
  */
-const asyncInit = async () => {
+const loadStorage = async () => {
     await settingsStorage.load();
     await extensionsUpdateStorage.init();
-    await extensionsManagement.init();
 };
 
 /**
- * Entry point called once on background script startup: runs the synchronous init
- * immediately and kicks off the asynchronous init without blocking the caller.
+ * Entry point called once on background script startup: registers all listeners
+ * synchronously and starts loading storage without blocking the caller.
  */
 const init = () => {
-    syncInit();
-    void asyncInit();
+    messageDispatcher.init();
+    rpcHandlers.init();
+    // Register lifecycle listeners before yielding so Firefox can wake an idle event page.
+    extensionsManagement.init(loadStorage()).catch((error) => {
+        Logger.error('Failed to initialize extension tracking:', error);
+    });
 };
 
 export { init };

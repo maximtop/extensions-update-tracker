@@ -1,12 +1,25 @@
-import {
+/**
+ * @file Lookup helpers for the build/browser config maps in `./constants`.
+ */
+
+import { BROWSERS_CONF, ENV_CONF } from './constants';
+
+import type {
     Browser,
+    BrowserConfig,
     BuildTargetEnv,
-    ENV_CONF,
-    type EnvConfig,
-    type BrowserConfig,
-    BROWSERS_CONF,
+    EnvConfig,
 } from './constants';
 
+/**
+ * Looks up the build config for a browser.
+ *
+ * @param browser Browser to look up.
+ *
+ * @returns The browser's build config.
+ *
+ * @throws When `browser` has no entry in `BROWSERS_CONF`.
+ */
 export const getBrowserConf = (browser: Browser): BrowserConfig => {
     const browserConf = BROWSERS_CONF[browser];
     if (!browserConf) {
@@ -15,6 +28,15 @@ export const getBrowserConf = (browser: Browser): BrowserConfig => {
     return browserConf;
 };
 
+/**
+ * Looks up the build config for a target environment.
+ *
+ * @param env Target environment to look up.
+ *
+ * @returns The environment's build config.
+ *
+ * @throws When `env` has no entry in `ENV_CONF`.
+ */
 export const getEnvConf = (env: BuildTargetEnv): EnvConfig => {
     const envConfig = ENV_CONF[env];
     if (!envConfig) {

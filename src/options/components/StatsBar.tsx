@@ -1,16 +1,39 @@
+/**
+ * @file Activity summary rail: unread/total update counts and the bulk mark-as-read action.
+ */
+
 import React from 'react';
 
 import { t, tPlural } from '../../common/utils/i18n';
 
+/**
+ * Props for StatsBar.
+ */
 interface StatsBarProps {
+    /**
+     * Total number of updates recorded across all extensions.
+     */
     totalUpdateCount: number;
+
+    /**
+     * Number of unread updates across all extensions.
+     */
     unreadUpdateCount: number;
+
+    /**
+     * Called when the user activates the "mark all as read" button.
+     */
     onMarkAllAsRead: () => void;
 }
 
 /**
  * Activity summary rail: unread count as the leading value, total history as
  * supporting metadata, and the bulk mark-as-read action in the same zone.
+ *
+ * @param root0 Component props.
+ * @param root0.totalUpdateCount Total number of updates recorded across all extensions.
+ * @param root0.unreadUpdateCount Number of unread updates across all extensions.
+ * @param root0.onMarkAllAsRead Called when the user activates the "mark all as read" button.
  */
 export function StatsBar({
     totalUpdateCount,

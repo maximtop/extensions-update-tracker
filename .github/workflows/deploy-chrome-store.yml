@@ -6,8 +6,8 @@ name: Deploy Chrome Web Store
 # automatically; after the review is approved, publish the version by hand in
 # the Developer Dashboard within 30 days.
 #
-# Identical across the extension repositories; repository specifics live in
-# scripts/deploy/constants.ts and the repository variables and secrets.
+# Repository specifics live in scripts/deploy/constants.ts and the repository
+# variables and secrets.
 
 on:
   workflow_call:

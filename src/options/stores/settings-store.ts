@@ -1,5 +1,5 @@
 /**
- * Settings store for managing user preferences in the UI
+ * @file Settings store for managing user preferences in the UI
  * Uses message passing to communicate with background page for settings operations
  */
 
@@ -7,13 +7,15 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import { MessageSender } from '../../common/messaging/message-sender';
 import { MessageType } from '../../common/messaging/message-types';
-import { UserSettings, DEFAULT_SETTINGS } from '../../common/types/settings-types';
+import { DEFAULT_SETTINGS } from '../../common/types/settings-types';
 import {
-    OptionsTab,
     DEFAULT_TAB,
     TAB_ABOUT,
     TAB_SETTINGS,
 } from '../types/tab-types';
+
+import type { UserSettings } from '../../common/types/settings-types';
+import type { OptionsTab } from '../types/tab-types';
 
 /**
  * URL hash for each non-default tab, so the active tab survives page
@@ -33,6 +35,9 @@ function getTabFromHash(): OptionsTab {
     return match ? (match[0] as OptionsTab) : DEFAULT_TAB;
 }
 
+/**
+ * Options page settings state: loads/persists user settings and the active tab.
+ */
 export class SettingsStore {
     // Observable state
     settings: UserSettings = DEFAULT_SETTINGS;
@@ -43,9 +48,12 @@ export class SettingsStore {
 
     activeTab: OptionsTab = getTabFromHash();
 
+    /**
+     * Kicks off the initial settings load and subscribes to hash-based tab navigation.
+     */
     constructor() {
         makeAutoObservable(this);
-        this.loadSettings();
+        void this.loadSettings();
         // Follow in-page hash navigation (e.g. a link to options.html#settings
         // opened while the page is already loaded). Our own setActiveTab uses
         // replaceState, which does not fire hashchange, so this cannot loop.
@@ -124,6 +132,8 @@ export class SettingsStore {
 
     /**
      * Mute/unmute notifications for a specific extension
+     *
+     * @param extensionId Id of the extension to mute or unmute.
      */
     async toggleExtensionMuted(extensionId: string) {
         const isMuted = this.settings.extensionPreferences.mutedExtensions[extensionId] || false;
@@ -138,6 +148,8 @@ export class SettingsStore {
 
     /**
      * Check if extension notifications are muted
+     *
+     * @param extensionId Id of the extension to check.
      */
     isExtensionMuted(extensionId: string): boolean {
         const DEFAULT_MUTED_STATUS = false;
@@ -164,6 +176,8 @@ export class SettingsStore {
      * Set active tab and mirror it into the URL hash, so a reload restores
      * the tab and tabs can be linked to directly. replaceState avoids piling
      * up history entries and the scroll jump of assigning location.hash.
+     *
+     * @param tab Tab to make active.
      */
     setActiveTab(tab: OptionsTab) {
         this.activeTab = tab;
@@ -173,6 +187,8 @@ export class SettingsStore {
 
     /**
      * Update settings (internal helper)
+     *
+     * @param partial Settings fields to merge into the current settings.
      */
     private async updateSettings(partial: Partial<UserSettings>) {
         try {

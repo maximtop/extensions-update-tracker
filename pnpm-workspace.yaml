@@ -1,6 +1,7 @@
 allowBuilds:
   esbuild: true
-  unrs-resolver: false
+  unrs-resolver: true
 peerDependencyRules:
   allowedVersions:
     'css-loader>@rspack/core': '2'
+    eslint: '10'

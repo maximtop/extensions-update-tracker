@@ -9,8 +9,25 @@ import {
 import { BadgeService } from '../../../src/background/badge-service';
 import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
 import { MessageDispatcherService } from '../../../src/common/messaging/message-handler';
+import { MessageType } from '../../../src/common/messaging/message-types';
 
 import type { StorageAdapter } from '../../../src/background/storage-adapter';
+import type { MessageHandler } from '../../../src/common/messaging/message-handler';
+import type { Mock } from 'vitest';
+
+// Test-only shape exposing the private `handlers` map so the test can invoke the
+// registered UpdatesPageOpened handler directly, bypassing the runtime message listener.
+interface MessageDispatcherWithHandlers {
+    handlers: Map<MessageType, MessageHandler>;
+}
+
+interface MockedBrowser {
+    action: {
+        setBadgeText: Mock;
+        setBadgeBackgroundColor: Mock;
+        setBadgeTextColor: Mock;
+    };
+}
 
 // Mock webextension-polyfill
 vi.mock('webextension-polyfill', () => ({
@@ -25,9 +42,9 @@ vi.mock('webextension-polyfill', () => ({
 
 // In-memory StorageAdapter
 class InMemoryStorageAdapter implements StorageAdapter {
-    private store: Record<string, any>;
+    private store: Record<string, unknown>;
 
-    constructor(initial: Record<string, any> = {}) {
+    constructor(initial: Record<string, unknown> = {}) {
         this.store = { ...initial };
     }
 
@@ -35,7 +52,7 @@ class InMemoryStorageAdapter implements StorageAdapter {
         return this.store[key];
     }
 
-    async set(key: string, value: any) {
+    async set(key: string, value: unknown) {
         this.store[key] = value;
     }
 }
@@ -45,13 +62,13 @@ describe('BadgeService', () => {
     let storage: ExtensionsUpdateStorage;
     let storageAdapter: InMemoryStorageAdapter;
     let messageHandler: MessageDispatcherService;
-    let browser: any;
+    let browser: MockedBrowser;
 
     beforeEach(async () => {
         // Dynamic import required: Must import webextension-polyfill AFTER vi.mock() is set up
         // to ensure the mocked version is loaded instead of the real module
         const browserModule = await import('webextension-polyfill');
-        browser = browserModule.default;
+        browser = browserModule.default as unknown as MockedBrowser;
 
         // Reset mocks
         vi.clearAllMocks();
@@ -121,9 +138,9 @@ describe('BadgeService', () => {
             vi.clearAllMocks();
 
             // Re-setup the mock implementations after clearing
-            (browser.action.setBadgeText as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeBackgroundColor as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeTextColor as any).mockResolvedValue(undefined);
+            browser.action.setBadgeText.mockResolvedValue(undefined);
+            browser.action.setBadgeBackgroundColor.mockResolvedValue(undefined);
+            browser.action.setBadgeTextColor.mockResolvedValue(undefined);
 
             // Create new badge service with updated storage
             badgeService = new BadgeService(newStorage, messageHandler);
@@ -160,9 +177,9 @@ describe('BadgeService', () => {
             await newStorage.init();
 
             vi.clearAllMocks();
-            (browser.action.setBadgeText as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeBackgroundColor as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeTextColor as any).mockResolvedValue(undefined);
+            browser.action.setBadgeText.mockResolvedValue(undefined);
+            browser.action.setBadgeBackgroundColor.mockResolvedValue(undefined);
+            browser.action.setBadgeTextColor.mockResolvedValue(undefined);
 
             badgeService = new BadgeService(newStorage, messageHandler);
 
@@ -196,9 +213,9 @@ describe('BadgeService', () => {
             vi.clearAllMocks();
 
             // Re-setup the mock implementations after clearing
-            (browser.action.setBadgeText as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeBackgroundColor as any).mockResolvedValue(undefined);
-            (browser.action.setBadgeTextColor as any).mockResolvedValue(undefined);
+            browser.action.setBadgeText.mockResolvedValue(undefined);
+            browser.action.setBadgeBackgroundColor.mockResolvedValue(undefined);
+            browser.action.setBadgeTextColor.mockResolvedValue(undefined);
 
             badgeService = new BadgeService(newStorage, messageHandler);
 
@@ -214,7 +231,7 @@ describe('BadgeService', () => {
 
         it('should handle errors gracefully', async () => {
             const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            (browser.action.setBadgeText as any).mockRejectedValueOnce(new Error('Failed'));
+            browser.action.setBadgeText.mockRejectedValueOnce(new Error('Failed'));
 
             await badgeService.updateBadge();
 
@@ -222,8 +239,9 @@ describe('BadgeService', () => {
             const { calls } = consoleErrorSpy.mock;
             expect(calls.length).toBeGreaterThan(0);
             const firstCall = calls[0];
-            expect(firstCall[1]).toContain('Failed to update badge:');
-            expect(firstCall[2]).toContain('Error: Failed');
+            expect(firstCall).toBeDefined();
+            expect(firstCall![1]).toContain('Failed to update badge:');
+            expect(firstCall![2]).toContain('Error: Failed');
 
             consoleErrorSpy.mockRestore();
         });
@@ -238,7 +256,7 @@ describe('BadgeService', () => {
 
         it('should handle clear errors', async () => {
             const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            (browser.action.setBadgeText as any).mockRejectedValueOnce(new Error('Failed'));
+            browser.action.setBadgeText.mockRejectedValueOnce(new Error('Failed'));
 
             await badgeService.clearBadge();
 
@@ -246,8 +264,9 @@ describe('BadgeService', () => {
             const { calls } = consoleErrorSpy.mock;
             expect(calls.length).toBeGreaterThan(0);
             const firstCall = calls[0];
-            expect(firstCall[1]).toContain('Failed to clear badge:');
-            expect(firstCall[2]).toContain('Error: Failed');
+            expect(firstCall).toBeDefined();
+            expect(firstCall![1]).toContain('Failed to clear badge:');
+            expect(firstCall![2]).toContain('Error: Failed');
 
             consoleErrorSpy.mockRestore();
         });
@@ -260,6 +279,53 @@ describe('BadgeService', () => {
             await badgeService.refresh();
 
             expect(browser.action.setBadgeText).toHaveBeenCalled();
+        });
+    });
+
+    describe('UpdatesPageOpened event', () => {
+        it('should clear the badge when the updates page is opened', async () => {
+            const storageData = {
+                'ext-1': {
+                    currentVersion: '1.0.0',
+                    updateHistory: [
+                        {
+                            version: '1.0.0',
+                            detectedTimestampMs: Date.now(),
+                            isRead: false,
+                        },
+                    ],
+                },
+            };
+            const newStorageAdapter = new InMemoryStorageAdapter({ 'extensions-update-storage': storageData });
+            const newStorage = new ExtensionsUpdateStorage(newStorageAdapter);
+            await newStorage.init();
+
+            vi.clearAllMocks();
+            browser.action.setBadgeText.mockResolvedValue(undefined);
+            browser.action.setBadgeBackgroundColor.mockResolvedValue(undefined);
+            browser.action.setBadgeTextColor.mockResolvedValue(undefined);
+
+            // Constructing the service subscribes to UpdatesPageOpened and shows the
+            // non-zero count from storage first.
+            badgeService = new BadgeService(newStorage, messageHandler);
+            await vi.waitFor(() => {
+                expect(browser.action.setBadgeText).toHaveBeenCalledWith({ text: '1' });
+            }, { timeout: 100 });
+
+            const handler = (messageHandler as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.UpdatesPageOpened)!;
+            expect(handler).toBeDefined();
+
+            vi.clearAllMocks();
+            browser.action.setBadgeText.mockResolvedValue(undefined);
+
+            // The handler fires clearBadge() without awaiting it, so wait for the
+            // resulting call instead of the handler's own (immediately-resolved) return.
+            void handler({ type: MessageType.UpdatesPageOpened });
+
+            await vi.waitFor(() => {
+                expect(browser.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
+            }, { timeout: 100 });
         });
     });
 });

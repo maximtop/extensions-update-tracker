@@ -2,7 +2,6 @@
 
 /**
  * @file Verify Firefox preflight and status orchestration with simulated AMO responses.
- * Shared contract for extension repositories that deploy to Firefox.
  */
 
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
@@ -49,7 +48,9 @@ const pending = {
     file: { status: AMO_STATUS.Unreviewed },
 };
 const request = vi.fn<typeof fetch>();
-const json = (value: unknown): Response => new Response(JSON.stringify(value));
+const json = (value: unknown): Response => {
+    return new Response(JSON.stringify(value));
+};
 
 beforeEach(() => {
     vi.resetAllMocks();

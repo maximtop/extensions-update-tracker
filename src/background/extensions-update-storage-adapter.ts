@@ -1,4 +1,8 @@
-import { Management } from 'webextension-polyfill';
+/**
+ * @file Adapter interface the storage service implements for ExtensionsManagement.
+ */
+
+import type { Management } from 'webextension-polyfill';
 
 /**
  * Adapter interface for the storage service used by ExtensionsManagement.

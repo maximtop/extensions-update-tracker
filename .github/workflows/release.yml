@@ -22,8 +22,7 @@ concurrency:
 
 env:
   DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
-  # Repository specifics; the rest of this workflow is identical across the
-  # extension repositories.
+  # Repository specifics.
   RELEASE_TITLE: Extensions Update Tracker
 
 jobs:

@@ -6,8 +6,8 @@ name: Deploy Firefox Add-ons
 # version asynchronously and publishes it itself once approved; the `status`
 # mode reports the review state and retains the signed package.
 #
-# Identical across the extension repositories; repository specifics live in
-# scripts/deploy/constants.ts and the repository variables and secrets.
+# Repository specifics live in scripts/deploy/constants.ts and the repository
+# variables and secrets.
 
 on:
   workflow_call:

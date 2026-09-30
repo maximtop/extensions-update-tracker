@@ -1,5 +1,5 @@
 /**
- * @file Configuration for this repository's shared extension deployment flow.
+ * @file Configuration for this repository's store deployment flow.
  */
 
 /**
@@ -9,7 +9,7 @@
 export const RELEASE_ASSET_PREFIX = 'extensions-update-tracker';
 
 /**
- * Every store the shared deployment flow knows; the same in every extension repository.
+ * Every store the deployment flow knows.
  */
 export const Store = {
     Chrome: 'chrome',

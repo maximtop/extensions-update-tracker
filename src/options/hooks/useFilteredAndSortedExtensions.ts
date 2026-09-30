@@ -1,18 +1,52 @@
+/**
+ * @file Hook that derives the filtered and sorted list of extension ids shown on the
+ * Updates tab.
+ */
+
 import { useMemo } from 'react';
 
-import { UpdatesStore } from '../stores/updates-store';
-import { SORT_ORDER_ALPHABETICAL, SortOrder } from '../utils/storage-utils';
+import { SORT_ORDER_ALPHABETICAL } from '../utils/storage-utils';
 
+import type { UpdatesStore } from '../stores/updates-store';
+import type { SortOrder } from '../utils/storage-utils';
+
+/**
+ * Props for useFilteredAndSortedExtensions.
+ */
 interface UseFilteredAndSortedExtensionsProps {
+    /**
+     * Store providing extension ids, per-extension info, and update history.
+     */
     updatesStore: UpdatesStore;
+
+    /**
+     * When true, extensions with no unread updates are excluded.
+     */
     showUnreadOnly: boolean;
+
+    /**
+     * Free-text query matched case-insensitively against the extension name.
+     */
     searchQuery: string;
+
+    /**
+     * Preferred ordering of the result: by extension name or by latest update date.
+     */
     sortOrder: SortOrder;
 }
 
 /**
  * Custom hook to filter and sort extension IDs based on search query,
  * update status, and sort preference
+ *
+ * @param root0 Hook props.
+ * @param root0.updatesStore Store providing extension ids, per-extension info, and update
+ * history.
+ * @param root0.showUnreadOnly When true, extensions with no unread updates are excluded.
+ * @param root0.searchQuery Free-text query matched case-insensitively against the extension
+ * name.
+ * @param root0.sortOrder Preferred ordering of the result: by extension name or by latest
+ * update date.
  */
 export function useFilteredAndSortedExtensions({
     updatesStore,
@@ -20,8 +54,9 @@ export function useFilteredAndSortedExtensions({
     searchQuery,
     sortOrder,
 }: UseFilteredAndSortedExtensionsProps): string[] {
+    const { extensionIds } = updatesStore;
+
     return useMemo(() => {
-        const { extensionIds } = updatesStore;
         const normalizedQuery = searchQuery.trim().toLowerCase();
 
         const filteredIds = extensionIds.filter((id) => {
@@ -58,5 +93,5 @@ export function useFilteredAndSortedExtensions({
         });
 
         return sortedIds;
-    }, [updatesStore, showUnreadOnly, searchQuery, sortOrder, updatesStore.extensionIds]);
+    }, [updatesStore, extensionIds, showUnreadOnly, searchQuery, sortOrder]);
 }

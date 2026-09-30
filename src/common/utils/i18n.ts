@@ -1,3 +1,7 @@
+/**
+ * @file Resolves the UI language and exposes translation helpers backed by `@adguard/translate`.
+ */
+
 import { translate, type I18nInterface, type Locale } from '@adguard/translate';
 import browser from 'webextension-polyfill';
 
@@ -5,7 +9,7 @@ const BASE_LOCALE: Locale = 'en';
 
 /**
  * Locales bundled with the extension (folders in src/_locales),
- * in @adguard/translate notation: lowercase with underscore separators
+ * in `@adguard/translate` notation: lowercase with underscore separators
  */
 const SUPPORTED_LOCALES: Locale[] = ['de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'pt_br', 'ru', 'zh_cn'];
 
@@ -14,7 +18,7 @@ const SUPPORTED_LOCALES: Locale[] = ['de', 'en', 'es', 'fr', 'it', 'ja', 'ko', '
  * chrome.i18n actually serves messages from, so plural form selection matches
  * the language of the loaded messages
  *
- * @returns Locale code supported by @adguard/translate
+ * @returns Locale code supported by `@adguard/translate`
  */
 function resolveLocale(): Locale {
     const normalized = browser.i18n.getUILanguage().toLowerCase().replace('-', '_') as Locale;
@@ -49,6 +53,7 @@ export type TranslationParams = Record<string, string | number>;
  *
  * @param key The message key in messages.json
  * @param params Optional named values for `%placeholder%` markers
+ *
  * @returns The translated message
  */
 export function t(key: string, params?: TranslationParams): string {
@@ -62,6 +67,7 @@ export function t(key: string, params?: TranslationParams): string {
  * @param key The message key in messages.json
  * @param count The number selecting the plural form
  * @param params Optional named values for additional `%placeholder%` markers
+ *
  * @returns The translated message in the correct plural form
  */
 export function tPlural(key: string, count: number, params?: TranslationParams): string {
@@ -70,6 +76,7 @@ export function tPlural(key: string, count: number, params?: TranslationParams):
 
 /**
  * Get the current UI language
+ *
  * @returns The current language code (e.g., 'en', 'zh_CN', 'es')
  */
 export function getUILanguage(): string {

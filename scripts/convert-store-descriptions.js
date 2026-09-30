@@ -11,13 +11,9 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const SOURCE_FILE = path.join(__dirname, '../CHROME_STORE_DESCRIPTION.md');
-const OUTPUT_DIR = path.join(__dirname, '../dist/store-descriptions');
+const SOURCE_FILE = path.join(import.meta.dirname, '../CHROME_STORE_DESCRIPTION.md');
+const OUTPUT_DIR = path.join(import.meta.dirname, '../dist/store-descriptions');
 
 function convertMarkdownToPlainText(markdown) {
     let text = markdown;
@@ -118,7 +114,7 @@ function convertDescriptions() {
         results.push({
             code: langCode,
             name: section.name,
-            file: path.relative(path.join(__dirname, '..'), outputFile),
+            file: path.relative(path.join(import.meta.dirname, '..'), outputFile),
             chars: charCount,
             lines: lineCount,
         });
@@ -138,7 +134,7 @@ function convertDescriptions() {
 
     console.log('\n═══════════════════════════════════════════════════');
     console.log('✅ All descriptions converted successfully!');
-    console.log(`   Output directory: ${path.relative(path.join(__dirname, '..'), OUTPUT_DIR)}\n`);
+    console.log(`   Output directory: ${path.relative(path.join(import.meta.dirname, '..'), OUTPUT_DIR)}\n`);
 
     // Check for length warnings (Chrome Web Store has a ~5000 character soft limit)
     const warnings = results.filter((r) => r.chars > 5000);

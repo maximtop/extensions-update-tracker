@@ -1,5 +1,5 @@
 /**
- * Time-related utility functions
+ * @file Time-related utility functions
  */
 
 import {
@@ -33,6 +33,7 @@ export function formatTime(date: Date): string {
  * Formats a date string to a localized display string
  *
  * @param dateString - ISO date string or any valid date string
+ *
  * @returns Formatted date string (e.g., "Jan 15, 2024, 2:30 PM")
  *
  * @example
@@ -55,6 +56,7 @@ export function formatDate(dateString: string): string {
  * Formats a timestamp into a localized "time ago" string
  *
  * @param timestamp - Unix timestamp in milliseconds
+ *
  * @returns Formatted time ago string (e.g., "5 minutes ago", "2 hours ago")
  *
  * @example

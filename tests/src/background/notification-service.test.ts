@@ -8,8 +8,37 @@ import {
 } from 'vitest';
 
 import { NotificationService } from '../../../src/background/notification-service';
+import { notificationStateStorage } from '../../../src/background/notification-state-storage';
+import { settingsStorage } from '../../../src/background/settings-storage';
+import { NotificationCloseReason } from '../../../src/common/types/notification-types';
 
+import type { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
+import type { Mock } from 'vitest';
 import type { Management } from 'webextension-polyfill';
+
+interface MockedBrowser {
+    notifications: {
+        create: Mock;
+        clear: Mock;
+        getAll: Mock;
+        onClicked: { addListener: Mock };
+        onButtonClicked: { addListener: Mock };
+        onClosed: { addListener: Mock };
+        onShowSettings: { addListener: Mock };
+    };
+    tabs: {
+        create: Mock;
+    };
+    runtime: {
+        getURL: Mock;
+        getManifest: Mock;
+        onInstalled: { addListener: Mock };
+    };
+    management: {
+        setEnabled: Mock;
+        uninstall: Mock;
+    };
+}
 
 // Mock webextension-polyfill
 vi.mock('webextension-polyfill', () => ({
@@ -103,20 +132,14 @@ vi.mock('../../../src/background/notification-state-storage', () => ({
     },
 }));
 
-// Import modules after mocks are set up
-// eslint-disable-next-line import/first, import/order
-import { settingsStorage } from '../../../src/background/settings-storage';
-// eslint-disable-next-line import/first, import/order
-import { notificationStateStorage } from '../../../src/background/notification-state-storage';
-
 describe('NotificationService', () => {
     let notificationService: NotificationService;
-    let browser: any;
+    let browser: MockedBrowser;
 
     beforeEach(async () => {
         // Import browser after mocking
         const browserModule = await import('webextension-polyfill');
-        browser = browserModule.default;
+        browser = browserModule.default as unknown as MockedBrowser;
 
         // Reset all mocks
         vi.clearAllMocks();
@@ -196,8 +219,9 @@ describe('NotificationService', () => {
 
             await notificationService.showUpdateNotification(extensionInfo);
 
-            const createCall = (browser.notifications.create as any).mock.calls[0];
-            const options = createCall[1];
+            const createCall = browser.notifications.create.mock.calls[0];
+            expect(createCall).toBeDefined();
+            const options = createCall![1];
 
             // Should use extension's own icon since service workers can't access chrome:// URLs
             expect(options.iconUrl).toBe('chrome-extension://fake-id/assets/icons/icon-48.png');
@@ -205,7 +229,7 @@ describe('NotificationService', () => {
 
         it('should handle notification creation errors', async () => {
             const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            (browser.notifications.create as any).mockRejectedValueOnce(new Error('Failed'));
+            browser.notifications.create.mockRejectedValueOnce(new Error('Failed'));
 
             const extensionInfo: Management.ExtensionInfo = {
                 id: 'test-id',
@@ -218,7 +242,7 @@ describe('NotificationService', () => {
 
             // Logger.error prefixes timestamp, so just check that error was logged
             expect(consoleErrorSpy).toHaveBeenCalled();
-            const errorCall = (consoleErrorSpy.mock.calls[0] as string[]);
+            const errorCall = consoleErrorSpy.mock.calls[0]! as string[];
             expect(errorCall.join(' ')).toContain('Failed to show notification:');
 
             consoleErrorSpy.mockRestore();
@@ -255,8 +279,9 @@ describe('NotificationService', () => {
 
             await notificationService.showUpdateNotification(extensionInfo);
 
-            const createCall = (browser.notifications.create as any).mock.calls[0];
-            const options = createCall[1];
+            const createCall = browser.notifications.create.mock.calls[0];
+            expect(createCall).toBeDefined();
+            const options = createCall![1];
 
             // Should use extension's own icon since service workers can't access chrome:// URLs
             expect(options.iconUrl).toBe('chrome-extension://fake-id/assets/icons/icon-48.png');
@@ -274,7 +299,7 @@ describe('NotificationService', () => {
 
         it('should handle clear errors', async () => {
             const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            (browser.notifications.clear as any).mockResolvedValueOnce(true); // clearNotification doesn't catch errors
+            browser.notifications.clear.mockResolvedValueOnce(true); // clearNotification doesn't catch errors
 
             await notificationService.clearNotification('test-id');
 
@@ -287,7 +312,7 @@ describe('NotificationService', () => {
 
     describe('clearAllNotifications', () => {
         it('should clear all extension update notifications', async () => {
-            (browser.notifications.getAll as any).mockResolvedValueOnce({
+            browser.notifications.getAll.mockResolvedValueOnce({
                 'extension-update-id1': {},
                 'extension-update-id2': {},
                 'other-notification': {},
@@ -304,7 +329,7 @@ describe('NotificationService', () => {
         it('should handle getAll errors', async () => {
             const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
             // clearAllNotifications doesn't catch errors
-            (browser.notifications.getAll as any).mockResolvedValueOnce({});
+            browser.notifications.getAll.mockResolvedValueOnce({});
 
             await notificationService.clearAllNotifications();
 
@@ -339,7 +364,7 @@ describe('NotificationService', () => {
         });
 
         it('should not show welcome notification if notifications are disabled', async () => {
-            (settingsStorage.areNotificationsEnabled as any).mockReturnValueOnce(false);
+            vi.mocked(settingsStorage.areNotificationsEnabled).mockReturnValueOnce(false);
 
             await notificationService.showWelcomeNotification();
 
@@ -348,20 +373,20 @@ describe('NotificationService', () => {
 
         it('should handle welcome notification creation errors', async () => {
             const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            (browser.notifications.create as any).mockRejectedValueOnce(new Error('Failed to create notification'));
+            browser.notifications.create.mockRejectedValueOnce(new Error('Failed to create notification'));
 
             await notificationService.showWelcomeNotification();
 
             // Logger.error prefixes timestamp, so just check that error was logged
             expect(consoleErrorSpy).toHaveBeenCalled();
-            const errorCall = (consoleErrorSpy.mock.calls[0] as string[]);
+            const errorCall = consoleErrorSpy.mock.calls[0]! as string[];
             expect(errorCall.join(' ')).toContain('Failed to show welcome notification:');
 
             consoleErrorSpy.mockRestore();
         });
 
         it('should use current extension version from manifest', async () => {
-            (browser.runtime.getManifest as any).mockReturnValueOnce({ version: '2.5.0' });
+            browser.runtime.getManifest.mockReturnValueOnce({ version: '2.5.0' });
 
             await notificationService.showWelcomeNotification();
 
@@ -372,7 +397,7 @@ describe('NotificationService', () => {
 
     describe('notification state tracking', () => {
         it('should not show notification if it was previously dismissed by user for same version', async () => {
-            (notificationStateStorage.wasDismissedByUser as any).mockResolvedValueOnce(true);
+            vi.mocked(notificationStateStorage.wasDismissedByUser).mockResolvedValueOnce(true);
 
             const extensionInfo: Management.ExtensionInfo = {
                 id: 'test-ext',
@@ -388,7 +413,7 @@ describe('NotificationService', () => {
         });
 
         it('should clear previous dismissed state before showing new notification', async () => {
-            (notificationStateStorage.wasDismissedByUser as any).mockResolvedValueOnce(false);
+            vi.mocked(notificationStateStorage.wasDismissedByUser).mockResolvedValueOnce(false);
 
             const extensionInfo: Management.ExtensionInfo = {
                 id: 'test-ext',
@@ -423,7 +448,7 @@ describe('NotificationService', () => {
         });
 
         it('should not show notification if notifications are globally disabled', async () => {
-            (settingsStorage.areNotificationsEnabled as any).mockReturnValueOnce(false);
+            vi.mocked(settingsStorage.areNotificationsEnabled).mockReturnValueOnce(false);
 
             const extensionInfo: Management.ExtensionInfo = {
                 id: 'test-ext',
@@ -438,7 +463,7 @@ describe('NotificationService', () => {
         });
 
         it('should not show notification if notifications are muted for specific extension', async () => {
-            (settingsStorage.areNotificationsEnabledForExtension as any).mockReturnValueOnce(false);
+            vi.mocked(settingsStorage.areNotificationsEnabledForExtension).mockReturnValueOnce(false);
 
             const extensionInfo: Management.ExtensionInfo = {
                 id: 'test-ext',
@@ -471,7 +496,8 @@ describe('NotificationService', () => {
             expect(browser.notifications.create).toHaveBeenCalled();
 
             // Simulate a state change from another device (notification dismissed there)
-            const changeListener = (notificationStateStorage.addChangeListener as any).mock.calls[0][0];
+            const changeListener = vi.mocked(notificationStateStorage.addChangeListener).mock.calls[0]?.[0];
+            expect(changeListener).toBeDefined();
 
             const remoteStates = {
                 'test-ext-sync': {
@@ -479,15 +505,17 @@ describe('NotificationService', () => {
                     version: '1.0.0',
                     shownAt: Date.now() - 1000,
                     closedAt: Date.now(),
-                    closeReason: 'user' as const,
+                    closeReason: NotificationCloseReason.User,
                     dismissedByUser: true,
                 },
             };
 
-            await changeListener(remoteStates);
+            changeListener!(remoteStates);
 
             // Should have cleared the local notification
-            expect(browser.notifications.clear).toHaveBeenCalledWith('extension-update-test-ext-sync');
+            await vi.waitFor(() => {
+                expect(browser.notifications.clear).toHaveBeenCalledWith('extension-update-test-ext-sync');
+            });
         });
 
         it('should not clear notification if not dismissed by user on other device', async () => {
@@ -501,10 +529,11 @@ describe('NotificationService', () => {
 
             await notificationService.showUpdateNotification(extensionInfo);
 
-            const clearCallsBefore = (browser.notifications.clear as any).mock.calls.length;
+            const clearCallsBefore = browser.notifications.clear.mock.calls.length;
 
             // Simulate a state change from another device (notification timed out, not dismissed)
-            const changeListener = (notificationStateStorage.addChangeListener as any).mock.calls[0][0];
+            const changeListener = vi.mocked(notificationStateStorage.addChangeListener).mock.calls[0]?.[0];
+            expect(changeListener).toBeDefined();
 
             const remoteStates = {
                 'test-ext-timeout': {
@@ -512,48 +541,54 @@ describe('NotificationService', () => {
                     version: '1.0.0',
                     shownAt: Date.now() - 1000,
                     closedAt: Date.now(),
-                    closeReason: 'timeout' as const,
+                    closeReason: NotificationCloseReason.Timeout,
                     dismissedByUser: false,
                 },
             };
 
-            await changeListener(remoteStates);
+            changeListener!(remoteStates);
 
             // Should NOT have cleared since it wasn't dismissed by user
-            const clearCallsAfter = (browser.notifications.clear as any).mock.calls.length;
+            const clearCallsAfter = browser.notifications.clear.mock.calls.length;
             expect(clearCallsAfter).toBe(clearCallsBefore);
         });
     });
 
     describe('notification settings', () => {
         it('should register onShowSettings listener', () => {
-            const _notificationService = new NotificationService();
+            const service = new NotificationService();
 
+            expect(service).toBeDefined();
             expect(browser.notifications.onShowSettings.addListener).toHaveBeenCalled();
         });
 
         it('should open updates page with settings hash when settings button is clicked', async () => {
-            const _notificationService = new NotificationService();
+            const service = new NotificationService();
+            expect(service).toBeDefined();
 
             // Get the registered handler
-            const onShowSettingsHandler = (browser.notifications.onShowSettings.addListener as any).mock.calls[0][0];
+            const onShowSettingsHandler = browser.notifications.onShowSettings.addListener.mock.calls[0]?.[0];
+            expect(onShowSettingsHandler).toBeDefined();
 
             // Clear previous calls
-            (browser.tabs.create as any).mockClear();
+            browser.tabs.create.mockClear();
 
             // Trigger the settings button click
-            await onShowSettingsHandler();
+            onShowSettingsHandler!();
 
             // Verify that a new tab was created with the correct URL
-            expect(browser.tabs.create).toHaveBeenCalledWith({
-                url: 'chrome-extension://fake-id/options.html#settings',
+            await vi.waitFor(() => {
+                expect(browser.tabs.create).toHaveBeenCalledWith({
+                    url: 'chrome-extension://fake-id/options.html#settings',
+                });
             });
         });
     });
 
     describe('notification click behavior', () => {
         it('should open updates page when notification is clicked', async () => {
-            const _notificationService = new NotificationService();
+            const service = new NotificationService();
+            expect(service).toBeDefined();
 
             // Show a notification first
             const extensionInfo: Management.ExtensionInfo = {
@@ -566,18 +601,21 @@ describe('NotificationService', () => {
             await notificationService.showUpdateNotification(extensionInfo, '1.0.0');
 
             // Get the registered click handler
-            const onClickedHandler = (browser.notifications.onClicked.addListener as any).mock.calls[0][0];
+            const onClickedHandler = browser.notifications.onClicked.addListener.mock.calls[0]?.[0];
+            expect(onClickedHandler).toBeDefined();
 
             // Clear previous calls
-            (browser.tabs.create as any).mockClear();
-            (browser.notifications.clear as any).mockClear();
+            browser.tabs.create.mockClear();
+            browser.notifications.clear.mockClear();
 
             // Trigger notification click
-            await onClickedHandler('extension-update-test-ext');
+            onClickedHandler!('extension-update-test-ext');
 
             // Verify that a new tab was created with updates page
-            expect(browser.tabs.create).toHaveBeenCalledWith({
-                url: 'chrome-extension://fake-id/options.html',
+            await vi.waitFor(() => {
+                expect(browser.tabs.create).toHaveBeenCalledWith({
+                    url: 'chrome-extension://fake-id/options.html',
+                });
             });
 
             // Verify notification was cleared
@@ -589,7 +627,8 @@ describe('NotificationService', () => {
                 markUpdateAsRead: vi.fn(),
             };
 
-            const notificationServiceWithStorage = new NotificationService(mockStorage as any);
+            const storage = mockStorage as unknown as ExtensionsUpdateStorage;
+            const notificationServiceWithStorage = new NotificationService(storage);
 
             // Show a notification first
             const extensionInfo: Management.ExtensionInfo = {
@@ -603,19 +642,23 @@ describe('NotificationService', () => {
 
             // Get the registered click handler from this specific service instance
             // Since we created a new service, it will have registered its own handler
-            const handlers = (browser.notifications.onClicked.addListener as any).mock.calls;
+            const handlers = browser.notifications.onClicked.addListener.mock.calls;
             const lastHandlerCall = handlers[handlers.length - 1];
-            const onClickedHandler = lastHandlerCall[0];
+            expect(lastHandlerCall).toBeDefined();
+            const onClickedHandler = lastHandlerCall![0];
 
             // Trigger notification click
-            await onClickedHandler('extension-update-test-ext-read');
+            onClickedHandler('extension-update-test-ext-read');
 
             // Verify that markUpdateAsRead was called
-            expect(mockStorage.markUpdateAsRead).toHaveBeenCalledWith('test-ext-read', '2.0.0');
+            await vi.waitFor(() => {
+                expect(mockStorage.markUpdateAsRead).toHaveBeenCalledWith('test-ext-read', '2.0.0');
+            });
         });
 
         it('should not fail if storage is not provided when notification is clicked', async () => {
-            const _notificationServiceNoStorage = new NotificationService();
+            const serviceWithoutStorage = new NotificationService();
+            expect(serviceWithoutStorage).toBeDefined();
 
             // Show a notification first
             const extensionInfo: Management.ExtensionInfo = {
@@ -628,17 +671,20 @@ describe('NotificationService', () => {
             await notificationService.showUpdateNotification(extensionInfo, '1.0.0');
 
             // Get the registered click handler
-            const onClickedHandler = (browser.notifications.onClicked.addListener as any).mock.calls[0][0];
+            const onClickedHandler = browser.notifications.onClicked.addListener.mock.calls[0]?.[0];
+            expect(onClickedHandler).toBeDefined();
 
             // Clear previous calls
-            (browser.tabs.create as any).mockClear();
+            browser.tabs.create.mockClear();
 
             // Trigger notification click - should not throw
-            await expect(onClickedHandler('extension-update-test-ext-no-storage')).resolves.not.toThrow();
+            expect(() => onClickedHandler!('extension-update-test-ext-no-storage')).not.toThrow();
 
             // Should still open the updates page
-            expect(browser.tabs.create).toHaveBeenCalledWith({
-                url: 'chrome-extension://fake-id/options.html',
+            await vi.waitFor(() => {
+                expect(browser.tabs.create).toHaveBeenCalledWith({
+                    url: 'chrome-extension://fake-id/options.html',
+                });
             });
         });
     });

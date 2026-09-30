@@ -1,3 +1,7 @@
+/**
+ * @file Background script entry point: wires up the services and starts them.
+ */
+
 import { MessageDispatcherService } from '../common/messaging/message-handler';
 import { Logger } from '../common/utils/logger';
 
@@ -30,11 +34,20 @@ const rpcHandlers = new RpcHandlers(
     settingsStorage,
 );
 
+/**
+ * Loads persisted settings and extension data.
+ *
+ * @returns Promise that resolves once settings and extension data have loaded.
+ */
 const loadStorage = async () => {
     await settingsStorage.load();
     await extensionsUpdateStorage.init();
 };
 
+/**
+ * Entry point called once on background script startup: registers all listeners
+ * synchronously and starts loading storage without blocking the caller.
+ */
 const init = () => {
     messageDispatcher.init();
     rpcHandlers.init();

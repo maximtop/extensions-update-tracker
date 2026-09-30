@@ -6,6 +6,33 @@ import {
     beforeEach,
 } from 'vitest';
 
+import { BadgeService } from '../../../src/background/badge-service';
+import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
+import { RpcHandlers } from '../../../src/background/message-handlers';
+import { MessageDispatcherService } from '../../../src/common/messaging/message-handler';
+import { MessageType } from '../../../src/common/messaging/message-types';
+
+import type { ManagementAdapter } from '../../../src/background/management-adapter';
+import type { SettingsStorage } from '../../../src/background/settings-storage';
+import type { StorageAdapter } from '../../../src/background/storage-adapter';
+import type { MessageHandler } from '../../../src/common/messaging/message-handler';
+
+// Test-only shape exposing the private `handlers` map so tests can invoke
+// registered handlers directly, bypassing the runtime message listener.
+interface MessageDispatcherWithHandlers {
+    handlers: Map<MessageType, MessageHandler>;
+}
+
+// Shape returned by the GetUpdates handler
+type GetUpdatesResult = Record<string, {
+    currentVersion: string;
+    updateHistory: {
+        version: string;
+        detectedTimestampMs: number;
+        isRead?: boolean;
+    }[];
+}>;
+
 // Mock webextension-polyfill before any imports
 vi.mock('webextension-polyfill', () => ({
     default: {
@@ -22,28 +49,14 @@ vi.mock('webextension-polyfill', () => ({
     },
 }));
 
-// Import modules after mocks are set up
-// eslint-disable-next-line import/first, import/order
-import { MessageDispatcherService } from '../../../src/common/messaging/message-handler';
-// eslint-disable-next-line import/first, import/order
-import { MessageType } from '../../../src/common/messaging/message-types';
-// eslint-disable-next-line import/first, import/order
-import { BadgeService } from '../../../src/background/badge-service';
-// eslint-disable-next-line import/first, import/order
-import { ExtensionsUpdateStorage } from '../../../src/background/extensions-update-storage';
-// eslint-disable-next-line import/first, import/order
-import { RpcHandlers } from '../../../src/background/message-handlers';
-// eslint-disable-next-line import/first, import/order
-import { StorageAdapter } from '../../../src/background/storage-adapter';
-
 class InMemoryStorageAdapter implements StorageAdapter {
-    private data: Record<string, any> = {};
+    private data: Record<string, unknown> = {};
 
-    async get(key: string): Promise<any> {
+    async get(key: string): Promise<unknown> {
         return this.data[key] || null;
     }
 
-    async set(key: string, value: any): Promise<void> {
+    async set(key: string, value: unknown): Promise<void> {
         this.data[key] = value;
     }
 }
@@ -54,8 +67,8 @@ describe('RpcHandlers', () => {
     let badgeService: BadgeService;
     let rpcHandlers: RpcHandlers;
     let storageAdapter: InMemoryStorageAdapter;
-    let managementAdapter: any;
-    let settingsStorage: any;
+    let managementAdapter: ManagementAdapter;
+    let settingsStorage: SettingsStorage;
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -68,14 +81,14 @@ describe('RpcHandlers', () => {
         managementAdapter = {
             get: vi.fn(),
             getAll: vi.fn(),
-        };
+        } as unknown as ManagementAdapter;
 
         settingsStorage = {
             get: vi.fn().mockResolvedValue({}),
             update: vi.fn(),
             reset: vi.fn(),
             setExtensionMuted: vi.fn(),
-        };
+        } as unknown as SettingsStorage;
 
         rpcHandlers = new RpcHandlers(
             messageDispatcher,
@@ -111,15 +124,16 @@ describe('RpcHandlers', () => {
             rpcHandlers.init();
 
             // Get the handler directly
-            const handler = (messageDispatcher as any).handlers.get(MessageType.GetUpdates);
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.GetUpdates)!;
 
             // Trigger the handler (simulating message from popup)
-            const result = await handler({ type: MessageType.GetUpdates });
+            const result = await handler({ type: MessageType.GetUpdates }) as GetUpdatesResult;
 
             // Verify that we get the correct data, not empty object
             expect(result).toHaveProperty('test-extension-id');
             expect(result['test-extension-id']).toHaveProperty('currentVersion', '1.0.1');
-            expect(result['test-extension-id'].updateHistory).toHaveLength(2);
+            expect(result['test-extension-id']!.updateHistory).toHaveLength(2);
         });
 
         it('should handle multiple concurrent GetUpdates requests during initialization', async () => {
@@ -140,7 +154,8 @@ describe('RpcHandlers', () => {
             rpcHandlers.init();
 
             // Get the handler directly
-            const handler = (messageDispatcher as any).handlers.get(MessageType.GetUpdates);
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.GetUpdates)!;
 
             // Trigger multiple concurrent requests before init completes
             const request1 = handler({ type: MessageType.GetUpdates });
@@ -176,8 +191,11 @@ describe('RpcHandlers', () => {
             // Initialize handlers
             rpcHandlers.init();
 
+            const refreshSpy = vi.spyOn(badgeService, 'refresh');
+
             // Get the handler directly
-            const handler = (messageDispatcher as any).handlers.get(MessageType.MarkAllAsRead);
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.MarkAllAsRead)!;
 
             // Trigger the handler (this should wait for init internally)
             await handler({ type: MessageType.MarkAllAsRead });
@@ -186,8 +204,9 @@ describe('RpcHandlers', () => {
             const storage = extensionsUpdateStorage.getStorage();
             expect(storage).not.toBeNull();
             if (storage) {
-                expect(storage['test-extension-id'].updateHistory[0].isRead).toBe(true);
+                expect(storage['test-extension-id']!.updateHistory[0]!.isRead).toBe(true);
             }
+            expect(refreshSpy).toHaveBeenCalled();
         });
     });
 
@@ -215,8 +234,11 @@ describe('RpcHandlers', () => {
             // Initialize handlers
             rpcHandlers.init();
 
+            const refreshSpy = vi.spyOn(badgeService, 'refresh');
+
             // Get the handler directly
-            const handler = (messageDispatcher as any).handlers.get(MessageType.MarkUpdateAsRead);
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.MarkUpdateAsRead)!;
 
             // Trigger the handler (this should wait for init internally)
             await handler({
@@ -229,9 +251,97 @@ describe('RpcHandlers', () => {
             const storage = extensionsUpdateStorage.getStorage();
             expect(storage).not.toBeNull();
             if (storage) {
-                const unreadUpdate = storage['test-extension-id'].updateHistory.find((u) => u.version === '1.0.1');
+                const unreadUpdate = storage['test-extension-id']!.updateHistory.find((u) => u.version === '1.0.1');
                 expect(unreadUpdate?.isRead).toBe(true);
             }
+            expect(refreshSpy).toHaveBeenCalled();
+        });
+    });
+
+    describe('MarkUpdatesAsUnread handler', () => {
+        it('should restore the referenced updates to unread and refresh the badge', async () => {
+            await storageAdapter.set(ExtensionsUpdateStorage.EXTENSIONS_UPDATE_STORAGE_KEY, {
+                'test-extension-id': {
+                    currentVersion: '1.0.1',
+                    updateHistory: [
+                        {
+                            version: '1.0.1',
+                            detectedTimestampMs: Date.now(),
+                            isRead: true,
+                        },
+                    ],
+                },
+            });
+
+            rpcHandlers.init();
+
+            const refreshSpy = vi.spyOn(badgeService, 'refresh');
+
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.MarkUpdatesAsUnread)!;
+
+            await handler({
+                type: MessageType.MarkUpdatesAsUnread,
+                items: [{ extensionId: 'test-extension-id', version: '1.0.1' }],
+            });
+
+            const storage = extensionsUpdateStorage.getStorage();
+            expect(storage).not.toBeNull();
+            if (storage) {
+                expect(storage['test-extension-id']!.updateHistory[0]!.isRead).toBe(false);
+            }
+            expect(refreshSpy).toHaveBeenCalled();
+        });
+    });
+
+    describe('GetExtensionsInfo handler', () => {
+        it('should return mapped info for every requested extension', async () => {
+            rpcHandlers.init();
+
+            vi.mocked(managementAdapter.get).mockImplementation(async (id: string) => ({
+                id,
+                name: `Name-${id}`,
+                version: '1.0.0',
+                enabled: true,
+            }) as Awaited<ReturnType<typeof managementAdapter.get>>);
+
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.GetExtensionsInfo)!;
+
+            const result = await handler({
+                type: MessageType.GetExtensionsInfo,
+                extensionIds: ['ext-a', 'ext-b'],
+            }) as Record<string, { id: string; name: string }>;
+
+            expect(result['ext-a']).toEqual(expect.objectContaining({ id: 'ext-a', name: 'Name-ext-a' }));
+            expect(result['ext-b']).toEqual(expect.objectContaining({ id: 'ext-b', name: 'Name-ext-b' }));
+        });
+
+        it('should omit extensions whose lookup fails, without failing the whole request', async () => {
+            rpcHandlers.init();
+
+            vi.mocked(managementAdapter.get).mockImplementation(async (id: string) => {
+                if (id === 'broken-ext') {
+                    throw new Error('Extension not found');
+                }
+                return {
+                    id,
+                    name: `Name-${id}`,
+                    version: '1.0.0',
+                    enabled: true,
+                } as Awaited<ReturnType<typeof managementAdapter.get>>;
+            });
+
+            const handler = (messageDispatcher as unknown as MessageDispatcherWithHandlers)
+                .handlers.get(MessageType.GetExtensionsInfo)!;
+
+            const result = await handler({
+                type: MessageType.GetExtensionsInfo,
+                extensionIds: ['ok-ext', 'broken-ext'],
+            }) as Record<string, { id: string }>;
+
+            expect(result['ok-ext']).toEqual(expect.objectContaining({ id: 'ok-ext' }));
+            expect(result['broken-ext']).toBeUndefined();
         });
     });
 });

@@ -1,13 +1,16 @@
 /**
- * Utility functions for error handling
+ * @file Utility functions for error handling
  */
 
 /**
  * Error with a message.
  */
-type ErrorWithMessage = {
+interface ErrorWithMessage {
+    /**
+     * Human-readable error message.
+     */
     message: string;
-};
+}
 
 /**
  * Checks if error has message.

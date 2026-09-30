@@ -1,7 +1,6 @@
 /**
  * @file Minimal read-only AMO client for duplicate prevention and signed artifact verification.
- * Shared deployment contract for extension repositories; repository specifics live in
- * ./constants.
+ * Repository specifics live in ./constants.
  */
 
 import { createHash, createHmac, randomUUID } from 'node:crypto';
@@ -38,7 +37,7 @@ export const AMO_STATUS = {
 /**
  * Review state and signed artifact fields returned for one AMO file.
  */
-export type AmoFile = {
+export interface AmoFile {
     /**
      * Review state of the file.
      */
@@ -53,17 +52,17 @@ export type AmoFile = {
      * Content hash supplied for the signed file.
      */
     hash?: string;
-};
+}
 
 /**
  * Public version summary embedded in an AMO add-on response.
  */
-export type AmoCurrentVersion = {
+export interface AmoCurrentVersion {
     /**
      * Public version string.
      */
     version: string;
-};
+}
 
 /**
  * Optional disabled state returned under AMO's snake-case API field.
@@ -146,7 +145,10 @@ export const amoToken = (issuer: string, secret: string): string => {
     const now = Math.floor(Date.now() / MILLISECONDS_PER_SECOND);
     const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
     const payload = Buffer.from(JSON.stringify({
-        iss: issuer, jti: randomUUID(), iat: now, exp: now + AMO_JWT_LIFETIME_SECONDS,
+        iss: issuer,
+        jti: randomUUID(),
+        iat: now,
+        exp: now + AMO_JWT_LIFETIME_SECONDS,
     })).toString('base64url');
     const message = `${header}.${payload}`;
     return `${message}.${createHmac('sha256', secret).update(message).digest('base64url')}`;

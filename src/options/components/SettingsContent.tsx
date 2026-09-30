@@ -1,3 +1,7 @@
+/**
+ * @file Settings tab content: notification, security, and reset sections.
+ */
+
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 
@@ -7,18 +11,52 @@ import { useRootStore } from '../stores/root-store';
 
 import { ConfirmDialog } from './ConfirmDialog';
 
+/**
+ * Props for SwitchRow.
+ */
 interface SwitchRowProps {
+    /**
+     * DOM id assigned to the row's button, referenced by its aria attributes.
+     */
     id: string;
+
+    /**
+     * Row heading text.
+     */
     title: string;
+
+    /**
+     * Supporting text shown under the title.
+     */
     description: string;
+
+    /**
+     * Current on/off state of the switch.
+     */
     checked: boolean;
+
+    /**
+     * Whether the switch is non-interactive.
+     */
     disabled: boolean;
+
+    /**
+     * Called when the row is activated to flip the switch.
+     */
     onToggle: () => void;
 }
 
 /**
  * A single settings switch row: whole row is the control, per the design's
  * switch-list pattern (row click, pointer, and keyboard all toggle).
+ *
+ * @param root0 Component props.
+ * @param root0.id DOM id assigned to the row's button, referenced by its aria attributes.
+ * @param root0.title Row heading text.
+ * @param root0.description Supporting text shown under the title.
+ * @param root0.checked Current on/off state of the switch.
+ * @param root0.disabled Whether the switch is non-interactive.
+ * @param root0.onToggle Called when the row is activated to flip the switch.
  */
 function SwitchRow({
     id,
@@ -61,7 +99,7 @@ export const SettingsContent: React.FC = observer(() => {
     };
 
     const handleConfirmReset = () => {
-        settingsStore.resetSettings();
+        void settingsStore.resetSettings();
         setShowResetDialog(false);
     };
 
@@ -82,7 +120,9 @@ export const SettingsContent: React.FC = observer(() => {
                         description={t('options_settings_enable_notifications_desc')}
                         checked={settings.notifications.enabled}
                         disabled={false}
-                        onToggle={() => settingsStore.toggleNotifications()}
+                        onToggle={() => {
+                            void settingsStore.toggleNotifications();
+                        }}
                     />
                     <SwitchRow
                         id="notificationSound"
@@ -90,7 +130,9 @@ export const SettingsContent: React.FC = observer(() => {
                         description={t('options_settings_notification_sound_desc')}
                         checked={settings.notifications.soundEnabled}
                         disabled={!settings.notifications.enabled}
-                        onToggle={() => settingsStore.toggleNotificationSound()}
+                        onToggle={() => {
+                            void settingsStore.toggleNotificationSound();
+                        }}
                     />
                 </div>
             </section>
@@ -106,7 +148,9 @@ export const SettingsContent: React.FC = observer(() => {
                             description={t('options_settings_auto_disable_on_update_desc')}
                             checked={settings.security.autoDisableOnUpdate}
                             disabled={false}
-                            onToggle={() => settingsStore.toggleAutoDisableOnUpdate()}
+                            onToggle={() => {
+                                void settingsStore.toggleAutoDisableOnUpdate();
+                            }}
                         />
                     </div>
                 </section>

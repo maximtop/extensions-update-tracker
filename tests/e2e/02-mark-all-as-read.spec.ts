@@ -1,5 +1,4 @@
 import { test, expect } from './fixtures';
-import { waitForUpdatesToBeTracked } from './helpers';
 
 /**
  * Test 2: Mark all as read functionality
@@ -15,45 +14,33 @@ test.describe('Mark All as Read Functionality', () => {
     test('should mark all updates as read and update UI', async ({ context, extensionId }) => {
         console.log(`Extension ID: ${extensionId}`);
 
-        // Wait longer for the extension to detect and track installed extensions
-        // The background service worker needs time to detect and save extension info
-        await waitForUpdatesToBeTracked(5000);
-
         // Open options page
         const optionsPage = await context.newPage();
         await optionsPage.goto(`chrome-extension://${extensionId}/options.html`);
         await optionsPage.waitForLoadState('networkidle');
 
-        // Wait for content to load and extensions to be tracked
-        await optionsPage.waitForTimeout(3000);
-
-        // Wait for updates to be tracked and displayed
-        const unreadBadge = await optionsPage.getByTestId('unread-updates-count');
-        await expect(unreadBadge).toBeVisible({ timeout: 15000 });
+        // The unread count is rendered as soon as the page loads (it isn't hidden while
+        // zero), so a fixed sleep here can't tell "not tracked yet" apart from "tracked,
+        // still zero". Poll the count itself until the background service worker has
+        // finished detecting and saving both tracked extensions (ours + the sample one).
+        const unreadBadge = optionsPage.getByTestId('unread-updates-count');
+        await expect(async () => {
+            const text = await unreadBadge.textContent();
+            expect(parseInt(text || '0', 10)).toBeGreaterThanOrEqual(2);
+        }).toPass({ timeout: 15000 });
 
         const initialUnreadText = await unreadBadge.textContent();
-        const initialUnreadCount = parseInt(initialUnreadText || '0', 10);
-
-        console.log(`Initial unread count: ${initialUnreadCount}`);
-
-        // Should have at least 2 updates (our extension + sample extension)
-        expect(initialUnreadCount).toBeGreaterThanOrEqual(2);
+        console.log(`Initial unread count: ${initialUnreadText}`);
 
         // Click "Mark All as Read" button
-        const markAllButton = await optionsPage.getByTestId('mark-all-read-button');
+        const markAllButton = optionsPage.getByTestId('mark-all-read-button');
         await expect(markAllButton).toBeVisible();
         await markAllButton.click();
 
-        // Wait for the action to complete
-        await optionsPage.waitForTimeout(2000);
-
-        // Verify the unread count is now 0
-        const updatedUnreadBadge = await optionsPage.getByTestId('unread-updates-count');
-        const updatedUnreadText = await updatedUnreadBadge.textContent();
-        const updatedUnreadCount = parseInt(updatedUnreadText || '0', 10);
-
-        console.log(`Updated unread count: ${updatedUnreadCount}`);
-        expect(updatedUnreadCount).toBe(0);
+        // Verify the unread count reaches 0; toHaveText retries instead of trusting a
+        // fixed delay to have been long enough for the click to be processed.
+        const updatedUnreadBadge = optionsPage.getByTestId('unread-updates-count');
+        await expect(updatedUnreadBadge).toHaveText('0', { timeout: 10000 });
 
         // Verify that items no longer have "New" badges
         const newBadges = await optionsPage.locator('.new-tag').count();

@@ -1,19 +1,21 @@
+/**
+ * @file Updates store: loads extension update history and info from the background page,
+ * and exposes read/write operations on their read status.
+ */
+
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { MessageSender } from '../../common/messaging/message-sender';
-import { UpdateRef } from '../../common/messaging/message-types';
-import { ExtensionInfo, ExtensionUpdate } from '../../common/update-storage';
 import { getErrorMessage } from '../../common/utils/error';
 import { Logger } from '../../common/utils/logger';
 
-interface ExtensionVersionInfo {
-    version: string;
-    detectedTimestampMs: number;
-    isRead?: boolean;
-    previousVersion?: string;
-    infoSnapshot?: any;
-}
+import type { UpdateRef } from '../../common/messaging/message-types';
+import type { ExtensionInfo, ExtensionUpdate } from '../../common/update-storage';
 
+/**
+ * Options page update-tracking state: per-extension update history, extension info, and
+ * their read status.
+ */
 export class UpdatesStore {
     // Observable state
     updates: Map<string, ExtensionUpdate[]> = new Map();
@@ -24,14 +26,20 @@ export class UpdatesStore {
 
     error: string | null = null;
 
+    /**
+     * Makes the store observable and starts the initial updates load.
+     */
     constructor() {
         makeAutoObservable(this);
         // Auto-load on initialization
-        this.loadUpdates();
+        void this.loadUpdates();
     }
 
     /**
      * Load all updates from background page via messaging
+     *
+     * @param showLoadingState Pass false for silent refreshes after user actions, so the
+     * isLoading flag doesn't swap the whole page for the loading skeleton.
      */
     async loadUpdates(showLoadingState = true) {
         if (showLoadingState) {
@@ -53,10 +61,10 @@ export class UpdatesStore {
             const updatesMap = new Map<string, ExtensionUpdate[]>();
 
             for (const [extensionId, data] of Object.entries(storageData)) {
-                const extensionUpdates = data.updateHistory.map((versionInfo: ExtensionVersionInfo, index: number) => {
+                const extensionUpdates = data.updateHistory.map((versionInfo, index) => {
                     // Determine previous version from the history
                     const prevVersion = index > 0
-                        ? data.updateHistory[index - 1].version
+                        ? data.updateHistory[index - 1]?.version
                         : versionInfo.previousVersion;
 
                     const extensionUpdate: ExtensionUpdate = {
@@ -65,7 +73,6 @@ export class UpdatesStore {
                         previousVersion: prevVersion,
                         updateDate: new Date(versionInfo.detectedTimestampMs).toISOString(),
                         isRead: versionInfo.isRead ?? false,
-                        notes: undefined, // Could be added from infoSnapshot if available
                     };
                     return extensionUpdate;
                 });
@@ -94,6 +101,8 @@ export class UpdatesStore {
 
     /**
      * Load extension info for multiple extensions
+     *
+     * @param extensionIds Ids of the extensions to fetch info for.
      */
     private async loadExtensionInfo(extensionIds: string[]) {
         if (extensionIds.length === 0) {
@@ -123,6 +132,8 @@ export class UpdatesStore {
 
     /**
      * Get extension info for a specific extension
+     *
+     * @param extensionId Id of the extension to look up.
      */
     getExtensionInfo(extensionId: string): ExtensionInfo | null {
         return this.extensionInfoMap.get(extensionId) ?? null;
@@ -137,6 +148,8 @@ export class UpdatesStore {
 
     /**
      * Get updates for a specific extension
+     *
+     * @param extensionId Id of the extension to look up.
      */
     getUpdatesForExtension(extensionId: string): ExtensionUpdate[] {
         return this.updates.get(extensionId) || [];
@@ -194,6 +207,9 @@ export class UpdatesStore {
 
     /**
      * Mark a single update as read via background page messaging
+     *
+     * @param extensionId Id of the extension the update belongs to.
+     * @param version Version string of the update to mark as read.
      */
     async markUpdateAsRead(extensionId: string, version: string) {
         try {
@@ -206,6 +222,8 @@ export class UpdatesStore {
 
     /**
      * Restore a set of updates to unread (undo of mark-all-as-read)
+     *
+     * @param items References to the updates to restore to unread.
      */
     async markUpdatesAsUnread(items: UpdateRef[]) {
         if (items.length === 0) {

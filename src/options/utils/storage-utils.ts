@@ -1,14 +1,26 @@
 /**
- * Local storage utilities for options page preferences
+ * @file Local storage utilities for options page preferences
  */
 
 export const SORT_ORDER_ALPHABETICAL = 'alphabetical' as const;
 export const SORT_ORDER_RECENT = 'recent' as const;
 
+/**
+ * Ordering applied to the extension list on the Updates tab.
+ */
 export type SortOrder = typeof SORT_ORDER_ALPHABETICAL | typeof SORT_ORDER_RECENT;
 
 const SORT_ORDER_STORAGE_KEY = 'options-page-sort-order';
 const DEFAULT_SORT_ORDER: SortOrder = SORT_ORDER_RECENT;
+
+/**
+ * Type guard to check if a value is a valid SortOrder
+ *
+ * @param value - Value read back from localStorage.
+ */
+function isSortOrder(value: unknown): value is SortOrder {
+    return value === SORT_ORDER_ALPHABETICAL || value === SORT_ORDER_RECENT;
+}
 
 /**
  * Get sort order preference from localStorage
@@ -16,20 +28,13 @@ const DEFAULT_SORT_ORDER: SortOrder = SORT_ORDER_RECENT;
  *
  * @returns The stored sort order or default
  */
-/**
- * Type guard to check if a value is a valid SortOrder
- */
-function isSortOrder(value: unknown): value is SortOrder {
-    return value === SORT_ORDER_ALPHABETICAL || value === SORT_ORDER_RECENT;
-}
-
 export function getSortOrderFromStorage(): SortOrder {
     try {
         const stored = localStorage.getItem(SORT_ORDER_STORAGE_KEY);
         if (isSortOrder(stored)) {
             return stored;
         }
-    } catch (error) {
+    } catch {
         // Ignore localStorage errors (e.g., when disabled in browser settings)
     }
     return DEFAULT_SORT_ORDER;
@@ -43,7 +48,7 @@ export function getSortOrderFromStorage(): SortOrder {
 export function saveSortOrderToStorage(sortOrder: SortOrder): void {
     try {
         localStorage.setItem(SORT_ORDER_STORAGE_KEY, sortOrder);
-    } catch (error) {
+    } catch {
         // Ignore localStorage errors (e.g., when disabled or quota exceeded)
     }
 }

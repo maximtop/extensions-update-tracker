@@ -1,9 +1,8 @@
 # Releasing
 
-Extensions Update Tracker follows the same three-store release and deployment
-contract as the other extensions. The cross-repository contract and extraction
-boundary are documented in
-[Shared store deployment](STORE_DEPLOYMENT.md).
+Extensions Update Tracker is released to Chrome, Edge, and Firefox. The
+release contract and the deployment files are documented in
+[Store deployment](STORE_DEPLOYMENT.md).
 
 ## Cut a release
 
@@ -29,7 +28,6 @@ the PR workflow. See [GitHub workflow triggers](https://docs.github.com/en/actio
 
 The release workflow reuses
 the same CI workflow and publishes its verified artifacts without rebuilding.
-For Kode Injector, publication also waits for the signed native helpers.
 
 The manual version-and-tag fallback remains available:
 
@@ -60,7 +58,7 @@ publish action after approval remains in the Chrome Developer Dashboard.
 The public store IDs are in `.env.example`; `1password.env.example` contains
 references to the shared credential items. GitHub Actions uses the variables
 and secrets listed in
-[Shared store deployment](STORE_DEPLOYMENT.md#github-configuration).
+[Store deployment](STORE_DEPLOYMENT.md#github-configuration).
 
 The old Chrome-only release-event workflow is no longer used. Release creation
 and store submission are separate, and all three stores consume the same

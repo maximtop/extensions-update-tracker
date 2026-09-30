@@ -4,7 +4,7 @@ import { init } from '../../../src/background/background';
 
 import type { Management, Notifications } from 'webextension-polyfill';
 
-type ManagementListener = (info: Management.ExtensionInfo) => void | Promise<void>;
+type ManagementListener = (info: Management.ExtensionInfo) => void;
 
 const runtime = vi.hoisted(() => {
     // Reload the background's dependencies with this runtime rather than the shared setup's browser mock.
@@ -33,11 +33,11 @@ const runtime = vi.hoisted(() => {
             },
         },
     };
-    let releaseStorage: () => void;
+    let releaseStorage!: () => void;
     const storageReady = new Promise<void>((resolve) => {
         releaseStorage = resolve;
     });
-    let releaseSnapshot: (extensions: Management.ExtensionInfo[]) => void;
+    let releaseSnapshot!: (extensions: Management.ExtensionInfo[]) => void;
     const installedSnapshot = new Promise<Management.ExtensionInfo[]>((resolve) => {
         releaseSnapshot = resolve;
     });
@@ -126,14 +126,13 @@ it('handles persisted lifecycle events while startup storage and reconciliation 
     await vi.waitFor(() => expect(runtime.browser.management.getAll).toHaveBeenCalled());
 
     const updated = { ...runtime.fixture, version: '1.0.7' };
-    const updateHandled = Promise.all(installed.map((listener) => listener(updated)));
+    installed.forEach((listener) => listener(updated));
     // The browser's startup snapshot predates an update delivered while that snapshot is loading.
     await new Promise<void>((resolve) => {
         setTimeout(resolve, 0);
     });
     expect(runtime.browser.notifications.create).not.toHaveBeenCalled();
     runtime.releaseSnapshot([runtime.fixture]);
-    await updateHandled;
 
     await vi.waitFor(() => {
         expect(runtime.data['extensions-update-storage']).toEqual({
@@ -152,11 +151,15 @@ it('handles persisted lifecycle events while startup storage and reconciliation 
         expect.objectContaining({ message: 'Update fixture updated from 1.0.6 to 1.0.7' }),
     );
 
-    await Promise.all(disabled.map((listener) => listener({ ...updated, enabled: false })));
-    expect(runtime.browser.notifications.clear).toHaveBeenCalledWith(`extension-update-${updated.id}`);
-    expect(runtime.browser.notifications.create).toHaveBeenCalledTimes(2);
+    disabled.forEach((listener) => listener({ ...updated, enabled: false }));
+    await vi.waitFor(() => {
+        expect(runtime.browser.notifications.clear).toHaveBeenCalledWith(`extension-update-${updated.id}`);
+        expect(runtime.browser.notifications.create).toHaveBeenCalledTimes(2);
+    });
 
-    await Promise.all(uninstalled.map((listener) => listener(updated)));
-    expect(runtime.data['extensions-update-storage']).toEqual({});
-    expect(runtime.browser.action.setBadgeText).toHaveBeenLastCalledWith({ text: '' });
+    uninstalled.forEach((listener) => listener(updated));
+    await vi.waitFor(() => {
+        expect(runtime.data['extensions-update-storage']).toEqual({});
+        expect(runtime.browser.action.setBadgeText).toHaveBeenLastCalledWith({ text: '' });
+    });
 });

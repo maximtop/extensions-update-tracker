@@ -1,5 +1,5 @@
 /**
- * Centralized logging utility with configurable log levels
+ * @file Centralized logging utility with configurable log levels
  *
  * Provides a consistent interface for logging throughout the extension
  * with built-in log level filtering to control verbosity in production.
@@ -25,7 +25,7 @@ export const enum LogLevelNumeric {
     Warn,
     Info,
     Debug,
-    Verbose
+    Verbose,
 }
 
 /**
@@ -39,23 +39,27 @@ export enum LogLevel {
      * For errors.
      */
     Error = 'error',
+
     /**
      * For not critical errors.
      */
     Warn = 'warn',
+
     /**
      * For important information.
      * Use for general operational messages.
      */
     Info = 'info',
+
     /**
      * For debugging purposes, e.g. Inside conditions, loops or some edge cases.
      */
     Debug = 'debug',
+
     /**
      * For ultra-detailed, step-by-step traces (like stack traces or flow tracking).
      */
-    Verbose = 'verbose'
+    Verbose = 'verbose',
 }
 
 /**
@@ -77,7 +81,7 @@ const levelMapStringToNum: Record<string, LogLevelNumeric> = Object.entries(leve
     .reduce((acc, [key, value]) => {
         // Here, key is originally a string since Object.entries() returns [string, string][].
         // We need to cast the key to LogLevelNumeric correctly without causing type mismatches.
-        const numericKey = Number(key) as LogLevelNumeric;
+        const numericKey = Number(key);
         if (!Number.isNaN(numericKey)) {
             acc[value] = numericKey;
         }
@@ -93,15 +97,15 @@ export enum LogMethod {
     Warn = 'warn',
     Info = 'info',
     Debug = 'debug',
-    Trace = 'trace'
+    Trace = 'trace',
 }
 
 /**
  * Writer method.
  *
- * @param {...any} args Arguments list to log.
+ * @param args Arguments list to log.
  */
-export type WriterMethod = (...args: any[]) => void;
+export type WriterMethod = (...args: unknown[]) => void;
 
 /**
  * Writer interface.
@@ -111,26 +115,32 @@ export interface Writer {
      * Error method.
      */
     error: WriterMethod;
+
     /**
      * Warn method.
      */
     warn: WriterMethod;
+
     /**
      * Info method.
      */
     info: WriterMethod;
+
     /**
      * Debug method.
      */
     debug: WriterMethod;
+
     /**
      * Trace method.
      */
     trace: WriterMethod;
+
     /**
      * Group collapsed method.
      */
     groupCollapsed?: WriterMethod;
+
     /**
      * Group end method.
      */
@@ -228,7 +238,7 @@ export class LoggerClass {
     public set currentLevel(logLevel: LogLevel) {
         const level = levelMapStringToNum[logLevel];
         if (level === undefined) {
-            throw new Error(`Logger supports only the following levels: ${[Object.values(LogLevel).join(', ')]}`);
+            throw new Error(`Logger supports only the following levels: ${Object.values(LogLevel).join(', ')}`);
         }
         this.currentLevelValue = level;
     }
@@ -256,7 +266,7 @@ export class LoggerClass {
      */
     private printWithStackTrace(
         formattedTime: string,
-        formattedArgs: any[],
+        formattedArgs: string[],
     ): void {
         // If grouping is not supported, print just expanded trace, but this
         // leads to a lot of dirty logs in the console, since the stack trace
@@ -284,7 +294,7 @@ export class LoggerClass {
     private print(
         level: LogLevelNumeric,
         method: LogMethod,
-        args: any[],
+        args: unknown[],
     ): void {
         // Skip writing if the basic conditions are not met.
         if (this.currentLevelValue < level) {
@@ -301,11 +311,10 @@ export class LoggerClass {
                 return LoggerClass.errorToString(value);
             }
 
-            if (value && typeof value.message === 'string') {
-                return value.message;
-            }
-
             if (typeof value === 'object' && value !== null) {
+                if ('message' in value && typeof value.message === 'string') {
+                    return value.message;
+                }
                 return JSON.stringify(value);
             }
 
@@ -323,7 +332,7 @@ export class LoggerClass {
          * stack trace.
          */
         if (
-            this.currentLevelValue >= levelMapStringToNum[LogLevel.Debug]
+            this.currentLevelValue >= LogLevelNumeric.Debug
             && method !== LogMethod.Error
         ) {
             this.printWithStackTrace(formattedTime, formattedArgs);

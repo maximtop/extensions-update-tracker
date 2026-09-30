@@ -1,7 +1,6 @@
 /**
  * @file Read-only Firefox deployment preflight and post-submit/status reporting.
- * Shared deployment contract for extension repositories; repository specifics live in
- * ./constants.
+ * Repository specifics live in ./constants.
  */
 
 import {

@@ -1,3 +1,7 @@
+/**
+ * @file Message and payload types exchanged between UI pages and the background script.
+ */
+
 import type { UserSettings } from '../types/settings-types';
 
 /**
@@ -74,7 +78,7 @@ export enum MessageType {
      * Request to set the last checked timestamp
      * Used by popup to update when updates were last checked
      */
-    SetLastCheckedTimestamp = 'SetLastCheckedTimestamp'
+    SetLastCheckedTimestamp = 'SetLastCheckedTimestamp',
 
 }
 
@@ -82,6 +86,9 @@ export enum MessageType {
  * Base interface for all messages
  */
 export interface BaseMessage {
+    /**
+     * Discriminant identifying which message shape this is.
+     */
     type: MessageType;
 }
 
@@ -89,6 +96,9 @@ export interface BaseMessage {
  * Message sent when updates page is opened
  */
 export interface UpdatesPageOpenedMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.UpdatesPageOpened;
 }
 
@@ -96,6 +106,9 @@ export interface UpdatesPageOpenedMessage extends BaseMessage {
  * Message sent to mark all updates as read
  */
 export interface MarkAllAsReadMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.MarkAllAsRead;
 }
 
@@ -103,6 +116,9 @@ export interface MarkAllAsReadMessage extends BaseMessage {
  * Message sent to request all extension updates
  */
 export interface GetUpdatesMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.GetUpdates;
 }
 
@@ -110,7 +126,14 @@ export interface GetUpdatesMessage extends BaseMessage {
  * Message sent to request multiple extensions info
  */
 export interface GetExtensionsInfoMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.GetExtensionsInfo;
+
+    /**
+     * IDs of the extensions to fetch info for.
+     */
     extensionIds: string[];
 }
 
@@ -118,16 +141,34 @@ export interface GetExtensionsInfoMessage extends BaseMessage {
  * Message sent to mark a specific update as read
  */
 export interface MarkUpdateAsReadMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.MarkUpdateAsRead;
+
+    /**
+     * ID of the extension whose update is being marked as read.
+     */
     extensionId: string;
-    version?: string;
+
+    /**
+     * Version being marked as read; undefined marks the latest known version.
+     */
+    version?: string | undefined;
 }
 
 /**
  * A single update reference used when restoring unread state
  */
 export interface UpdateRef {
+    /**
+     * ID of the extension the update belongs to.
+     */
     extensionId: string;
+
+    /**
+     * Version of the referenced update.
+     */
     version: string;
 }
 
@@ -135,7 +176,14 @@ export interface UpdateRef {
  * Message sent to mark a set of updates as unread (undo of mark-all-as-read)
  */
 export interface MarkUpdatesAsUnreadMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.MarkUpdatesAsUnread;
+
+    /**
+     * Updates to restore to the unread state.
+     */
     items: UpdateRef[];
 }
 
@@ -143,6 +191,9 @@ export interface MarkUpdatesAsUnreadMessage extends BaseMessage {
  * Message sent to request current settings
  */
 export interface GetSettingsMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.GetSettings;
 }
 
@@ -150,7 +201,14 @@ export interface GetSettingsMessage extends BaseMessage {
  * Message sent to update settings
  */
 export interface UpdateSettingsMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.UpdateSettings;
+
+    /**
+     * Partial settings to merge into the current user settings.
+     */
     settings: Partial<UserSettings>;
 }
 
@@ -158,6 +216,9 @@ export interface UpdateSettingsMessage extends BaseMessage {
  * Message sent to reset settings to defaults
  */
 export interface ResetSettingsMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.ResetSettings;
 }
 
@@ -165,8 +226,19 @@ export interface ResetSettingsMessage extends BaseMessage {
  * Message sent to mute/unmute extension notifications
  */
 export interface SetExtensionMutedMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.SetExtensionMuted;
+
+    /**
+     * ID of the extension whose mute status is being changed.
+     */
     extensionId: string;
+
+    /**
+     * New mute status to apply.
+     */
     muted: boolean;
 }
 
@@ -174,6 +246,9 @@ export interface SetExtensionMutedMessage extends BaseMessage {
  * Message sent to request last checked timestamp
  */
 export interface GetLastCheckedTimestampMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.GetLastCheckedTimestamp;
 }
 
@@ -181,15 +256,21 @@ export interface GetLastCheckedTimestampMessage extends BaseMessage {
  * Message sent to set last checked timestamp
  */
 export interface SetLastCheckedTimestampMessage extends BaseMessage {
+    /**
+     * Discriminant for this message.
+     */
     type: MessageType.SetLastCheckedTimestamp;
+
+    /**
+     * New last-checked timestamp, in milliseconds since the epoch.
+     */
     timestamp: number;
 }
 
 /**
  * Union type of all possible messages
  */
-export type Message =
-    | UpdatesPageOpenedMessage
+export type Message = | UpdatesPageOpenedMessage
     | MarkAllAsReadMessage
     | GetUpdatesMessage
     | GetExtensionsInfoMessage

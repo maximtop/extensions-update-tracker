@@ -1,13 +1,37 @@
-/* eslint-disable no-console */
+/**
+ * @file Runs an Rspack build, either once or in watch mode.
+ */
+
 import { type Configuration, rspack, type Stats } from '@rspack/core';
 
-type Options = {
-    watch: boolean,
-    cache: boolean,
-};
+/**
+ * Controls how {@link bundleRunner} runs the compiler.
+ */
+interface Options {
+    /**
+     * Whether to keep the compiler running and rebuild on file changes.
+     */
+    watch: boolean;
 
+    /**
+     * Whether to reuse the Rspack persistent cache between runs.
+     */
+    cache: boolean;
+}
+
+/**
+ * Node-style callback invoked once a compiler run (or watch iteration) finishes.
+ */
 type RunCallback = (err: Error | null, stats: Stats | undefined) => void;
 
+/**
+ * Runs an Rspack compiler for the given configuration, logging the result to the console.
+ *
+ * @param rspackConfig Rspack configuration to compile.
+ * @param options Run mode and cache settings.
+ *
+ * @throws When the compiler reports an error, or when the build completes with compilation errors.
+ */
 export const bundleRunner = async (rspackConfig: Configuration, options: Options): Promise<void> => {
     const { watch, cache } = options;
 

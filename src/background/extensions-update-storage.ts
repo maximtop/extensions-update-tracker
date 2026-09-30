@@ -1,9 +1,12 @@
+/**
+ * @file Persistent storage of extension update history and metadata, with schema validation.
+ */
+
 import * as v from 'valibot';
 
 import { Logger } from '../common/utils/logger';
 
-import { StorageAdapter } from './storage-adapter';
-
+import type { StorageAdapter } from './storage-adapter';
 import type { Management } from 'webextension-polyfill';
 
 /**
@@ -243,6 +246,7 @@ export class ExtensionsUpdateStorage {
      * MAX_HISTORY_ENTRIES.
      *
      * @param info - Complete extension information from the browser's management API
+     *
      * @returns Promise that resolves when the save operation completes
      *
      * @example
@@ -274,6 +278,7 @@ export class ExtensionsUpdateStorage {
      * Trims history to MAX_HISTORY_ENTRIES and updates both persistent storage and cache.
      *
      * @param info - Complete extension information from the browser's management API
+     *
      * @private
      */
     private async performSave(info: Management.ExtensionInfo) {
@@ -373,6 +378,7 @@ export class ExtensionsUpdateStorage {
      * is queued to ensure thread-safe sequential execution.
      *
      * @param extensionId - Unique identifier of the extension to remove
+     *
      * @returns Promise that resolves when the removal completes
      *
      * @example
@@ -400,6 +406,7 @@ export class ExtensionsUpdateStorage {
      * if the extension has no stored data.
      *
      * @param extensionId - Unique identifier of the extension to remove
+     *
      * @private
      */
     private async performRemove(extensionId: string): Promise<void> {
@@ -439,6 +446,7 @@ export class ExtensionsUpdateStorage {
      *
      * @param extensionId - Unique identifier of the extension
      * @param version - Specific version to mark as read (optional, defaults to latest)
+     *
      * @returns Promise that resolves when the mark operation completes
      *
      * @example
@@ -470,6 +478,7 @@ export class ExtensionsUpdateStorage {
      *
      * @param extensionId - Unique identifier of the extension
      * @param version - Specific version to mark as read (optional, defaults to latest)
+     *
      * @private
      */
     private async performMarkAsRead(extensionId: string, version?: string): Promise<void> {
@@ -495,7 +504,7 @@ export class ExtensionsUpdateStorage {
             // Find and mark specific version
             for (let i = extensionData.updateHistory.length - 1; i >= 0; i -= 1) {
                 const entry = extensionData.updateHistory[i];
-                if (entry.version === version && !entry.isRead) {
+                if (entry?.version === version && !entry.isRead) {
                     const updatedEntry: ExtensionVersionInfo = {
                         ...entry,
                         isRead: true,
@@ -583,8 +592,7 @@ export class ExtensionsUpdateStorage {
 
         // Iterate through all extensions and mark all updates as read
         for (const extensionData of Object.values(currentStorage)) {
-            for (let i = 0; i < extensionData.updateHistory.length; i += 1) {
-                const entry = extensionData.updateHistory[i];
+            for (const [i, entry] of extensionData.updateHistory.entries()) {
                 if (!entry.isRead) {
                     const updatedEntry: ExtensionVersionInfo = {
                         ...entry,
@@ -617,6 +625,7 @@ export class ExtensionsUpdateStorage {
      * is queued to ensure thread-safe sequential execution.
      *
      * @param items - References to the updates to restore, as extensionId/version pairs
+     *
      * @returns Promise that resolves when the operation completes
      */
     async markUpdatesAsUnread(items: { extensionId: string; version: string }[]): Promise<void> {
@@ -637,6 +646,7 @@ export class ExtensionsUpdateStorage {
      * update entry. Only writes to storage if any changes were actually made.
      *
      * @param items - References to the updates to restore, as extensionId/version pairs
+     *
      * @private
      */
     private async performMarkUpdatesAsUnread(items: { extensionId: string; version: string }[]): Promise<void> {
@@ -654,8 +664,7 @@ export class ExtensionsUpdateStorage {
         for (const { extensionId, version } of items) {
             const extensionData = currentStorage[extensionId];
             if (extensionData) {
-                for (let i = 0; i < extensionData.updateHistory.length; i += 1) {
-                    const entry = extensionData.updateHistory[i];
+                for (const [i, entry] of extensionData.updateHistory.entries()) {
                     if (entry.version === version && entry.isRead) {
                         const updatedEntry: ExtensionVersionInfo = {
                             ...entry,

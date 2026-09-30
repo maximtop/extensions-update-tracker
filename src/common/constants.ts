@@ -1,14 +1,19 @@
 /**
- * Application-wide constants
+ * @file Application-wide constants
  */
 
 /**
  * Default/fallback values for extension data
  */
 export const EXTENSION_DEFAULTS = {
-    /** Fallback name when extension name is not available */
+    /**
+     * Fallback name when extension name is not available
+     */
     UNKNOWN_NAME: 'Unknown Extension',
-    /** Default version string when version is not specified */
+
+    /**
+     * Default version string when version is not specified
+     */
     UNKNOWN_VERSION: '',
 } as const;
 

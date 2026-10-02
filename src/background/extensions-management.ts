@@ -37,6 +37,8 @@ export class ExtensionsManagement {
 
     private badgeService: BadgeService;
 
+    private initialization: Promise<void> = Promise.resolve();
+
     /**
      * Creates an instance of ExtensionsManagement.
      *
@@ -65,15 +67,19 @@ export class ExtensionsManagement {
      * - Extension uninstallations
      * - Extension disable events
      *
-     * Then reconciles currently installed extensions with stored data to detect
-     * any missed updates and clean up orphaned data.
+     * After storage is ready, reconciles currently installed extensions with stored
+     * data. Events received during startup wait for reconciliation to finish so
+     * an older browser snapshot cannot overwrite their changes.
      *
-     * Should be called once during background script initialization, after storage
-     * has been initialized.
+     * Call once, synchronously during background script initialization, so the
+     * browser persists the listeners that wake an idle background page.
+     *
+     * @param storageReady Resolves after settings and update history have loaded.
      *
      * @returns Promise that resolves when initialization is complete
      */
-    async init(): Promise<void> {
+    init(storageReady: Promise<void> = Promise.resolve()): Promise<void> {
+        this.initialization = storageReady.then(() => this.reconcileVersions());
         this.management.onInstalled.addListener((info) => {
             void this.onInstalled(info);
         });
@@ -84,7 +90,7 @@ export class ExtensionsManagement {
             void this.onDisabled(info);
         });
 
-        await this.reconcileVersions();
+        return this.initialization;
     }
 
     /**
@@ -99,7 +105,7 @@ export class ExtensionsManagement {
      * 4. Cleans up invalid notification states
      * 5. Updates the badge to reflect current state
      *
-     * This is called automatically by initAsync() during startup, but can also be
+     * This is called automatically by init() during startup, but can also be
      * called manually if needed (e.g., for manual sync or testing).
      *
      * @returns Promise that resolves when reconciliation is complete
@@ -179,6 +185,7 @@ export class ExtensionsManagement {
      * @param info - Extension information from the browser management API
      */
     onInstalled = async (info: Management.ExtensionInfo) => {
+        await this.initialization;
         const extId = info.id;
         const extName = info.name;
         const currentVersion = info.version;
@@ -257,6 +264,7 @@ export class ExtensionsManagement {
      * @param info - Extension information from the browser management API
      */
     onUninstalled = async (info: Management.ExtensionInfo) => {
+        await this.initialization;
         const extensionId = info.id;
         Logger.info(`Extension uninstalled: ${extensionId}, cleaning up storage...`);
 
@@ -284,6 +292,7 @@ export class ExtensionsManagement {
      * @param info - Extension information from the browser management API
      */
     onDisabled = async (info: Management.ExtensionInfo) => {
+        await this.initialization;
         const extensionId = info.id;
         const extensionName = info.name;
         Logger.info(`Extension disabled: ${extensionName} (${extensionId})`);

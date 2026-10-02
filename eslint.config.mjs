@@ -13,8 +13,9 @@ import tseslint from 'typescript-eslint';
 import local from './eslint.local.mjs';
 
 const TS = ['**/*.{ts,tsx,mts,cts}'];
-const TESTS = ['tests/**/*.{ts,tsx}', '**/*.test.{ts,tsx}'];
-const TOOLING = ['scripts/**', 'tests/**', '*.config.*'];
+// Any depth, so that the packages of a workspace get the same exemptions as a flat repository.
+const TESTS = ['**/tests/**/*.{ts,tsx}', '**/*.test.{ts,tsx}'];
+const TOOLING = ['**/scripts/**', '**/tests/**', '**/*.config.*', 'eslint.local.mjs'];
 
 export default defineConfig([
     globalIgnores([

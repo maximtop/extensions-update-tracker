@@ -7,8 +7,9 @@ content scripts or network requests.
 
 ## Reproduce the package
 
-Use the source archive from the same `v1.3.1` tag as the submitted Firefox ZIP.
-With Node.js 24 and pnpm 10.33.4, run:
+Use the source archive from the same release tag as the submitted Firefox ZIP.
+With Node.js 24 and the pnpm version pinned in `package.json` (11.18.0 for
+1.3.2), run:
 
 ```sh
 pnpm install --frozen-lockfile
@@ -29,10 +30,14 @@ attached for review.
 3. Confirm installed add-ons appear with their current versions.
 4. Install or update another temporary test add-on. Confirm the new version is
    recorded and the unread badge changes.
-5. Open the history, mark the update as read, and test undo, search, sorting and
+5. Close the popup, history and extension debugger. Wait until `about:debugging`
+   shows the background script as Stopped, then update the temporary test add-on
+   again. Confirm the notification and unread badge change before opening history;
+   opening history should then show the new version.
+6. Open the history, mark the update as read, and test undo, search, sorting and
    per-add-on notification muting.
-6. Restart Firefox and confirm the locally stored history and settings remain.
-7. Confirm the extension creates no network requests.
+7. Restart Firefox and confirm the locally stored history and settings remain.
+8. Confirm the extension creates no network requests.
 
 Firefox does not support enabling or disabling ordinary extensions through
 `management.setEnabled`, so the Firefox UI omits the optional Chromium-only

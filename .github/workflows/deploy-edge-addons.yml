@@ -48,7 +48,7 @@ jobs:
       cancel-in-progress: false
     env:
       GH_TOKEN: ${{ github.token }}
-      GO_WEBEXT_VERSION: v0.4.2
+      GO_WEBEXT_VERSION: v0.4.4
       DEPLOY_MODE: ${{ inputs.mode || 'submit' }}
       EDGE_API_VERSION: v1.1
       EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
@@ -108,35 +108,18 @@ jobs:
             | tee "$RUNNER_TEMP/upload-output.txt"
 
       - name: Submit the draft for certification
-        id: submit
         if: env.DEPLOY_MODE == 'submit'
         run: |
           set -euo pipefail
-          PUBLISH_OUTPUT="$RUNNER_TEMP/publish-output.txt"
-          go-webext publish edge -a "$EDGE_PRODUCT_ID" 2>&1 | tee "$PUBLISH_OUTPUT"
-          # go-webext v0.4.2 reads the publish operation once and prints the
-          # response as an unlabeled Go struct, e.g. "&{... InProgress ...}",
-          # so match the status as a whitespace-delimited word. A zero exit
-          # with InProgress means the request was accepted and continues
-          # asynchronously; it is not a certification verdict.
-          if grep -Eq '(^|[[:space:]])Succeeded([[:space:]]|$)' "$PUBLISH_OUTPUT"; then
-            STATUS="Succeeded"
-          elif grep -Eq '(^|[[:space:]])InProgress([[:space:]]|$)' "$PUBLISH_OUTPUT"; then
-            STATUS="InProgress"
-            echo "::notice::The Edge submission was accepted and is still processing."
-          else
-            STATUS="Accepted (immediate status not recognized)"
-            echo "::warning::The Edge submission was accepted, but its immediate" \
-              "operation status was not recognized."
-          fi
-          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          # go-webext polls the publish operation and returns success if it
+          # succeeds or is still pending after the wait. Refusals fail the step.
+          go-webext publish edge -a "$EDGE_PRODUCT_ID"
 
       - name: Report deployment
         if: env.DEPLOY_MODE != 'validate'
         env:
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
           VERSION: ${{ steps.release.outputs.version }}
-          SUBMISSION_STATUS: ${{ steps.submit.outputs.status }}
         run: |
           set -euo pipefail
           {
@@ -145,9 +128,9 @@ jobs:
             echo "- Release: \`$RELEASE_TAG\` (version $VERSION)"
             echo "- Package processing in Partner Center reached \`Succeeded\`"
             if [[ "$DEPLOY_MODE" == "submit" ]]; then
-              echo "- Submission request status: \`$SUBMISSION_STATUS\`"
-              echo "- Certification continues asynchronously (up to seven business days);" \
-                "Microsoft publishes a certified update automatically"
+              echo "- Partner Center accepted the publish request"
+              echo "- After Partner Center creates the submission, Microsoft reviews it" \
+                "and publishes the update if certified"
             else
               echo "- Upload only: finish the draft (privacy, listings, certification notes)" \
                 "and click Publish in Partner Center"

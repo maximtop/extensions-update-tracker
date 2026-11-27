@@ -128,9 +128,9 @@ jobs:
             echo "- Release: \`$RELEASE_TAG\` (version $VERSION)"
             echo "- Package processing in Partner Center reached \`Succeeded\`"
             if [[ "$DEPLOY_MODE" == "submit" ]]; then
-              echo "- Partner Center accepted the submission request"
-              echo "- Certification continues asynchronously (up to seven business days);" \
-                "Microsoft publishes a certified update automatically"
+              echo "- Partner Center accepted the publish request"
+              echo "- After Partner Center creates the submission, Microsoft reviews it" \
+                "and publishes the update if certified"
             else
               echo "- Upload only: finish the draft (privacy, listings, certification notes)" \
                 "and click Publish in Partner Center"

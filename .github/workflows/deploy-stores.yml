@@ -21,6 +21,12 @@ on:
         type: choice
         default: validate
         options: [validate, submit]
+      chrome_publish_policy:
+        description: 'Chrome publishing after approval (applies only to Chrome submissions)'
+        required: false
+        type: choice
+        default: auto
+        options: [auto, staged]
 
 permissions:
   contents: read
@@ -94,6 +100,7 @@ jobs:
     with:
       tag: ${{ needs.release.outputs.tag }}
       mode: submit
+      publish_policy: ${{ inputs.chrome_publish_policy }}
     secrets: inherit
 
   submit-edge:

@@ -52,9 +52,10 @@ Running `release.yml` manually is a dry run. Every store workflow is also
 manual and supports `mode=validate`, which checks the release without sending
 anything to a store. By default, Chrome submissions publish automatically to
 100% after Google approves the review. Set `publish_policy=staged` to publish
-manually in the Chrome Developer Dashboard after approval. A successful
-submission confirms acceptance for review. Verify public availability
-separately.
+manually in the Chrome Developer Dashboard within 30 days of approval. If the
+staged version expires back to draft, run the workflow with the same tag to
+submit it for review again. A successful `submit` reports the state returned by
+the store for this submission. Verify public availability separately.
 
 ## Repository configuration
 

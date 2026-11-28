@@ -149,10 +149,24 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$CHROME_PUBLISH_POLICY" == "staged" ]]; then
-            go-webext publish chrome -a "$CHROME_APP_ID" --staged
+            PUBLISH_OPTIONS=(--staged)
           else
-            go-webext publish chrome -a "$CHROME_APP_ID" --percentage 100
+            PUBLISH_OPTIONS=(--percentage 100)
           fi
+          go-webext publish chrome -a "$CHROME_APP_ID" "${PUBLISH_OPTIONS[@]}" 2>&1 \
+            | tee "$RUNNER_TEMP/publish-output.txt"
+
+          # go-webext v0.4.2 can exit zero for a rejected or cancelled response.
+          PUBLISH_STATE="$(sed -n 's/^State: //p' "$RUNNER_TEMP/publish-output.txt")"
+          case "$CHROME_PUBLISH_POLICY:$PUBLISH_STATE" in
+            auto:PENDING_REVIEW|staged:PENDING_REVIEW|auto:PUBLISHED|staged:STAGED)
+              echo "state=$PUBLISH_STATE" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unexpected Chrome publish state for $CHROME_PUBLISH_POLICY: ${PUBLISH_STATE:-missing}" >&2
+              exit 1
+              ;;
+          esac
 
       - name: Report store status
         if: always() && steps.install.outcome == 'success'
@@ -161,6 +175,7 @@ jobs:
           VERSION: ${{ steps.release.outputs.version }}
           UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
           SUBMIT_OUTCOME: ${{ steps.submit.outcome }}
+          PUBLISH_STATE: ${{ steps.submit.outputs.state }}
         run: |
           set -euo pipefail
           # The summary is written even when the status call fails, which is
@@ -175,13 +190,23 @@ jobs:
             echo
             echo "- Release: \`$RELEASE_TAG\` (version $VERSION)"
             if [[ "$SUBMIT_OUTCOME" == "success" ]]; then
-              if [[ "$CHROME_PUBLISH_POLICY" == "staged" ]]; then
-                echo "- Submitted for review with deferred (staged) publishing"
-                echo "- After approval, publish it in the Developer Dashboard within 30 days"
-              else
-                echo "- Submitted for review with automatic publishing to 100% after Google approval"
-              fi
-              echo "- This submission confirms receipt for review. Public availability is not confirmed."
+              case "$PUBLISH_STATE" in
+                PENDING_REVIEW)
+                  if [[ "$CHROME_PUBLISH_POLICY" == "staged" ]]; then
+                    echo "- Submitted for review with deferred (staged) publishing"
+                    echo "- After approval, publish it in the Developer Dashboard within 30 days"
+                  else
+                    echo "- Submitted for review with automatic publishing to 100% after Google approval"
+                  fi
+                  echo "- Google reports pending review. Public availability is not confirmed."
+                  ;;
+                STAGED)
+                  echo "- Google reports the version is staged. Publish it in the Developer Dashboard within 30 days."
+                  ;;
+                PUBLISHED)
+                  echo "- Google reports the version is published. The request specified a 100% rollout."
+                  ;;
+              esac
             else
               echo "- Upload step \`$UPLOAD_OUTCOME\`, submission step \`$SUBMIT_OUTCOME\`"
               echo "- The review was not confirmed"

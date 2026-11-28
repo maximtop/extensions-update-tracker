@@ -39,8 +39,10 @@ gh workflow run deploy-stores.yml -f target=firefox -f tag=vX.Y.Z -f mode=submit
 
 For Chrome, choose `publish_policy=staged` in **Deploy Chrome Web Store** or
 `chrome_publish_policy=staged` in **Deploy stores** to publish manually in the
-Developer Dashboard after approval. A green Chrome submission confirms
-that the store accepted the request for review. Check the store separately
+Developer Dashboard within 30 days of approval. If the staged version expires
+back to draft, submit the same tag for review again. A successful Chrome
+`submit` reports the state returned by the store for this submission. A
+`validate` run only verifies the release archive. Check the store separately
 for public availability.
 
 Edge publishes a certified submission, and Firefox publishes a reviewed and

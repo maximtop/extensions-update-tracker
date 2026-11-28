@@ -53,7 +53,7 @@ def run_step(step, env, installed: false)
   Open3.capture3(env, 'bash', '-c', step.fetch('run'))
 end
 
-def exercise(job, inputs, expected_flags, reject: false, invalid: false)
+def exercise(job, inputs, expected_flags, state: 'PENDING_REVIEW', reject: false, invalid: nil, expected_exit: 0)
   Dir.mktmpdir('chrome-deploy-test') do |tmp|
     env = job.fetch('env').transform_values { |value| resolve_input(value, inputs) }
     env.merge!(
@@ -65,6 +65,8 @@ def exercise(job, inputs, expected_flags, reject: false, invalid: false)
       'RUNNER_TEMP' => tmp,
       'GITHUB_STEP_SUMMARY' => File.join(tmp, 'summary'),
       'STUB_CALLS' => File.join(tmp, 'calls'),
+      'GITHUB_OUTPUT' => File.join(tmp, 'outputs'),
+      'STUB_PUBLISH_STATE' => state || '',
       'REJECT_SUBMISSION' => reject ? 'yes' : 'no',
       'UPLOAD_OUTCOME' => 'success'
     )
@@ -75,7 +77,10 @@ def exercise(job, inputs, expected_flags, reject: false, invalid: false)
       printf '%s\n' "$*" >> "$STUB_CALLS"
       case "$1" in
         update) printf '%s\n' 'Upload State: SUCCEEDED' 'Version: 1.2.3' ;;
-        publish) [[ "$REJECT_SUBMISSION" != yes ]] || exit 42 ;;
+        publish)
+          if [[ -n "$STUB_PUBLISH_STATE" ]]; then printf 'State: %s\n' "$STUB_PUBLISH_STATE"; fi
+          [[ "$REJECT_SUBMISSION" != yes ]] || exit 42
+          ;;
         status) printf '%s\n' 'Published Version: 1.2.2' ;;
         *) exit 1 ;;
       esac
@@ -85,18 +90,21 @@ def exercise(job, inputs, expected_flags, reject: false, invalid: false)
     steps = job.fetch('steps')
     upload_step = steps.find { |step| step['id'] == 'upload' }
     guard = steps.find { |step| step['id'] == 'check-inputs' }
-    check('Release inputs must be checked before upload', guard && steps.index(guard) < steps.index(upload_step))
-    _, stderr, guard_status = run_step(guard, env)
-    if invalid
-      check('Unexpected policy must fail before upload', !guard_status.success? && stderr.include?('invalid-choice'))
-      check('Unexpected policy must make no CLI calls', !File.exist?(env.fetch('STUB_CALLS')))
-      next
-    end
-    check("Release input check failed: #{stderr}", guard_status.success?)
-
     submit_step = steps.find { |step| step['id'] == 'submit' }
     status_step = steps.find { |step| step['name'] == 'Report store status' }
     validation_step = steps.find { |step| step['name'] == 'Report validation' }
+    ordered_steps = [guard, upload_step, submit_step, status_step]
+    expected_order = steps.select { |step| ordered_steps.include?(step) }
+    check('Check inputs, upload, submit and report in that order', expected_order == ordered_steps)
+    check('Chrome job must fail if submission fails', [job, guard, upload_step, submit_step].none? { |item| item['continue-on-error'] })
+
+    _, stderr, guard_status = run_step(guard, env)
+    if invalid
+      check('Unexpected input must fail before upload', !guard_status.success? && stderr.include?(invalid))
+      check('Unexpected input must make no CLI calls', !File.exist?(env.fetch('STUB_CALLS')))
+      next
+    end
+    check("Release input check failed: #{stderr}", guard_status.success?)
     upload = run_step(upload_step, env)
     submit = run_step(submit_step, env)
 
@@ -110,7 +118,11 @@ def exercise(job, inputs, expected_flags, reject: false, invalid: false)
     end
 
     check('Fixture upload should succeed', upload.last.success?)
-    check('Publish must propagate the CLI result', submit.last.exitstatus == (reject ? 42 : 0))
+    check("Unexpected publish exit for #{state.inspect}: #{submit.last.exitstatus}", submit.last.exitstatus == expected_exit)
+    output = env.fetch('GITHUB_OUTPUT')
+    state_output = File.exist?(output) ? File.readlines(output, chomp: true) : []
+    check('Only an accepted API state may be exposed as success', state_output == (expected_exit.zero? ? ["state=#{state}"] : []))
+    env['PUBLISH_STATE'] = state_output.first.to_s.delete_prefix('state=')
     env['SUBMIT_OUTCOME'] = submit.last.success? ? 'success' : 'failure'
     check('Submission must write a status report', run_step(status_step, env, installed: true).last.success?)
     calls = File.readlines(env.fetch('STUB_CALLS'), chomp: true)
@@ -120,9 +132,13 @@ def exercise(job, inputs, expected_flags, reject: false, invalid: false)
       'status chrome -a test-item'
     ])
     summary = File.read(env.fetch('GITHUB_STEP_SUMMARY'))
-    if reject
+    if !expected_exit.zero?
       check('Rejected submission must be reported as unconfirmed', summary.include?('review was not confirmed'))
       check('Rejected submission must omit the success message', !summary.include?('Submitted for review'))
+    elsif state == 'STAGED'
+      check('Already staged version must report the manual step', summary.include?('version is staged') && summary.include?('Developer Dashboard within 30 days'))
+    elsif state == 'PUBLISHED'
+      check('Published version must report the API result', summary.include?('version is published') && !summary.include?('pending review'))
     else
       check('Accepted submission must report pending public availability', summary.include?('Public availability is not confirmed'))
       if expected_flags == '--staged'
@@ -131,6 +147,50 @@ def exercise(job, inputs, expected_flags, reject: false, invalid: false)
         check('Automatic submission must report the rollout after review', summary.include?('100% after Google approval'))
       end
     end
+  end
+end
+
+# Evaluate only the job conditions exercised here. Bash receives a boolean
+# expression containing digits and operators, never the workflow's raw input.
+def job_enabled?(job, inputs, results, cancelled: false)
+  condition = job.fetch('if').strip.sub(/\A\$\{\{\s*/, '').sub(/\s*\}\}\z/, '')
+  condition = condition.gsub(/inputs\.(\w+) == '([^']+)'/) do
+    inputs.fetch(Regexp.last_match(1)) == Regexp.last_match(2) ? '1' : '0'
+  end
+  condition = condition.gsub(/needs\.([\w-]+)\.result == '([^']+)'/) do
+    results.fetch(Regexp.last_match(1)) == Regexp.last_match(2) ? '1' : '0'
+  end
+  condition = condition.gsub('always()', '1').gsub('cancelled()', cancelled ? '1' : '0')
+  check('Unsupported combined workflow job condition', condition.match?(/\A[01()!&|\s]+\z/))
+  _, stderr, status = Open3.capture3('bash', '-c', "((#{condition}))")
+  check("Invalid combined workflow job condition: #{stderr}", stderr.empty? && [0, 1].include?(status.exitstatus))
+  status.success?
+end
+
+def check_aggregate_jobs(jobs, dispatch)
+  submit = jobs.fetch('submit-chrome')
+  validate = jobs.fetch('validate-chrome')
+  success = 'success'
+  results = { 'release' => success, 'validate-chrome' => success, 'validate-edge' => success, 'validate-firefox' => success }
+  check('Chrome submission must wait for release selection and validation', (results.keys - submit.fetch('needs')).empty?)
+
+  %w[all chrome edge firefox].each do |target|
+    chrome_selected = %w[all chrome].include?(target)
+    validation = input_values(dispatch, 'target' => target)
+    submission = input_values(dispatch, 'target' => target, 'mode' => 'submit')
+    outcomes = results.merge('validate-chrome' => chrome_selected ? success : 'skipped')
+    outcomes['validate-edge'] = 'skipped' unless %w[all edge].include?(target)
+    outcomes['validate-firefox'] = 'skipped' unless %w[all firefox].include?(target)
+
+    check("Wrong Chrome validation selection for target #{target}", job_enabled?(validate, validation, {}) == chrome_selected)
+    check("Validate mode enabled Chrome submission for target #{target}", !job_enabled?(submit, validation, outcomes))
+    check("Wrong Chrome submission selection for target #{target}", job_enabled?(submit, submission, outcomes) == chrome_selected)
+    next unless chrome_selected
+
+    outcomes.select { |_, result| result == success }.each_key do |prerequisite|
+      check("Chrome submission ran after #{prerequisite} failed for #{target}", !job_enabled?(submit, submission, outcomes.merge(prerequisite => 'failure')))
+    end
+    check("Chrome submission ran after cancellation for #{target}", !job_enabled?(submit, submission, outcomes, cancelled: true))
   end
 end
 
@@ -151,16 +211,24 @@ direct = input_values(dispatch)
 exercise(job, direct, '--percentage 100')
 exercise(job, input_values(dispatch, 'publish_policy' => 'staged'), '--staged')
 exercise(job, input_values(dispatch, 'mode' => 'validate'), nil)
-exercise(job, direct, '--percentage 100', reject: true)
+exercise(job, direct, '--percentage 100', reject: true, expected_exit: 42)
+exercise(job, direct, '--percentage 100', state: 'PUBLISHED')
+exercise(job, input_values(dispatch, 'publish_policy' => 'staged'), '--staged', state: 'STAGED')
+['REJECTED', 'CANCELLED', 'PUBLISHED_TO_TESTERS', 'STAGED', 'ITEM_STATE_UNSPECIFIED', 'FUTURE_STATE', nil].each do |state|
+  exercise(job, direct, '--percentage 100', state: state, expected_exit: 1)
+end
+exercise(job, input_values(dispatch, 'publish_policy' => 'staged'), '--staged', state: 'PUBLISHED', expected_exit: 1)
 
 reusable = trigger(chrome, 'workflow_call')
 exercise(job, input_values(reusable, 'mode' => 'submit'), '--percentage 100')
-exercise(job, input_values(reusable, 'mode' => 'submit', 'publish_policy' => 'invalid-choice'), nil, invalid: true)
+exercise(job, input_values(reusable, 'mode' => 'submit', 'publish_policy' => 'invalid-choice'), nil, invalid: 'invalid-choice')
+exercise(job, input_values(reusable, 'mode' => 'invalid-mode'), nil, invalid: 'invalid-mode')
 
 aggregate = workflow('deploy-stores')
 aggregate_dispatch = trigger(aggregate, 'workflow_dispatch')
 aggregate_jobs = aggregate.fetch('jobs')
 check('Combined workflow must default to validation', input_values(aggregate_dispatch).fetch('mode') == 'validate')
+check_aggregate_jobs(aggregate_jobs, aggregate_dispatch)
 
 %w[chrome all].each do |target|
   submit_inputs = { 'target' => target, 'mode' => 'submit' }

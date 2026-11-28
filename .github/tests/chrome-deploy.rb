@@ -47,10 +47,14 @@ def step_enabled?(step, env, installed: false)
   env.fetch(condition[1]) == condition[2]
 end
 
-def run_step(step, env, installed: false)
+def run_step(step, env, installed: false, context: {})
   return unless step_enabled?(step, env, installed: installed)
 
-  Open3.capture3(env, 'bash', '-c', step.fetch('run'))
+  step_env = step.fetch('env', {}).transform_values do |value|
+    reference = /^\$\{\{ (steps\.[\w.-]+) \}\}$/.match(value)
+    reference ? context.fetch(reference[1]) : value
+  end
+  Open3.capture3(env.merge(step_env), 'bash', '-c', step.fetch('run'), unsetenv_others: true)
 end
 
 def exercise(job, inputs, expected_flags, state: 'PENDING_REVIEW', reject: false, invalid: nil, expected_exit: 0)
@@ -59,17 +63,18 @@ def exercise(job, inputs, expected_flags, state: 'PENDING_REVIEW', reject: false
     env.merge!(
       'PATH' => "#{tmp}:#{ENV.fetch('PATH')}",
       'CHROME_APP_ID' => 'test-item',
-      'ASSET' => 'test.zip',
-      'VERSION' => '1.2.3',
-      'RELEASE_TAG' => 'v1.2.3',
       'RUNNER_TEMP' => tmp,
       'GITHUB_STEP_SUMMARY' => File.join(tmp, 'summary'),
       'STUB_CALLS' => File.join(tmp, 'calls'),
       'GITHUB_OUTPUT' => File.join(tmp, 'outputs'),
       'STUB_PUBLISH_STATE' => state || '',
-      'REJECT_SUBMISSION' => reject ? 'yes' : 'no',
-      'UPLOAD_OUTCOME' => 'success'
+      'REJECT_SUBMISSION' => reject ? 'yes' : 'no'
     )
+    context = {
+      'steps.release.outputs.asset' => 'test.zip',
+      'steps.release.outputs.version' => '1.2.3',
+      'steps.release.outputs.tag' => 'v1.2.3'
+    }
     stub = File.join(tmp, 'go-webext')
     File.write(stub, <<~'SH')
       #!/usr/bin/env bash
@@ -93,10 +98,11 @@ def exercise(job, inputs, expected_flags, state: 'PENDING_REVIEW', reject: false
     submit_step = steps.find { |step| step['id'] == 'submit' }
     status_step = steps.find { |step| step['name'] == 'Report store status' }
     validation_step = steps.find { |step| step['name'] == 'Report validation' }
-    ordered_steps = [guard, upload_step, submit_step, status_step]
+    release_step = steps.find { |step| step['id'] == 'release' }
+    ordered_steps = [guard, release_step, upload_step, submit_step, status_step]
     expected_order = steps.select { |step| ordered_steps.include?(step) }
-    check('Check inputs, upload, submit and report in that order', expected_order == ordered_steps)
-    check('Chrome job must fail if submission fails', [job, guard, upload_step, submit_step].none? { |item| item['continue-on-error'] })
+    check('Check inputs, verify the release, upload, submit and report in that order', expected_order == ordered_steps)
+    check('Chrome job must fail if submission fails', [job, guard, release_step, upload_step, submit_step].none? { |item| item['continue-on-error'] })
 
     _, stderr, guard_status = run_step(guard, env)
     if invalid
@@ -105,7 +111,10 @@ def exercise(job, inputs, expected_flags, state: 'PENDING_REVIEW', reject: false
       next
     end
     check("Release input check failed: #{stderr}", guard_status.success?)
-    upload = run_step(upload_step, env)
+    check('Release verification must run in both modes', step_enabled?(release_step, env))
+    fixture_tag = inputs.merge('tag' => 'v1.2.3')
+    check('Release verification must receive the supplied tag', resolve_input(release_step.fetch('env').fetch('INPUT_TAG'), fixture_tag) == 'v1.2.3')
+    upload = run_step(upload_step, env, context: context)
     submit = run_step(submit_step, env)
 
     unless expected_flags
@@ -113,18 +122,21 @@ def exercise(job, inputs, expected_flags, state: 'PENDING_REVIEW', reject: false
       tooling = steps.select { |step| step['id'] == 'install' || step['uses']&.start_with?('actions/setup-go@') }
       check('Validation must guard both Go tooling steps', tooling.length == 2 && tooling.none? { |step| step_enabled?(step, env) })
       check('Validation must skip the status lookup', !step_enabled?(status_step, env))
-      check('Validation must report the result', run_step(validation_step, env).last.success?)
+      check('Validation must report the result', run_step(validation_step, env, context: context).last.success?)
       next
     end
 
+    check('Submit mode must skip the validation summary', !step_enabled?(validation_step, env))
     check('Fixture upload should succeed', upload.last.success?)
     check("Unexpected publish exit for #{state.inspect}: #{submit.last.exitstatus}", submit.last.exitstatus == expected_exit)
     output = env.fetch('GITHUB_OUTPUT')
     state_output = File.exist?(output) ? File.readlines(output, chomp: true) : []
     check('Only an accepted API state may be exposed as success', state_output == (expected_exit.zero? ? ["state=#{state}"] : []))
-    env['PUBLISH_STATE'] = state_output.first.to_s.delete_prefix('state=')
-    env['SUBMIT_OUTCOME'] = submit.last.success? ? 'success' : 'failure'
-    check('Submission must write a status report', run_step(status_step, env, installed: true).last.success?)
+    context['steps.submit.outputs.state'] = state_output.first.to_s.delete_prefix('state=')
+    context['steps.submit.outcome'] = submit.last.success? ? 'success' : 'failure'
+    context['steps.upload.outcome'] = upload.last.success? ? 'success' : 'failure'
+    _, stderr, report_status = run_step(status_step, env, installed: true, context: context)
+    check("Submission must write a status report: #{stderr}", report_status.success?)
     calls = File.readlines(env.fetch('STUB_CALLS'), chomp: true)
     check('Wrong store CLI calls or rollout policy', calls == [
       'update chrome -a test-item -f store-upload/test.zip',
@@ -132,7 +144,9 @@ def exercise(job, inputs, expected_flags, state: 'PENDING_REVIEW', reject: false
       'status chrome -a test-item'
     ])
     summary = File.read(env.fetch('GITHUB_STEP_SUMMARY'))
+    check('Report must identify the submitted release', summary.include?('`v1.2.3` (version 1.2.3)'))
     if !expected_exit.zero?
+      check('Report must show the failed submission step', summary.include?('Upload step `success`, submission step `failure`'))
       check('Rejected submission must be reported as unconfirmed', summary.include?('review was not confirmed'))
       check('Rejected submission must omit the success message', !summary.include?('Submitted for review'))
     elsif state == 'STAGED'
@@ -196,7 +210,11 @@ end
 
 def exercise_caller(caller, inputs, expected_flags)
   called_workflow = workflow(File.basename(caller.fetch('uses'), '.yml'))
-  provided = caller.fetch('with').transform_values { |value| resolve_input(value, inputs) }
+  release_tag = 'v1.2.3'
+  provided = caller.fetch('with').transform_values do |value|
+    value == '${{ needs.release.outputs.tag }}' ? release_tag : resolve_input(value, inputs)
+  end
+  check('The caller must pass the selected release tag to Chrome', provided.fetch('tag') == release_tag)
   exercise(
     called_workflow.fetch('jobs').fetch('deploy'),
     input_values(trigger(called_workflow, 'workflow_call'), provided),

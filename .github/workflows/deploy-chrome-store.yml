@@ -1,10 +1,9 @@
 name: Deploy Chrome Web Store
 
 # Submits the Chrome archive of a published GitHub Release to the Chrome Web
-# Store for review with deferred (staged) publishing. Manual only: run it
-# after the release workflow has published the release. Nothing goes live
-# automatically; after the review is approved, publish the version by hand in
-# the Developer Dashboard within 30 days.
+# Store for review. By default Google publishes to 100% after approval.
+# Use staged publishing to publish by hand after approval. Run this
+# workflow after the GitHub Release has been published.
 #
 # Repository specifics live in scripts/deploy/constants.ts and the repository
 # variables and secrets.
@@ -18,6 +17,11 @@ on:
       mode:
         required: true
         type: string
+      publish_policy:
+        description: 'Chrome publishing after approval (auto or staged)'
+        required: false
+        type: string
+        default: auto
   workflow_dispatch:
     inputs:
       tag:
@@ -32,6 +36,12 @@ on:
         options:
           - submit
           - validate
+      publish_policy:
+        description: 'Chrome publishing after approval (auto or staged)'
+        required: false
+        type: choice
+        default: auto
+        options: [auto, staged]
 
 permissions:
   contents: read
@@ -48,6 +58,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GO_WEBEXT_VERSION: v0.4.2
       DEPLOY_MODE: ${{ inputs.mode || 'submit' }}
+      CHROME_PUBLISH_POLICY: ${{ inputs.publish_policy }}
       CHROME_API_VERSION: v2
       CHROME_APP_ID: ${{ vars.CHROME_APP_ID }}
       CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
@@ -55,6 +66,21 @@ jobs:
       CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
       CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
     steps:
+      - name: Check deployment inputs
+        id: check-inputs
+        run: |
+          set -euo pipefail
+          case "$DEPLOY_MODE" in
+            submit|validate) ;;
+            *) echo "Unsupported deploy mode: $DEPLOY_MODE" >&2; exit 1 ;;
+          esac
+          if [[ "$DEPLOY_MODE" == "submit" ]]; then
+            case "$CHROME_PUBLISH_POLICY" in
+              auto|staged) ;;
+              *) echo "Unsupported Chrome publish policy: $CHROME_PUBLISH_POLICY" >&2; exit 1 ;;
+            esac
+          fi
+
       - name: Check out deployment helpers
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -117,12 +143,16 @@ jobs:
             exit 1
           fi
 
-      - name: Submit for review with deferred publishing
+      - name: Submit for review
         id: submit
         if: env.DEPLOY_MODE == 'submit'
         run: |
           set -euo pipefail
-          go-webext publish chrome -a "$CHROME_APP_ID" --staged 2>&1
+          if [[ "$CHROME_PUBLISH_POLICY" == "staged" ]]; then
+            go-webext publish chrome -a "$CHROME_APP_ID" --staged
+          else
+            go-webext publish chrome -a "$CHROME_APP_ID" --percentage 100
+          fi
 
       - name: Report store status
         if: always() && steps.install.outcome == 'success'
@@ -145,8 +175,13 @@ jobs:
             echo
             echo "- Release: \`$RELEASE_TAG\` (version $VERSION)"
             if [[ "$SUBMIT_OUTCOME" == "success" ]]; then
-              echo "- Submitted for review with deferred (staged) publishing"
-              echo "- After approval, publish it in the Developer Dashboard within 30 days"
+              if [[ "$CHROME_PUBLISH_POLICY" == "staged" ]]; then
+                echo "- Submitted for review with deferred (staged) publishing"
+                echo "- After approval, publish it in the Developer Dashboard within 30 days"
+              else
+                echo "- Submitted for review with automatic publishing to 100% after Google approval"
+              fi
+              echo "- This submission confirms receipt for review. Public availability is not confirmed."
             else
               echo "- Upload step \`$UPLOAD_OUTCOME\`, submission step \`$SUBMIT_OUTCOME\`"
               echo "- The review was not confirmed"

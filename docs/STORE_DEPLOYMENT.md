@@ -33,13 +33,18 @@ gh workflow run deploy-stores.yml -f target=firefox -f tag=vX.Y.Z -f mode=submit
 
 | Store | Modes | External effect |
 | --- | --- | --- |
-| Chrome | `validate`, `submit` | `submit` uploads and requests review with deferred publishing. |
+| Chrome | `validate`, `submit` | `submit` requests review and automatic publishing to 100% after approval by default. |
 | Edge | `validate`, `upload`, `submit` | `upload` fills the draft; `submit` also requests certification. |
 | Firefox | `validate`, `status`, `submit` | `status` reads review state; `submit` uploads package, source, and short reviewer notes that link the full instructions. |
 
-Chrome still needs the final publish action after approval. Edge publishes a
-certified submission, and Firefox publishes a reviewed and signed listed
-version. A successful workflow proves only the action and state reported in its
+For Chrome, choose `publish_policy=staged` in **Deploy Chrome Web Store** or
+`chrome_publish_policy=staged` in **Deploy stores** to publish manually in the
+Developer Dashboard after approval. A green Chrome submission confirms
+that the store accepted the request for review. Check the store separately
+for public availability.
+
+Edge publishes a certified submission, and Firefox publishes a reviewed and
+signed listed version. A successful workflow proves only the action and state reported in its
 job summary.
 
 ## Deployment files

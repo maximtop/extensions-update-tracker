@@ -50,6 +50,8 @@ jobs:
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged && github.event.pull_request.merge_commit_sha || github.sha }}
           persist-credentials: false
       - uses: ./.github/actions/setup-toolchain
+      - name: Test Chrome deployment workflow
+        run: ruby .github/tests/chrome-deploy.rb
       - run: pnpm test
 
   locales:

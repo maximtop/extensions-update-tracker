@@ -50,8 +50,11 @@ The manual version-and-tag fallback remains available:
 
 Running `release.yml` manually is a dry run. Every store workflow is also
 manual and supports `mode=validate`, which checks the release without sending
-anything to a store. Chrome submission uses deferred publishing; the final
-publish action after approval remains in the Chrome Developer Dashboard.
+anything to a store. By default, Chrome submissions publish automatically to
+100% after Google approves the review. Set `publish_policy=staged` to publish
+manually in the Chrome Developer Dashboard after approval. A successful
+submission confirms acceptance for review. Verify public availability
+separately.
 
 ## Repository configuration
 
@@ -113,4 +116,5 @@ gh workflow run deploy-stores.yml -f target=all -f tag=vX.Y.Z -f mode=submit
 ```
 
 The individual store workflows remain available, including Edge upload-only
-and Firefox status. Chrome still requires final publication after approval.
+and Firefox status. To defer Chrome publishing for either the `chrome` or
+`all` target, set `chrome_publish_policy=staged`.
